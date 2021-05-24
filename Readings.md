@@ -8,6 +8,6 @@
 **Emotion, Gender Bias**
 
 (relevant to hate speech in multi-task setup, @ Roy pls review if it's good to have)
-- [SOCIAL BIAS FRAMES: Reasoning about Social and Power Implications of Language] (https://www.aclweb.org/anthology/2020.acl-main.486.pdf) (ACL20)
+- [SOCIAL BIAS FRAMES: Reasoning about Social and Power Implications of Language](https://www.aclweb.org/anthology/2020.acl-main.486.pdf) (ACL20)
 - [XED: A Multilingual Dataset for Sentiment Analysis and Emotion Detection](https://www.aclweb.org/anthology/2020.coling-main.575.pdf) (COLING'20)
 - [Type B Reflexivization as an Unambiguous Testbed for Multilingual Multi-Task Gender Bias](https://www.aclweb.org/anthology/2020.emnlp-main.209.pdf) (EMNLP20)
