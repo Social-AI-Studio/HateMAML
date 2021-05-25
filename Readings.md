@@ -12,3 +12,4 @@
 - [XED: A Multilingual Dataset for Sentiment Analysis and Emotion Detection](https://www.aclweb.org/anthology/2020.coling-main.575.pdf) (COLING'20)
 - [Type B Reflexivization as an Unambiguous Testbed for Multilingual Multi-Task Gender Bias](https://www.aclweb.org/anthology/2020.emnlp-main.209.pdf) (EMNLP20)
 - [Finding Microaggressions in the Wild: A Case for Locating Elusive Phenomena in Social Media Posts](https://www.aclweb.org/anthology/D19-1176.pdf) (ACL19)
+- [Mitigating Gender Bias for Neural Dialogue Generation with Adversarial Learning](https://www.aclweb.org/anthology/2020.emnlp-main.64.pdf) (ACL20)
