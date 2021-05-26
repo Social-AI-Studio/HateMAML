@@ -14,3 +14,4 @@
 - [Finding Microaggressions in the Wild: A Case for Locating Elusive Phenomena in Social Media Posts](https://www.aclweb.org/anthology/D19-1176.pdf) (ACL19)
 - [Mitigating Gender Bias for Neural Dialogue Generation with Adversarial Learning](https://www.aclweb.org/anthology/2020.emnlp-main.64.pdf) (ACL20)
 - [SemEval-2020 Task 12: Multilingual Offensive Language Identification in Social Media (OffensEval 2020)](https://www.aclweb.org/anthology/2020.semeval-1.188.pdf) (Workshop on Semantic Evaluation 20)
+- [MUDES: Multilingual Detection of Offensive Spans](https://arxiv.org/pdf/2102.09665.pdf) (NAACL21)
