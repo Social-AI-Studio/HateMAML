@@ -17,4 +17,4 @@
 - [MUDES: Multilingual Detection of Offensive Spans](https://arxiv.org/pdf/2102.09665.pdf) (NAACL'21)
 - [Multilingual Offensive Language Identification for Low-resource Languages](https://arxiv.org/pdf/2105.05996.pdf) (preprint '21)
 - [Comparative Evaluation of Label-Agnostic Selection Bias in Multilingual Hate Speech Datasets](https://www.aclweb.org/anthology/2020.emnlp-main.199.pdf) (EMNLP'20)
-- [https://competitions.codalab.org/competitions/27653](https://competitions.codalab.org/competitions/27653) (Workshop '21)
+- [Hope Speech Detection for Equality, Diversity, and Inclusion-EACL 2021](https://competitions.codalab.org/competitions/27653) (Workshop '21)
