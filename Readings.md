@@ -15,3 +15,4 @@
 - [Mitigating Gender Bias for Neural Dialogue Generation with Adversarial Learning](https://www.aclweb.org/anthology/2020.emnlp-main.64.pdf) (ACL20)
 - [SemEval-2020 Task 12: Multilingual Offensive Language Identification in Social Media (OffensEval 2020)](https://www.aclweb.org/anthology/2020.semeval-1.188.pdf) (Workshop on Semantic Evaluation 20)
 - [MUDES: Multilingual Detection of Offensive Spans](https://arxiv.org/pdf/2102.09665.pdf) (NAACL21)
+- [Multilingual Offensive Language Identification for Low-resource Languages](https://arxiv.org/pdf/2105.05996.pdf) (preprint 21)
