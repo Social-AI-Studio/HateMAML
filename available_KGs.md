@@ -2,40 +2,34 @@
  
  [Open Multilingual Wordnet](http://compling.hss.ntu.edu.sg/omw/)
 
- *French*
-
+**French**
  * [WOLF](http://compling.hss.ntu.edu.sg/omw/) or [website](http://pauillac.inria.fr/~sagot/index.html#wolf)
  * WoNeF
 
- *Arabic*
+ **Arabic**
+ * [Arabic WordNet](http://compling.hss.ntu.edu.sg/omw/)
 
- *[Arabic WordNet](http://compling.hss.ntu.edu.sg/omw/)
+ **Spanish**
+ * [MultiWordNet](https://multiwordnet.fbk.eu/english/home.php)
+ * [Multilingual Central Repository](https://adimen.si.ehu.es/web/MCR)
 
- *Spanish*
-
- *[MultiWordNet](https://multiwordnet.fbk.eu/english/home.php)
- *[Multilingual Central Repository](https://adimen.si.ehu.es/web/MCR)
-
- *Danish*
-
- *[DanNet](https://cst.ku.dk/english/projects/dannet/)
+ **Danish**
+ * [DanNet](https://cst.ku.dk/english/projects/dannet/)
  
- *Greek*
+ **Greek**
+ * [BlkaNet](http://www.dblab.upatras.gr/balkanet/)
 
- *[BlkaNet](http://www.dblab.upatras.gr/balkanet/)
-
- *Turkish*
-
- *[BlkaNet](http://www.dblab.upatras.gr/balkanet/)
+ **Turkish**
+ * [BlkaNet](http://www.dblab.upatras.gr/balkanet/)
  
- *Bengali*
- *[IndoWordNet](https://www.cfilt.iitb.ac.in/indowordnet/index.jsp)
+ **Bengali**
+ * [IndoWordNet](https://www.cfilt.iitb.ac.in/indowordnet/index.jsp)
 
- *Hindi*
-*[Hindi WordNet](https://www.cfilt.iitb.ac.in/wordnet/webhwn/)
+ **Hindi**
+* [Hindi WordNet](https://www.cfilt.iitb.ac.in/wordnet/webhwn/)
 
-#General
+# General
 
-*[BabelNet](https://babelnet.org/)
-*[The GDELT Project](https://www.gdeltproject.org/)
+* [BabelNet](https://babelnet.org/)
+* [The GDELT Project](https://www.gdeltproject.org/)
 
