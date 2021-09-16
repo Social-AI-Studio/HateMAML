@@ -6,4 +6,7 @@
 
 * [Developing a Multilingual Annotated Corpus of Misogyny and Aggression datasets](https://sites.google.com/view/trac2/shared-task) (English, Bengali and Hindi)
 
-* [XHATE-999](https://github.com/codogogo/xhate)
+* [XHATE-999](https://github.com/codogogo/xhate) Train and Dev data is **only** in English (DE, RU, HR, SQ )
+
+
+
