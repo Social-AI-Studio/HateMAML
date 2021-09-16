@@ -3,8 +3,8 @@ def preprocess_en_text(text):
 
 
 def preprocess_text(text, lang):
-    if lang == 'en':
+    if lang == "en":
         text = preprocess_en_text(text)
     else:
-        raise ValueError(f'Unknown language {lang}')
+        raise ValueError(f"Unknown language {lang}")
     return text

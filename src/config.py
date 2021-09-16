@@ -1,2 +1,2 @@
 class EmptyConfig:
-        pass
+    pass
