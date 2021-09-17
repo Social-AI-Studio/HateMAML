@@ -27,6 +27,7 @@
 
  **Hindi**
 * [Hindi WordNet](https://www.cfilt.iitb.ac.in/wordnet/webhwn/)
+* [pyiwn](https://github.com/riteshpanjwani/pyiwn)
 
 # General
 
