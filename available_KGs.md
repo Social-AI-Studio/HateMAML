@@ -26,8 +26,7 @@
  * [IndoWordNet](https://www.cfilt.iitb.ac.in/indowordnet/index.jsp)
 
  **Hindi**
-* [Hindi WordNet](https://www.cfilt.iitb.ac.in/wordnet/webhwn/)
-* [pyiwn](https://github.com/riteshpanjwani/pyiwn)
+* [Hindi WordNet](https://www.cfilt.iitb.ac.in/wordnet/webhwn/) its [api](https://github.com/riteshpanjwani/pyiwn)
 
 # General
 
