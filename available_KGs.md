@@ -33,4 +33,4 @@
 
 * [BabelNet](https://babelnet.org/)
 * [The GDELT Project](https://www.gdeltproject.org/)
-* Concept Net
+* [Concept Net](https://pypi.org/project/ConceptNet/)
