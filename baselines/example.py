@@ -4,7 +4,7 @@ import sys
 sys.path.append(".")
 
 from src.config import EmptyConfig
-from src.data.load import get_dataloader
+from src.data.load import get_3_splits_dataloaders
 from transformers import AutoTokenizer
 
 if __name__ == "__main__":
@@ -20,7 +20,8 @@ if __name__ == "__main__":
     config.max_seq_len = 32
     config.num_workers = 8
 
-    train_dataloader = get_dataloader(
-        dataset_name="hateval2019", split_name="train", config=config
-    )
-    print(f"successfully initialized dataloader of {len(train_dataloader)} batches")
+    dataloaders = get_3_splits_dataloaders(dataset_name="hateval2019", config=config)
+    for split_name in dataloaders.keys():
+        print(
+            f"successfully initialized {split_name} dataloader of {len(dataloaders[split_name])} batches"
+        )

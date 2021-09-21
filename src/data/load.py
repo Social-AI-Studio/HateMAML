@@ -38,3 +38,16 @@ def get_dataloader(dataset_name, split_name, config):
     )
 
     return dataloader
+
+
+def get_3_splits_dataloaders(dataset_name, config):
+    """
+    give all 3 splits' dataloaders for the `dataset_name` dataset.
+    """
+
+    split_names = ["train", "val", "test"]
+    dataloaders = dict()
+
+    for split_name in split_names:
+        dataloaders[split_name] = get_dataloader(dataset_name, split_name, config)
+    return dataloaders
