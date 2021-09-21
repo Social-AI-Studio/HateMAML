@@ -1,5 +1,6 @@
 import pytorch_lightning as pl
 from sklearn.metrics import f1_score
+import torch
 
 
 class LitClassifier(pl.LightningModule):
@@ -18,19 +19,18 @@ class LitClassifier(pl.LightningModule):
             attention_mask=batch["attention_mask"],
             return_dict=True,
         )
-        logits = self.classifier(out_dict["pooler_output"])
 
-        pred_labels = torch.argmax(logits, dim=1)
+        pred_labels = torch.argmax(out_dict["logits"], dim=1)
         actual_labels = batch["label"]
 
-        loss = self.criterion(logits, actual_labels)
+        loss = self.criterion(out_dict["logits"], actual_labels)
 
         # Logging to TensorBoard by default
         metrics = {}
 
         pred_labels = pred_labels.detach().cpu().numpy()
         actual_labels = actual_labels.detach().cpu().numpy()
-        logits = logits.detach().cpu().numpy()
+        logits = out_dict["logits"].detach().cpu().numpy()
 
         metrics["loss"] = loss
         metrics["acc"] = (pred_labels == actual_labels).sum() / pred_labels.shape[0]

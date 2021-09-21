@@ -1,16 +1,21 @@
-# An example baseline to give an idea how the project is structured.
+import datetime
+import os
 import sys
-import torch
-from pytorch_lightning import loggers as pl_loggers
-import pytorch_lightning as pl
-from src.data.consts import LOG_BASE_DIR
-from src.model.lightning import LitClassifier
 
 sys.path.append(".")
 
+import argparse
+from pytorch_lightning import loggers as pl_loggers
+import pytorch_lightning as pl
+
 from src.config import EmptyConfig
+from src.data.consts import LOG_BASE_DIR
 from src.data.load import get_3_splits_dataloaders
-from transformers import AutoTokenizer, RobertaForSequenceClassification
+from src.model.lightning import LitClassifier
+
+
+import torch
+from transformers import AutoTokenizer, XLMRobertaForSequenceClassification
 
 
 def main(args):
@@ -18,8 +23,9 @@ def main(args):
     config = EmptyConfig()
 
     config.dataset_type = "bert"
-    config.tokenizer = AutoTokenizer.from_pretrained("roberta-base-uncased")
+    config.tokenizer = AutoTokenizer.from_pretrained("xlm-roberta-base")
     config.batch_size = args["batch_size"]
+    config.lr = args["lr"]
     config.max_seq_len = args["max_seq_len"]
     config.num_workers = args["num_workers"]
 
@@ -34,7 +40,7 @@ def main(args):
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     torch.manual_seed(args["rng_seed"])
-    model = RobertaForSequenceClassification.from_pretrained("roberta-base-uncased")
+    model = XLMRobertaForSequenceClassification.from_pretrained("xlm-roberta-base")
     model.to(device)
     print("moved model to device:", device)
 
@@ -42,7 +48,7 @@ def main(args):
 
     run_name = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
     tb_logger = pl_loggers.TensorBoardLogger(
-        os.path.join(LOG_BASE_DIR, "baselines", "roberta", run_name)
+        os.path.join(LOG_BASE_DIR, "baselines", "xlm-roberta", run_name)
     )
     tb_logger.log_hyperparams(args)
 
@@ -58,7 +64,7 @@ def main(args):
     trainer.fit(
         lit_model,
         train_dataloader=dataloaders["train"],
-        val_dataloaders=[dataloaders["val"], dataloaders["test"]],
+        val_dataloaders=dataloaders["test"],
     )
 
 
@@ -93,7 +99,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--num_workers",
         type=int,
-        default=8,
+        default=1,
         # help="",
     )
     parser.add_argument(
