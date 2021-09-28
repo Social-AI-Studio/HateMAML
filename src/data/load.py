@@ -30,7 +30,9 @@ def get_dataloader(dataset_name, split_name, config):
     pkl_path = os.path.join(DEST_DATA_PKL_DIR, f"{dataset_name}_{split_name}.pkl")
     data_df = pd.read_pickle(pkl_path, compression=None)
     if config.dataset_type == "bert":
-        dataset = HFDataset(data_df, config.tokenizer, max_seq_len=config.hp.max_seq_len)
+        dataset = HFDataset(
+            data_df, config.tokenizer, max_seq_len=config.hp.max_seq_len
+        )
     else:
         raise ValueError(f"Unknown dataset_type {dataset_type}")
     dataloader = torch.utils.data.DataLoader(

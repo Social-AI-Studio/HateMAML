@@ -10,6 +10,10 @@ class LitClassifier(pl.LightningModule):
         self.lr = config.hp.lr
         self.criterion = torch.nn.CrossEntropyLoss()
 
+    def set_trainable(self, trainable):
+        for param in self.parameters():
+            param.requires_grad = trainable
+
     def shared_step(self, batch, batch_idx, return_pred_labels=False):
         """
         this step will be shared by the train/val/test logic
@@ -71,5 +75,5 @@ class LitClassifier(pl.LightningModule):
         """
         defines optimizers and LR schedulers to be used by the trainer.
         """
-        optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)
+        optimizer = torch.optim.AdamW(self.parameters(), lr=self.lr)
         return optimizer

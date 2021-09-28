@@ -12,7 +12,7 @@ from src.config import EmptyConfig
 from src.data.consts import RUN_BASE_DIR
 from src.data.load import get_3_splits_dataloaders
 from src.model.lightning import LitClassifier
-from src.utils import dump_hyperparams,read_hyperparams
+from src.utils import dump_hyperparams, read_hyperparams
 
 
 import torch
@@ -20,7 +20,9 @@ from transformers import AutoTokenizer, XLMRobertaForSequenceClassification
 
 
 def main(args):
-    assert (args["train"]) == (args["test_ckpt"] is None), "Either set `--train` flag or provide `--test_ckpt` string argument, not both or none"
+    assert (args["train"]) == (
+        args["test_ckpt"] is None
+    ), "Either set `--train` flag or provide `--test_ckpt` string argument, not both or none"
 
     # config can be initialized with default instead of empty values.
     config = EmptyConfig()
@@ -35,11 +37,13 @@ def main(args):
         config.hp.es_patience = args["es_patience"]
         config.hp.epochs = args["epochs"]
         config.hp.max_seq_len = args["max_seq_len"]
-        print('success reading hyperparams from arguments')
+        print("success reading hyperparams from arguments")
     else:
-        hp_path = os.path.dirname(os.path.join(RUN_BASE_DIR, "baselines", "xlm-roberta", args["test_ckpt"]))
+        hp_path = os.path.dirname(
+            os.path.join(RUN_BASE_DIR, "baselines", "xlm-roberta", args["test_ckpt"])
+        )
         config.hp = read_hyperparams(hp_path)
-        print(f'success loading hyperparams from path {hp_path}')
+        print(f"success loading hyperparams from path {hp_path}")
 
     dataloaders = get_3_splits_dataloaders(
         dataset_name=args["dataset_name"], config=config
@@ -53,23 +57,26 @@ def main(args):
 
     torch.manual_seed(args["rng_seed"])
     model = XLMRobertaForSequenceClassification.from_pretrained("xlm-roberta-base")
-    model.to(device)
-    print("moved model to device:", device)
 
     lit_model = LitClassifier(model, config)
+    lit_model.to(device)
+    print("moved model to device:", device)
 
     if args["train"]:
         print("starting train")
+
+        lit_model.set_trainable(True)
+
         run_name = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
         run_dir = os.path.join(RUN_BASE_DIR, "baselines", "xlm-roberta", run_name)
         os.mkdir(run_dir)
-        dump_hyperparams(run_dir,vars(config.hp))
+        dump_hyperparams(run_dir, vars(config.hp))
 
         checkpoint_callback = pl.callbacks.ModelCheckpoint(
             dirpath=run_dir,
             filename="{epoch}-{val_acc:.3f}",
             save_last=True,
-            save_top_k=3,
+            save_top_k=1,
             monitor="val_acc",
             mode="max",
         )
@@ -103,11 +110,13 @@ def main(args):
         )
     else:
         print("starting test")
-        ckpt_path = os.path.join(RUN_BASE_DIR, "baselines", "xlm-roberta", args["test_ckpt"])
+        ckpt_path = os.path.join(
+            RUN_BASE_DIR, "baselines", "xlm-roberta", args["test_ckpt"]
+        )
         ckpt = torch.load(ckpt_path)
-        lit_model.load_state_dict(ckpt['state_dict'])
+        lit_model.load_state_dict(ckpt["state_dict"])
         trainer = pl.Trainer(gpus=1)
-        trainer.test(model=lit_model,test_dataloaders=dataloaders["test"])
+        trainer.test(model=lit_model, test_dataloaders=dataloaders["test"])
 
 
 if __name__ == "__main__":
@@ -171,7 +180,7 @@ if __name__ == "__main__":
         "--test_ckpt",
         type=str,
         default=None,
-        # help="",
+        help="if provided, this script will execute in testing mode.",
     )
     args = parser.parse_args()
     args = vars(args)
