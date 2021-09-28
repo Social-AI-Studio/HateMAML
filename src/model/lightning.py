@@ -7,7 +7,7 @@ class LitClassifier(pl.LightningModule):
     def __init__(self, model, config):
         super().__init__()
         self.model = model
-        self.lr = config.lr
+        self.lr = config.hp.lr
         self.criterion = torch.nn.CrossEntropyLoss()
 
     def shared_step(self, batch, batch_idx, return_pred_labels=False):
