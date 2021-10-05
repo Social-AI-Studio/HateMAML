@@ -33,3 +33,7 @@
 * [BabelNet](https://babelnet.org/)
 * [The GDELT Project](https://www.gdeltproject.org/)
 * [Concept Net](https://pypi.org/project/ConceptNet/)
+
+
+# Entity extractor
+* [CoCo-Ex](https://github.com/Heidelberg-NLP/CoCo-Ex)
