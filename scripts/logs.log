@@ -1,0 +1,7516 @@
+[INFO] 2021-10-05 23:03:10,353 196 IDX #0 Processing corpus file  # data/raw/hateval2019es_val.pkl
+[INFO] 2021-10-05 23:03:10,357 199 TXT # Me estoy comiendo la picada árabe más rica de mi vida
+[INFO] 2021-10-05 23:03:11,718 187 [
+  {
+    "lemma": {
+      "lemma": "estar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "haber",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "estar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "ser",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "estar",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:12,399 187 [
+  {
+    "lemma": {
+      "lemma": "comer",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "consumir",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "jamar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "comer",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "comer",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:13,078 187 [
+  {
+    "lemma": {
+      "lemma": "grano",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "picadura",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "viruela",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "vejiga",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "picadura",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:13,753 187 [
+  {
+    "lemma": {
+      "lemma": "arábico",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "arábigo",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "árabe",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "árabe",
+      "type": "HIGH_QUALITY"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:14,452 187 [
+  {
+    "lemma": {
+      "lemma": "cada_vez_más",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "progresivamente",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "cada_vez_más",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "cada_vez_más",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "más",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:15,127 187 [
+  {
+    "lemma": {
+      "lemma": "gustoso",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "rico",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "sabroso",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "suculento",
+      "type": "HIGH_QUALITY"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:15,821 187 [
+  {
+    "lemma": {
+      "lemma": "animación",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "vida",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "existencia",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "vida",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "vida",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "vida",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:15,822 199 TXT # @Haryachyzaychyk Callate zorra y mama duro! 😍
+[INFO] 2021-10-05 23:03:17,163 187 [
+  {
+    "lemma": {
+      "lemma": "carreta",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "carretón",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "dray",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "carro_pesado",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:17,894 187 [
+  {
+    "lemma": {
+      "lemma": "padre",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "padres",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "progenitor",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Parental",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "parental",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "padre",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "padres",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "progenitor",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "progenitor",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Parental",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "progenitor",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "padre",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "padres",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "padres",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "padres_biológicos",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:18,643 187 [
+  {
+    "lemma": {
+      "lemma": "trigo_duro",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "triticum_durum",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "triticum_durum",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Triticum_durum",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "trigo_duro",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "trigo_duro",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Trigo_candeal",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Trigo_duro",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Trigo_moruno",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Trigo_candeal",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Trigo_duro",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Trigo_moruno",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "duro",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "duro",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "macarrones_de_trigo",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "trigo_duro",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "trigo_duro",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "triticum_durum",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "triticum_turgidum",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:18,644 199 TXT # Acabo de escuchar a Casado diciendo que hay DECENAS DE MILLONES de subsaharianos ahora mismo reuniendo dinero para venir a Europa. No sé qué me asusta más, que este idiota diga esas cosas o que haya tantos tarados deseando creérselas.
+[INFO] 2021-10-05 23:03:20,027 187 [
+  {
+    "lemma": {
+      "lemma": "atender",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "escuchar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "oír",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "escuchar",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:20,697 187 [
+  {
+    "lemma": {
+      "lemma": "casado",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:21,392 187 [
+  {
+    "lemma": {
+      "lemma": "afirmar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "contar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "decir",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "declarar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "manifestar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "sentenciar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "decir",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "manifestar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "decir",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:22,085 187 [
+  {
+    "lemma": {
+      "lemma": "disfrutar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "participar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "poseer",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "quedar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "tener",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "poseer",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "tener",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "poseer",
+      "type": "HIGH_QUALITY"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:22,848 187 [
+  {
+    "lemma": {
+      "lemma": "10",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "decena",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "diez",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "década",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "diez",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "10",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "diez",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "diez",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "diez",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "número_10",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "X",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "10",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Decena",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "10",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "10",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "diez",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:23,623 187 [
+  {
+    "lemma": {
+      "lemma": "1000000",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "meg",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "millon",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "millón",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "millón",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "millón",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "millón",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "1,000,000",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "1.000.000",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "1000000",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "10^6",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "1_000_000",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "1_millon",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "1_millón",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Mil_millares",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Millon",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "1,000,000",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "1.000.000",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "1.000.000",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "1.000.000",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "1000000",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "10^6",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "1_000_000",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "1_millon",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "1_millón",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Mil_millares",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Millon",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "1000000",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "meg",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "millones",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "millones",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "un_mil_mil",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:24,309 187 [
+  {
+    "lemma": {
+      "lemma": "actualmente",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "ahora",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "ahora",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "inmediatamente",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "actualidad",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "ahora",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:24,975 187 []
+[INFO] 2021-10-05 23:03:25,653 187 [
+  {
+    "lemma": {
+      "lemma": "de_eso",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "del_mismo",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "de_ella",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "de_ello",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "de_esta",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "de_esto",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "mismo",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:26,346 187 [
+  {
+    "lemma": {
+      "lemma": "colectar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "congregar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "ensamblar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "juntar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "ordenar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "recoger",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "recolectar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "recopilar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "reunir",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "recoger",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:27,107 187 [
+  {
+    "lemma": {
+      "lemma": "dinero",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "divisa",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "dinero",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "dinero",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "dinero",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Creacion_de_dinero",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Creacion_monetaria",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Creación_de_dinero",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Creación_monetaria",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Parne",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Parné",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "dinero",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "dinero",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "monetario",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:27,790 187 [
+  {
+    "lemma": {
+      "lemma": "derivar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "llegar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "provenir",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "resultar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "suceder",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "venir",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "llegar",
+      "type": "HIGH_QUALITY"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:29,134 187 [
+  {
+    "lemma": {
+      "lemma": "Europa",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Europa",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Europa",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Europa",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Viejo_continente",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Viejo_Mundo",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "El_viejo_continente",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Europa",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Clima_de_Europa",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Clima_de_europa",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Continente_europeo",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Europea",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Europeas",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Europeo",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Europeos",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Vegetacion_de_Europa",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Vegetación_de_Europa",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Viejo_Continente",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "europa",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:29,861 187 [
+  {
+    "lemma": {
+      "lemma": "campo",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "campo_deportivo",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "terreno_de_juego",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Pista_de_juego",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "pista_de_juego",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "campo",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "campo_de_deportes",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Campo_de_juego",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "campo",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "campo_de_deportes",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "campo_deportivo",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "campos_de_juego",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "igualdad_de_condiciones",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "área_de_juego",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:30,529 187 [
+  {
+    "lemma": {
+      "lemma": "no_ser",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:31,230 187 [
+  {
+    "lemma": {
+      "lemma": "constituir",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "integrar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "representar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "ser",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "comprender",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "consistir",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "estar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "constituyen",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "forman",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "ser",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:31,911 187 [
+  {
+    "lemma": {
+      "lemma": "め",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "め",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Me",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Me",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Me",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "メ",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "ﾒ",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:32,592 187 [
+  {
+    "lemma": {
+      "lemma": "arreglarse",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "ataviar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "ataviarse",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "ataviar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "arreglarse",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "embellecer",
+      "type": "HIGH_QUALITY"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:33,275 187 [
+  {
+    "lemma": {
+      "lemma": "cada_vez_más",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "progresivamente",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "cada_vez_más",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "cada_vez_más",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "más",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:33,953 187 [
+  {
+    "lemma": {
+      "lemma": "bobo",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "corto",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "estúpido",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "idiota",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "memo",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "tonto",
+      "type": "HIGH_QUALITY"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:34,648 187 [
+  {
+    "lemma": {
+      "lemma": "afirmar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "contar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "decir",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "declarar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "manifestar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "sentenciar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "decir",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "manifestar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "decir",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:35,334 187 [
+  {
+    "lemma": {
+      "lemma": "característica",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "cosa",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "cosa",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "cosa",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "cosa",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:36,025 187 [
+  {
+    "lemma": {
+      "lemma": "disfrutar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "participar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "poseer",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "quedar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "tener",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "poseer",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "tener",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "poseer",
+      "type": "HIGH_QUALITY"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:36,851 187 [
+  {
+    "lemma": {
+      "lemma": "estupidez",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "idiotez",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Tonto",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "estupidez",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "estupido",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "estúpido",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "idiota",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "lerdo",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "menso",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "necedad",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "necio",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "tarado",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "tonto",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Atontada",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Atontadas",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Atontado",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Atontados",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Atontar",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Bobochorra",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Bolsa",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Deja_de_hacer_el_idiota",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "estupidez",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Estupido",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Estúpido",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Gili",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Gilipollas",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Gilipolleces",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Gilipollez",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Gilí",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Hacerse_el_tonto",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Hijo_de_burro",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Imbecil",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Imbécil",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Johan_Elias_Feliz_Perez",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Lelo",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Menso",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Mentecato",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Necio",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Pero_se_puede_saber_que_cono_estas_haciendo?",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Pero_se_puede_saber_que_cono_estás_haciendo?",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Pero_se_puede_saber_que_coño_estas_haciendo?",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Pero_se_puede_saber_que_coño_estás_haciendo?",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Pero_se_puede_saber_qué_cono_estas_haciendo?",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Pero_se_puede_saber_qué_cono_estás_haciendo?",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Pero_se_puede_saber_qué_coño_estas_haciendo?",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Pero_se_puede_saber_qué_coño_estás_haciendo?",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Que_cono_haces?",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Que_coño_haces?",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Qué_cono_haces?",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Tarada",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Tarado",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Tonta",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Tonta_del_culo",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Tontas",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Tonteria",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Tonterias",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Tontería",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Tonterías",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Tonto_del_culo",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Tontolaba",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Tontopolla",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Tontorron",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Tontorrona",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Tontorrón",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Tontos",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Tragapollas",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Zopenco",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Zoquete",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "estupidez",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:37,527 187 [
+  {
+    "lemma": {
+      "lemma": "aspirar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "desear",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "gustaría",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:37,527 199 TXT # "Y NADIE SE HA PREGUNTADO LO QUE LE VA A COSTAR AL HOMBRE DEL GUANTAZO LA SITUACION..?!? PORQUE SEGURO ES, QUE EL MENDA MUSULMONO LE VA A PONER UNA DENUNCIA, QUE EL FALLO VA A SER ""CULPABLE"", QUE UNA PANDILLA DE MUSULMONOS LE VA A ESTAR ESPERANDO DELANTE DE LA PUERTA DE SU NEGOCIO https://t.co/DjfA63A0T2"
+[INFO] 2021-10-05 23:03:38,956 187 [
+  {
+    "lemma": {
+      "lemma": "cuchilla",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "filo",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "hoja",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "cuchilla",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "hoja",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "cuchilla",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "filo",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "filo",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Cuchilla",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Cuchillas",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Razuradora",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "hoja",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:39,648 187 [
+  {
+    "lemma": {
+      "lemma": "la",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "lah",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "la",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "la",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "la",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "A",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "La",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "lah",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:40,324 187 [
+  {
+    "lemma": {
+      "lemma": "Pronombres_en_español",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "pronombre_en_español",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "pronombre_español",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Pronombres_en_español",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Mí",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Pronombres_en_espanol",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:40,993 187 [
+  {
+    "lemma": {
+      "lemma": "departamento_de_asuntos_de_veteranos",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:41,667 187 [
+  {
+    "lemma": {
+      "lemma": "Óptica_Correctiva_de_Sustitución_Axial_del_Telescopio_Espacial",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Óptica_Correctiva_de_Sustitución_Axial_del_Telescopio_Espacial",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Optica_Correctiva_de_Sustitucion_Axial_del_Telescopio_Espacial",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Corrective_Optics_Space_Telescope_Axial_Replacement",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "COSTAR",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:42,348 187 [
+  {
+    "lemma": {
+      "lemma": "hombre",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "tipo",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "tío",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "hombre",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "tipo",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:43,102 187 [
+  {
+    "lemma": {
+      "lemma": "sud",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "sur",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "sur",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "sur",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Austral",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Meridion",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Meridión",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "S",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Sud",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Meridion",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Meridional",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Meridión",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Sud",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Sureno",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Sureña",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Sureño",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Sureños",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "con_rumbo_sur",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "hacia_el_sur",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "sur",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:43,780 187 [
+  {
+    "lemma": {
+      "lemma": "causa",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "porqué",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "por_qué",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:44,552 187 [
+  {
+    "lemma": {
+      "lemma": "aseguramiento",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "contrato_de_seguro",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "seguro",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "seguro",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "seguro",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "compañía_de_seguros",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "seguro",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "seguro",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "aseguracion",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "aseguración",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "asegurar",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "certificado_de_seguro",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "contrato_de_seguro",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "poliza_de_seguro",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "poliza_de_seguros",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "póliza_de_seguro",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "póliza_de_seguros",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "reclamo_de_seguros",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Aseguramiento",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Certificado_del_seguro",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Cooperativa_de_seguros",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Entidad_aseguradora",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Ley_de_Ordenación_y_Supervisión_de_los_Seguros_Privados",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Seguros",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "aseguradoras",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "compañías_de_seguros",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "industria_de_seguros",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "propiedad_y_accidentes",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "seguros",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "seguros",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:45,301 187 [
+  {
+    "lemma": {
+      "lemma": "número_atómico_52",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Te",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "telurio",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "teluro",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "telurio",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "telurio",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "telurio",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "teluro",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "teluro",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Te",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "teluro",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Teluro",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "número_atómico_52",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "telurio",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "telurio",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:45,969 187 [
+  {
+    "lemma": {
+      "lemma": "departamento_de_asuntos_de_veteranos",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:46,662 187 [
+  {
+    "lemma": {
+      "lemma": "opción_de_venta",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Opción_de_venta",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Opción_put",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "opción_de_venta",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Opcion_put",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Opción_put",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "opciones_de_venta",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "opción_de_venta",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "poner",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:47,430 187 [
+  {
+    "lemma": {
+      "lemma": "acuerdo",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "concertación",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "convenio",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "pacto",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "tratado",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "tratado_internacional",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "tratado_internacional",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Denuncia",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "acuerdo",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "denuncia",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Pakt",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "tratado",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "acuerdo_internacional",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "protocolo",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "tratado",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "acuerdo",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "acuerdo_internacional",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Pacte",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "tratado_internacional",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Denuncia",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Tratado_Internacional",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Tratados_internacionales",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Tratados_Internacionales",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Tratados_Internacionales",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "pacto",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "pacto",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "tratado",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "tratado_internacional",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "tratados",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:48,115 187 [
+  {
+    "lemma": {
+      "lemma": "tetralogía",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "tetralogía",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "tetralogia",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "tetralogía",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "tetralogía",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:48,784 187 [
+  {
+    "lemma": {
+      "lemma": "departamento_de_asuntos_de_veteranos",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:49,620 187 [
+  {
+    "lemma": {
+      "lemma": "ajo",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Allium_sativum",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Allium_longicuspis",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Allium_sativum",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "ajo",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Ajo",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Ajo_andaluz",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Ajo_castanuelo",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Ajo_castañuelo",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Ajo_castellano",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Ajo_comun",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Ajo_comun_y_hortense_que_se_come",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Ajo_común",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Ajo_común_y_hortense_que_se_come",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Ajo_cultivado",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Ajo_diego",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Ajo_domestico",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Ajo_doméstico",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Ajo_morado",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Ajo_sanjuanero",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Ajos",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Allium_controversum",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Allium_ophioscorodon",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Allium_sativum_subsp._ophioscorodon",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Allium_sativum_subsp_ophioscorodon",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Allium_sativum_var._ophioscorodon",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Allium_sativum_var_ophioscorodon",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "ajo",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Ajo_andaluz",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Ajo_castanuelo",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Ajo_castañuelo",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Ajo_castellano",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Ajo_comun",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Ajo_comun_y_hortense_que_se_come",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Ajo_común",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Ajo_común_y_hortense_que_se_come",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Ajo_cultivado",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Ajo_diego",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Ajo_domestico",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Ajo_doméstico",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Ajo_morado",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Ajo_sanjuanero",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Ajos",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Allium_controversum",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Allium_ophioscorodon",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Allium_sativum_subsp._ophioscorodon",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Allium_sativum_subsp_ophioscorodon",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Allium_sativum_var._ophioscorodon",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Allium_sativum_var_ophioscorodon",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "ajo",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "allium_sativum",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:50,326 187 [
+  {
+    "lemma": {
+      "lemma": "culpabilidad",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Culpabilidad",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "culpabilidad",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "culpable",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "sentimiento_de_culpa",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Culpabilizador",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Culpable",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Sentimiento_de_culpa",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "culpabilidad",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "culpabilidad",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "culpableness",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "reprochabilidad",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:51,095 187 [
+  {
+    "lemma": {
+      "lemma": "banda",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "pandilla",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "pandilla",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "pandilla",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "cuadrilla",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "pandilla",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "banda",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "banda_criminal",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Gang",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Las_Maras",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Los_Maras",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Mara",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Mara",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Mara",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Mara_18",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Pandilla_callejera",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Pandillero",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "cultura_de_las_pandillas",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "gangsterismo",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "guerra_de_pandillas",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "pandillas",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "pandillas",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "pandillas_juveniles",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "violencia_de_pandillas",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:51,763 187 [
+  {
+    "lemma": {
+      "lemma": "departamento_de_asuntos_de_veteranos",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:52,535 187 [
+  {
+    "lemma": {
+      "lemma": "ester",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "éster",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "éster",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "éster",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "éster",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "éster",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Ester",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Esteres",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Ésteres",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Diéster",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Ester",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Ester",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Esteres",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Éster",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Éster",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Ésteres",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "diéster",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "enlace_éster",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "ester",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "esterificación",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "esterificación",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "éster",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "éster_carboxílico",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "ésteres",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:53,202 187 []
+[INFO] 2021-10-05 23:03:53,947 187 [
+  {
+    "lemma": {
+      "lemma": "puerta",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "seguro",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "puerta",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "puerta",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "marco_de_puerta",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "puerta",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "puerta",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "puerta",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "puerta",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "puertas_francesas",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:54,710 187 [
+  {
+    "lemma": {
+      "lemma": "empresa",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "negocio",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "negocios",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "negocio",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "negocio",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "organización_comercial",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "negocios",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "empresa",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "empresas",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "organizacion_comercial",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Negociante",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Negocios",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Negocioso",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Negozuelo",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "con_fines_de_lucro",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "con_fines_de_lucro",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "empresa_comercial",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "empresas",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "negocio_de_la_empresa",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "negocios",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "negocios",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "sistema_de_negocios",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:54,711 199 TXT # @Fed_Durand Callate come sobra, más zorra son las tuyas
+[INFO] 2021-10-05 23:03:56,073 187 [
+  {
+    "lemma": {
+      "lemma": "desperdicios",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "restos",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "sobras",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "despojo",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "reliquia",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "residuo",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "restante",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "resto",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "retazo",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "sobrante",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "sobrante",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:57,051 187 [
+  {
+    "lemma": {
+      "lemma": "bosque",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "bosques",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "floresta",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "selva",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "bosque",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "bosque",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Wälder",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "bosque",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "bosque",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "bosque",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "bosques",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Algaba",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Arbolado",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Arbolados",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Arboledo",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Arboledos",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Boscosa",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Bosques",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "BOSQUES",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Forestal",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Impacto_ambiental_potencial_del_manejo_de_bosques_naturales",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Nemoral",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "bosque",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "bosque",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "bosque",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "bosque",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "bosques",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "bosques_de_coníferas",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "bosques_de_coníferas",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:57,051 199 TXT # te quiero hacer mi reina árabe bomboncitocaramel
+[INFO] 2021-10-05 23:03:58,402 187 [
+  {
+    "lemma": {
+      "lemma": "caliente",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "caluroso",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "cálido",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "muy_caliente",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "tibio",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "caliente",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "tibia",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "tibio",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "caliente",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:59,092 187 [
+  {
+    "lemma": {
+      "lemma": "amar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "hacer_el_amor",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "querer",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "amar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "amar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "querer",
+      "type": "HIGH_QUALITY"
+    }
+  }
+]
+[INFO] 2021-10-05 23:03:59,793 187 [
+  {
+    "lemma": {
+      "lemma": "causar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "confeccionar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "construir",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "crear",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "criar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "formar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "hacer",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "producir",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "provocar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "realizar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "hacer",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "crear",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "hacer",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:04:00,459 187 [
+  {
+    "lemma": {
+      "lemma": "Reina_Adachi",
+      "type": "HIGH_QUALITY"
+    }
+  }
+]
+[INFO] 2021-10-05 23:04:01,135 187 [
+  {
+    "lemma": {
+      "lemma": "arábico",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "arábigo",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "árabe",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "árabe",
+      "type": "HIGH_QUALITY"
+    }
+  }
+]
+[INFO] 2021-10-05 23:04:01,135 199 TXT # @andreaacata cállate perra JAJAJAJAJAJA
+[INFO] 2021-10-05 23:04:03,002 187 [
+  {
+    "lemma": {
+      "lemma": "can",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "canino",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "canis_familiaris",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "perra",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "perro",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "perro_doméstico",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "perros",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Canis_lupus_familiaris",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Canis_lupus_familiaris",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "perro",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "can",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "canino",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "perra",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "perro",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "C._lupus_familiaris",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "can",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Canis_lupus_familiaris",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "perro_doméstico",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Canis_familiaris",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Canis_Lupus_familiaris",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Canis_lupus_sp._familiaris",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "El_perro",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Obesidad_en_perros",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "perro",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Perro_domestico",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Perro_doméstico",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Perros",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "canis_familiaris",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "canis_lupus_familiaris",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "familiaris",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "perro",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "perro",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "perro_doméstico",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "perro_doméstico",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "perros",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:04:03,003 199 TXT # "En ""La Reina del Sur"" de @perezreverte , el personaje del ""Güero"" Dávila tambien lleva un registro en cuaderno los detalles de todos los vuelos realizados transportando droga. Esto le cuesta finalmente su vida.  https://t.co/oy4zkrJYaJ"
+[INFO] 2021-10-05 23:04:04,351 187 [
+  {
+    "lemma": {
+      "lemma": "Reina_Adachi",
+      "type": "HIGH_QUALITY"
+    }
+  }
+]
+[INFO] 2021-10-05 23:04:05,119 187 [
+  {
+    "lemma": {
+      "lemma": "La_Reina_del_Sur",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "La_reina_del_sur",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "La_reina_del_Sur",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "La_Reina_del_Sur",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "La_reina_del_Sur",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "La_reina_del_sur",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "La_Reina_del_Sur",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "La_reina_del_Sur",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "La_reina_del_Sur",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "La_reina_del_sur",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "reina_del_sur",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:04:05,859 187 [
+  {
+    "lemma": {
+      "lemma": "azora",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "sura",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "sura",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "sura",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "azora",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Azora",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Azoras",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Suras",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "sura",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "suras",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:04:06,655 187 [
+  {
+    "lemma": {
+      "lemma": "personaje_ficticio",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Personaje",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "personaje_de_ficción",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "personaje",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "personaje",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "personaje_de_ficcion",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "personaje_ficticio",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "personaje_imaginario",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Personaje_de_ficcion",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Personaje_de_ficción",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Personaje_ficticio",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Personajes",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Personajes_de_ficcion",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Personajes_de_ficción",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Personajes_ficiticios",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Personajes_ficticios",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "carácter_ficticio",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "personaje",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "personaje",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "personaje_animado",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "personaje_de_dibujos_animados",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "personaje_de_ficción",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "personaje_ficticio",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "personaje_secundario",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "personajes_de_dibujos_animados",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "personajes_de_ficción",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:04:07,364 187 [
+  {
+    "lemma": {
+      "lemma": "cargar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "efectuar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "llevar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "portar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "transportar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "llevar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "portar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "llevar",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:04:08,109 187 [
+  {
+    "lemma": {
+      "lemma": "libro",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "registro",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "registro",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:04:09,514 187 [
+  {
+    "lemma": {
+      "lemma": "cuaderno",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "papel_de_carta",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "bloc_de_notas",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "cuaderno",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "papel_de_carta",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:04:10,207 187 [
+  {
+    "lemma": {
+      "lemma": "detalle",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "particular",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "particularidad",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "pormenor",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "punto",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "detalle",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "punto",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:04:10,949 187 [
+  {
+    "lemma": {
+      "lemma": "vuelo",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "vuelo",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "vuelo",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "volar",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Volar",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "vuelo",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "vuelo",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "vuelo",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:04:11,635 187 [
+  {
+    "lemma": {
+      "lemma": "canalizar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "conducir",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "encauzar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "transferir",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "transmitir",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "transportar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "transferir",
+      "type": "HIGH_QUALITY"
+    }
+  }
+]
+[INFO] 2021-10-05 23:04:12,423 187 [
+  {
+    "lemma": {
+      "lemma": "droga",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "fármaco",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "medicamento",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "narcótico",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "droga",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "droga",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "droga",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Drogar",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Drogas",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Drogas_de_abuso",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Drogas_ilícitas",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Drogodependencias",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "droga",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "droga",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "drogas",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "fármaco",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "fármaco",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:04:13,118 187 [
+  {
+    "lemma": {
+      "lemma": "costar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "costar",
+      "type": "HIGH_QUALITY"
+    }
+  }
+]
+[INFO] 2021-10-05 23:04:13,830 187 [
+  {
+    "lemma": {
+      "lemma": "finalmente",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "finalmente",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:04:14,522 187 [
+  {
+    "lemma": {
+      "lemma": "animación",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "vida",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "existencia",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "vida",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "vida",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "vida",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:04:14,522 199 TXT # @AnderssonBoscan Vieja zorra imbécil y MENTIROSA, que nos cree unos solemnes cojudos. Señor Lenin, por favor dignifique al Ecuador, pobres, pero no en la cloaca robolucionaria!!
+[INFO] 2021-10-05 23:04:15,898 187 [
+  {
+    "lemma": {
+      "lemma": "antaño",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "viejo",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:04:16,590 187 [
+  {
+    "lemma": {
+      "lemma": "burro",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "estúpido",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "idiota",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "imbécil",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "necio",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "zoquete",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "burro",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "gilí",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "idiota",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "imbécil",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:04:17,378 187 [
+  {
+    "lemma": {
+      "lemma": "camandulero",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "comediante",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "embustero",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "falso",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "fariseo",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "farsante",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "hipócrita",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "impostor",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "mentiroso",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "santurrón",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "tartufo",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "hipócrita",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "hipócrita",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "embustero",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "falso",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "grupiento",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "hipócrita",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "impostor",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "mentiroso",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "disimulador",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "disimulo",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "falso",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "hipocresía",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "hipócrita",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "hipócrita",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "hipócrita",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:04:18,067 187 [
+  {
+    "lemma": {
+      "lemma": "confiar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "considerar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "creer",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "creer",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "creer",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "creer",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:04:18,773 187 [
+  {
+    "lemma": {
+      "lemma": "ceremonial",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "solemne",
+      "type": "HIGH_QUALITY"
+    }
+  }
+]
+[INFO] 2021-10-05 23:04:19,465 187 [
+  {
+    "lemma": {
+      "lemma": "señora",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:04:20,525 187 [
+  {
+    "lemma": {
+      "lemma": "Lenin",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Vladimir_Ilich_Lenin",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Vladimir_Ilyich_Lenin",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Vladimir_Lenin",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Lenin",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Lenin",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Vladimir_I._Lenin",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Vladimir_Ilich_Lenin",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Vladimir_Lenin",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Vladímir_Ilich_Lenin",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Lenin",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Lenin",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Lenin",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Lenin",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Testamento_de_Lenin",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "V._I._Lenin",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "V_I._Lenin",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "V_I_Lenin",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Vladimir_Ilich_Lenin",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Vladimir_Ilich_Ulianov",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Vladimir_Ilich_Uliánov",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Vladimir_Ilyich_Lenin",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Vladimir_Lenin",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Vladimir_Ulianov",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Vladimir_Ulyanov",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Vladímir_Ilich_Lenin",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Vladímir_Ilich_Ulianov",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Vladímir_Ilich_Uliánov",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Vladímir_Lenin",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "lenin",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "nikolai_lenin",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "vladimir_ilich_lenin",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "vladimir_ilich_ulianov",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "vladimir_lenin",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:04:21,214 187 [
+  {
+    "lemma": {
+      "lemma": "favor",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "favor",
+      "type": "HIGH_QUALITY"
+    }
+  }
+]
+[INFO] 2021-10-05 23:04:22,400 187 [
+  {
+    "lemma": {
+      "lemma": "Ecuador",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Ecuador",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Ecuador",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Ecuador",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "ec",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "EC",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "ecu",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "ECU",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "el_Ecuador",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Estado_Ecuatoriano",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Republica_del_Ecuador",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "República_del_Ecuador",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Ecuador",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "República_del_Ecuador",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Ecuador",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Ecuador",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Ecuador",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Ecuador",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Ecuatoriana",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Ecuatoriano",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Ecuatorianos",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Equador",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Poblacion_de_Ecuador",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Población_de_Ecuador",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Republica_de_Ecuador",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Republica_del_Ecuador",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "República_de_Ecuador",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "República_del_Ecuador",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "ecuador",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "república_del_ecuador",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:04:23,120 187 [
+  {
+    "lemma": {
+      "lemma": "indigente",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "pelado",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "pobre",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "pobretón",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "indigente",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "pobre",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:04:23,790 187 [
+  {
+    "lemma": {
+      "lemma": "no",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "no",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:04:24,523 187 [
+  {
+    "lemma": {
+      "lemma": "cloaca",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "cloaca",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "cloaca",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "cloaca",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Cloaca",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Cloaca",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Cloaca",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Cloaca",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Cloaca",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Cloaca",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "cloaca",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "cloacal",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:04:24,524 199 TXT # @rjimenez_perez tu eres un hijo de puta pervertido y pedofilo, una lacra que se debe exterminar, basura de mierda, no mereces vivir
+[INFO] 2021-10-05 23:04:25,906 187 [
+  {
+    "lemma": {
+      "lemma": "acá",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "aquí",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "acá",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "aquí",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "este_lugar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "aquí",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:04:26,583 187 [
+  {
+    "lemma": {
+      "lemma": "estar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "ser",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "ser",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "ser",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:04:27,314 187 [
+  {
+    "lemma": {
+      "lemma": "hija",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "hijo",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "niña",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Hija",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "hija",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "hija",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "hija",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "hija",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "hija",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "hija",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "hijas",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:04:28,066 187 [
+  {
+    "lemma": {
+      "lemma": "Hijo_de_puta",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "motherfucker",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "mf",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "mf'er",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "mofo",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Hija_de_puta",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Hijo_puta",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  }
+]
+[INFO] 2021-10-05 23:04:28,931 187 [
+  {
+    "lemma": {
+      "lemma": "buscona",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "cantonera",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "coima",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "cualquiera",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "fulana",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "furcia",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "gigoló",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "golfa",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "hetaira",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "lumi",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "meretriz",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "mesalina",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "mujer_publica",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "pelandusca",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "pendón",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "prostituta",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "puta",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "puta_callejera",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "puto",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "rabiza",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "ramera",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "zorra",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "lagarta",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "lagartona",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "pendona",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "pendón",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "prostituta",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "prostituta_callejera",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "zorra",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "chapero",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "gigoló",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "prostituto",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "puto",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "acompañante_masculino",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "calle_chica",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "callejera",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "chapero",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "chicos_de_alquiler",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "mujercita",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "mujerzuela",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "prostitución_callejera",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "prostitución_masculina",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "prostituta",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:04:29,617 187 [
+  {
+    "lemma": {
+      "lemma": "pervertido",
+      "type": "HIGH_QUALITY"
+    }
+  }
+]
+[INFO] 2021-10-05 23:04:30,382 187 [
+  {
+    "lemma": {
+      "lemma": "paidófila",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "paidófilo",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "pedófila",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "pedófilo",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "paidófila",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "paidófilo",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "pedófila",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "pedófilo",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "pedófilo",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "pedófilo",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "pedófilo",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:04:31,080 187 [
+  {
+    "lemma": {
+      "lemma": "adeudar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "deber",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "adeudar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "deber",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "estar_en_deuda",
+      "type": "HIGH_QUALITY"
+    }
+  }
+]
+[INFO] 2021-10-05 23:04:31,788 187 [
+  {
+    "lemma": {
+      "lemma": "desarraigar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "erradicar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "exterminar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "extirpar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "erradicar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "exterminar",
+      "type": "HIGH_QUALITY"
+    }
+  }
+]
+[INFO] 2021-10-05 23:04:32,639 187 [
+  {
+    "lemma": {
+      "lemma": "basura",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "chatarra",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "desecho",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "residuo",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "basura",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "basura",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "basura",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "chatarra",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "deshecho",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "basura_inorganica",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "basura_inorgánica",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "basura_organica",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "basura_orgánica",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "desecho",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "desechos",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "fesechar",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "residuo",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "residuo_solido",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "residuo_sólido",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "residuos",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "residuos_solidos",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "residuos_sólidos",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "RSU",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Basura_inorganica",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Basura_inorgánica",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Basura_organica",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Basura_orgánica",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Desechar",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Desecho",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Desechos",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Eliminacion_de_residuos_solidos",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Eliminacion_de_residuos_sólidos",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Eliminación_de_residuos_sólidos",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Recogida_de_basura",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Recogida_de_basuras",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Residuo",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Residuo_solido",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Residuo_sólido",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Residuos",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Residuos_solidos",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Residuos_sólidos",
+      "type": "POTENTIAL_NEAR_SYNONYM_OR_WORSE"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "basura",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "desechos",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "desechos_de_origen",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "material_de_desecho",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "residuos",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "residuos_de_productos",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:04:33,385 187 [
+  {
+    "lemma": {
+      "lemma": "huevada",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "mierda",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "babosadas",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "huevonadas",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "mierda",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "irish_toro",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "mierda",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "mierda",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "mierda_de_perro",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:04:34,085 187 [
+  {
+    "lemma": {
+      "lemma": "durar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "existir",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "morar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "vivir",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "existir",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "vivir",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "vivir",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "vivir",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "vivo",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:04:34,086 199 TXT # @CanalusHeresy @Fourty35 @IrantzuVarela A, que la zorra está va de matona por la vida? Jajajaja. Pero si de un soplido la desgracias al adefesio ese!😂
+[INFO] 2021-10-05 23:04:35,494 187 [
+  {
+    "lemma": {
+      "lemma": "carreta",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "carretón",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "dray",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "carro_pesado",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:04:36,174 187 [
+  {
+    "lemma": {
+      "lemma": "estar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "haber",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "estar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "ser",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "estar",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:04:36,905 187 [
+  {
+    "lemma": {
+      "lemma": "acudir",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "desplazarse",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "ir",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "mover",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "moverse",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "viajar",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "mover",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "moverse",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "ir",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "viajar",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:04:37,695 187 [
+  {
+    "lemma": {
+      "lemma": "bullanguero",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "camorrista",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "gallito",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "gamberra",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "gamberro",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "gorila",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "hampón",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "hooligan",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "matachín",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "matasiete",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "matón",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "patotero",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "pendenciero",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "perdonavidas",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "rufian",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "rufián",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "vándala",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "vándalo",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "rufian",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "gamberro",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "matón",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "rufián",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "ruidoso",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "yobbo",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "yobo",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:04:38,388 187 [
+  {
+    "lemma": {
+      "lemma": "animación",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "vida",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "existencia",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "vida",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "vida",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "vida",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:04:39,084 187 [
+  {
+    "lemma": {
+      "lemma": "desdicha",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "desgracia",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "desventura",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "infortunio",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "mala_suerte",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "la_mala_suerte",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "mala_suerte",
+      "type": "AUTOMATIC_TRANSLATION"
+    }
+  }
+]
+[INFO] 2021-10-05 23:04:39,829 187 [
+  {
+    "lemma": {
+      "lemma": "Adefesio",
+      "type": "HIGH_QUALITY"
+    }
+  },
+  {
+    "lemma": {
+      "lemma": "Adefesio",
+      "type": "HIGH_QUALITY"
+    }
+  }
+]
