@@ -76,8 +76,8 @@ def main(args):
             dirpath=run_dir,
             filename="{epoch}-{val_acc:.3f}",
             save_last=True,
-            save_top_k=1,
-            monitor="val_acc",
+            save_top_k=5,
+            monitor="val_macro_f1",
             mode="max",
         )
         early_stop_callback = pl.callbacks.early_stopping.EarlyStopping(
