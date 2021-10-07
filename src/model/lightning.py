@@ -4,6 +4,10 @@ import torch
 
 
 class LitClassifier(pl.LightningModule):
+    """
+    A wrapper class to facilitate training through pytorch lightning.
+    """
+
     def __init__(self, model, config):
         super().__init__()
         self.model = model
@@ -18,11 +22,12 @@ class LitClassifier(pl.LightningModule):
         """
         this step will be shared by the train/val/test logic
         """
-        out_dict = self.model(
-            input_ids=batch["input_ids"],
-            attention_mask=batch["attention_mask"],
-            return_dict=True,
-        )
+        out_dict = self.model(batch)
+        #        out_dict = self.model(
+        #            input_ids=batch["input_ids"],
+        #            attention_mask=batch["attention_mask"],
+        #            return_dict=True,
+        #        )
 
         pred_labels = torch.argmax(out_dict["logits"], dim=1)
         actual_labels = batch["label"]

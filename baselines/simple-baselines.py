@@ -16,7 +16,8 @@ from src.utils import dump_hyperparams, read_hyperparams
 
 
 import torch
-from transformers import AutoTokenizer, XLMRobertaForSequenceClassification
+from transformers import AutoTokenizer
+from src.model.classifiers import XLMRClassifier
 
 
 def main(args):
@@ -24,11 +25,23 @@ def main(args):
         args["test_ckpt"] is None
     ), "Either set `--train` flag or provide `--test_ckpt` string argument, not both or none"
 
+    assert args["model_type"] in [
+        "xlmr",
+        "mbert",
+        "lstm",
+    ], '`--model_type` argument must be in ["xlmr","mbert","lstm"]'
+
     # config can be initialized with default instead of empty values.
     config = EmptyConfig()
 
-    config.dataset_type = "bert"
-    config.tokenizer = AutoTokenizer.from_pretrained("xlm-roberta-base")
+    if args["model_type"] in ["xlmr", "mbert"]:
+        config.dataset_type = "bert"
+        if args["model_type"] == "xlmr":
+            config.tokenizer = AutoTokenizer.from_pretrained("xlm-roberta-base")
+        else:
+            raise NotImplementedError("yet to implement mbert model.")
+    else:
+        raise NotImplementedError("yet to implement lstm model.")
     config.num_workers = args["num_workers"]
 
     if args["train"]:
@@ -37,10 +50,13 @@ def main(args):
         config.hp.es_patience = args["es_patience"]
         config.hp.epochs = args["epochs"]
         config.hp.max_seq_len = args["max_seq_len"]
+        config.hp.dropout = args["dropout"]
         print("success reading hyperparams from arguments")
     else:
         hp_path = os.path.dirname(
-            os.path.join(RUN_BASE_DIR, "baselines", "xlm-roberta", args["test_ckpt"])
+            os.path.join(
+                RUN_BASE_DIR, "baselines", args["model_type"], args["test_ckpt"]
+            )
         )
         config.hp = read_hyperparams(hp_path)
         print(f"success loading hyperparams from path {hp_path}")
@@ -56,7 +72,9 @@ def main(args):
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     torch.manual_seed(args["rng_seed"])
-    model = XLMRobertaForSequenceClassification.from_pretrained("xlm-roberta-base")
+
+    if args["model_type"] == "xlmr":
+        model = XLMRClassifier(config)
 
     lit_model = LitClassifier(model, config)
     lit_model.to(device)
@@ -68,7 +86,7 @@ def main(args):
         lit_model.set_trainable(True)
 
         run_name = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
-        run_dir = os.path.join(RUN_BASE_DIR, "baselines", "xlm-roberta", run_name)
+        run_dir = os.path.join(RUN_BASE_DIR, "baselines", args["model_type"], run_name)
         os.mkdir(run_dir)
         dump_hyperparams(run_dir, vars(config.hp))
 
@@ -111,7 +129,7 @@ def main(args):
     else:
         print("starting test")
         ckpt_path = os.path.join(
-            RUN_BASE_DIR, "baselines", "xlm-roberta", args["test_ckpt"]
+            RUN_BASE_DIR, "baselines", args["model_type"], args["test_ckpt"]
         )
         ckpt = torch.load(ckpt_path)
         lit_model.load_state_dict(ckpt["state_dict"])
@@ -123,6 +141,12 @@ if __name__ == "__main__":
 
     # parse commandline arguments.
     parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--model_type",
+        type=str,
+        required=True,
+        help="should be one of: xlmr, mbert, lstm",
+    )
     parser.add_argument(
         "--batch_size",
         type=int,
