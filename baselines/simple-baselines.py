@@ -168,7 +168,13 @@ if __name__ == "__main__":
     parser.add_argument(
         "--lr",
         type=float,
-        default=2e-3
+        default=2e-3,
+        # help="",
+    )
+    parser.add_argument(
+        "--dropout",
+        type=float,
+        default=0.2,
         # help="",
     )
     parser.add_argument(
