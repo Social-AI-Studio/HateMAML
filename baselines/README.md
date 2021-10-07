@@ -9,9 +9,10 @@ The following baselines are proposed for the task **the cross-lingual adaptation
 | (BERTweet) + CH | simple | English only | English and/or Spanish translated to English  | |<ul><li>English evaluation is direct<li> Spanish will need translation to english before evaluating</ul> | |
 | [Cross-domain and Cross-lingual Abusive Language Detection: a Hybrid Approach with Deep Learning and a Multilingual Lexicon](https://aclanthology.org/P19-2051.pdf) | (as in paper) | (as in paper) | (as in paper) | | <ul><li>offline machine translation<li>uses hurtlex</ul>| |
 | [Rumour Detection via Zero-shot Cross-lingual Transfer Learning](https://arxiv.org/pdf/2109.12773.pdf) | (as in paper) | (as in paper) | (as in paper) | | <ul><li>Student-teacher method</ul>| |
-| [Deep Short Text Classification with Knowledge Powered Attention](https://arxiv.org/pdf/1902.08050.pdf), implementation present [here](https://github.com/AIRobotZhang/STCKA) | (as in paper) | | | Tanmay | <ul><li>uses spacy entity extractor, [Microsoft Concept Graph](https://concept.research.microsoft.com/Home/Download) out of the box</ul> | <ul><li>implemented only with english for now due to dependancy on language-specific KGs<li>current findings suggest that better <ul><li>entity extraction<li> concept graphs</ul> are required</ul> |
-| [Modelling Latent Translations for Cross-Lingual Transfer](https://arxiv.org/pdf/2107.11353.pdf) | | | | | <ul><li>online machine translation<li>might not be a suitable baseline at the moment</ul>| |
+| [Deep Short Text Classification with Knowledge Powered Attention](https://arxiv.org/pdf/1902.08050.pdf), implementation present [here](https://github.com/AIRobotZhang/STCKA) | (as in paper) | | | Tanmay | <ul><li>does not talk about the cross-lingual setting<li>**might not be a suitable baseline at the moment** <li>uses <ul><li>spacy entity extractor<li>[Microsoft Concept Graph](https://concept.research.microsoft.com/Home/Download)</ul> out of the box</ul> | <ul><li>implemented only with english for now due to dependancy on language-specific KGs<li>current findings suggest that better <ul><li>entity extraction<li> concept graphs</ul> are required</ul> |
+| [Modelling Latent Translations for Cross-Lingual Transfer](https://arxiv.org/pdf/2107.11353.pdf) | | | | | <ul><li>online machine translation<li>**might not be a suitable baseline at the moment**</ul>| |
 
 Notes:
 
 1. `CH` means `classification head`.
+2. greyed-out rows means baselines that might be useful in the future.
