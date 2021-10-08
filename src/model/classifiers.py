@@ -34,7 +34,7 @@ class XLMRClassifier(torch.nn.Module):
 class LSTMClassifier(nn.Module):
     def __init__(self, config):
         super(LSTMClassifier, self).__init__()
-        self.hidden_dim = hidden_dim
+        self.hidden_dim = config.hp.hidden_dim
         self.embeddings = torch.nn.Embedding(config.embeddings)
         self.lstm = torch.nn.LSTM(
             input_size=config.embeddings.shape[-1],

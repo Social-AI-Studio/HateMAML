@@ -9,15 +9,15 @@ from pytorch_lightning import loggers as pl_loggers
 import pytorch_lightning as pl
 
 from src.config import EmptyConfig
-from src.data.consts import RUN_BASE_DIR
+from src.data.consts import RUN_BASE_DIR, PAD_TOKEN, UNK_TOKEN
 from src.data.load import get_3_splits_dataloaders
+from src.model.classifiers import XLMRClassifier
 from src.model.lightning import LitClassifier
-from src.utils import dump_hyperparams, read_hyperparams
+from src.utils import dump_hyperparams, load_glove_format_embs, read_hyperparams
 
 
 import torch
 from transformers import AutoTokenizer
-from src.model.classifiers import XLMRClassifier
 
 
 def main(args):
@@ -31,6 +31,10 @@ def main(args):
         "lstm",
     ], '`--model_type` argument must be in ["xlmr","mbert","lstm"]'
 
+    assert (args["model_type"] == "lstm") == (
+        args["embedding_txt_path"] is not None and args["hidden_dim"] is not None
+    ), 'Provide `embedding_txt_path` and `hidden_dim` iff `model_type` == "lstm"'
+
     # config can be initialized with default instead of empty values.
     config = EmptyConfig()
 
@@ -39,9 +43,9 @@ def main(args):
         if args["model_type"] == "xlmr":
             config.tokenizer = AutoTokenizer.from_pretrained("xlm-roberta-base")
         else:
-            raise NotImplementedError("yet to implement mbert model.")
+            raise NotImplementedError("yet to implement the mbert model.")
     else:
-        raise NotImplementedError("yet to implement lstm model.")
+        config.dataset_type = "lstm"
     config.num_workers = args["num_workers"]
 
     if args["train"]:
@@ -51,6 +55,9 @@ def main(args):
         config.hp.epochs = args["epochs"]
         config.hp.max_seq_len = args["max_seq_len"]
         config.hp.dropout = args["dropout"]
+        if args["model_type"] == "lstm":
+            config.hp.embedding_txt_path = args["embedding_txt_path"]
+            config.hp.hidden_dim = args["hidden_dim"]
         print("success reading hyperparams from arguments")
     else:
         hp_path = os.path.dirname(
@@ -60,6 +67,12 @@ def main(args):
         )
         config.hp = read_hyperparams(hp_path)
         print(f"success loading hyperparams from path {hp_path}")
+
+    if args["model_type"] == "lstm":
+        config.pad_token, config.unk_token = PAD_TOKEN, UNK_TOKEN
+        config.vocab, config.embeddings = load_glove_format_embs(
+            config.hp.embedding_txt_path, config.pad_token, config.unk_token
+        )
 
     dataloaders = get_3_splits_dataloaders(
         dataset_name=args["dataset_name"], config=config
@@ -75,6 +88,8 @@ def main(args):
 
     if args["model_type"] == "xlmr":
         model = XLMRClassifier(config)
+    elif args["model_type"] == "lstm":
+        model = LSTMClassifier(config)
 
     lit_model = LitClassifier(model, config)
     lit_model.to(device)
@@ -146,6 +161,18 @@ if __name__ == "__main__":
         type=str,
         required=True,
         help="should be one of: xlmr, mbert, lstm",
+    )
+    parser.add_argument(
+        "--embedding_txt_path",
+        type=str,
+        default=None,
+        help='provide iff `model_type` == "lstm"',
+    )
+    parser.add_argument(
+        "--hidden_dim",
+        type=str,
+        default=None,
+        help='provide iff `model_type` == "lstm"',
     )
     parser.add_argument(
         "--batch_size",
