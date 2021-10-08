@@ -29,3 +29,50 @@ class XLMRClassifier(torch.nn.Module):
         )
         logits = self.classification_head(lm_out_dict["pooler_output"])
         return {"logits": logits}
+
+
+class LSTMClassifier(nn.Module):
+    def __init__(self, config):
+        super(LSTMClassifier, self).__init__()
+        self.hidden_dim = hidden_dim
+        self.embeddings = torch.nn.Embedding(config.embeddings)
+        self.lstm = torch.nn.LSTM(
+            input_size=config.embeddings.shape[-1],
+            hidden_size=self.hidden_dim,
+            num_layers=1,
+            batch_first=True,
+            dropout=config.hp.dropout,
+            bidirectional=True,
+        )
+        self.classification_head = ClassificationHead(
+            2 * self.hidden_dim, 2, config.hp.dropout
+        )
+
+    def forward(self, batch):
+        embedding_out = self.embeddings(batch["input_ids"])
+
+        packed_input = torch.nn.utils.rnn.pack_padded_sequence(
+            embedding_out,
+            batch["sequence_len"].tolist(),
+            enforce_sorted=False,
+            batch_first=True,
+        )
+        packed_out, _ = self.lstm(packed_input)
+        output, _ = torch.nn.utils.rnn.pad_packed_sequence(packed_out, batch_first=True)
+
+        lstm_out_forward = output[
+            range(len(output)), batch["sequence_len"] - 1, : self.hidden_dim
+        ]  # shape=(batch_size,hidden_dim,)
+        lstm_out_backward = output[
+            :, 0, self.hidden_dim :
+        ]  # shape=(batch_size,hidden_dim,)
+        lstm_out = torch.cat(
+            [
+                lstm_out_forward,
+                lstm_out_backward,
+            ],
+            dim=-1,
+        )  # shape=(batch_size,2*hidden_dim,)
+
+        logits = self.classification_head(lstm_out)
+        return {"logits": logits}
