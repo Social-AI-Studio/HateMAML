@@ -38,6 +38,8 @@ def main(args):
     # config can be initialized with default instead of empty values.
     config = EmptyConfig()
 
+    config.lang = args["lang"]
+
     if args["model_type"] in ["xlmr", "mbert"]:
         config.dataset_type = "bert"
         if args["model_type"] == "xlmr":

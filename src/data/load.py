@@ -1,6 +1,5 @@
 from src.data.consts import DEST_DATA_PKL_DIR
 from src.data.datasets import HFDataset, LSTMDataset
-from math import ceil
 import os
 import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer
