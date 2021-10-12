@@ -11,7 +11,7 @@ import pytorch_lightning as pl
 from src.config import EmptyConfig
 from src.data.consts import RUN_BASE_DIR, PAD_TOKEN, UNK_TOKEN
 from src.data.load import get_3_splits_dataloaders
-from src.model.classifiers import XLMRClassifier
+from src.model.classifiers import MBERTClassifier,XLMRClassifier
 from src.model.lightning import LitClassifier
 from src.utils import dump_hyperparams, load_glove_format_embs, read_hyperparams
 
@@ -38,14 +38,12 @@ def main(args):
     # config can be initialized with default instead of empty values.
     config = EmptyConfig()
 
-    config.lang = args["lang"]
-
     if args["model_type"] in ["xlmr", "mbert"]:
         config.dataset_type = "bert"
         if args["model_type"] == "xlmr":
             config.tokenizer = AutoTokenizer.from_pretrained("xlm-roberta-base")
         else:
-            raise NotImplementedError("yet to implement the mbert model.")
+            config.tokenizer = AutoTokenizer.from_pretrained("bert-base-multilingual-uncased")
     else:
         config.dataset_type = "lstm"
     config.num_workers = args["num_workers"]
@@ -90,6 +88,8 @@ def main(args):
 
     if args["model_type"] == "xlmr":
         model = XLMRClassifier(config)
+    if args["model_type"] == "mbert":
+        model = MBERTClassifier(config)
     elif args["model_type"] == "lstm":
         model = LSTMClassifier(config)
 
@@ -158,12 +158,6 @@ if __name__ == "__main__":
 
     # parse commandline arguments.
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--lang",
-        type=str,
-        default=None,
-        help="if provided, only samples with this language code would be used. helpful if certain languages from the pickles are to be used.",
-    )
     parser.add_argument(
         "--model_type",
         type=str,

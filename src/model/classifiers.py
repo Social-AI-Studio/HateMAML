@@ -1,5 +1,5 @@
 import torch
-from transformers import XLMRobertaModel
+from transformers import BertModel, XLMRobertaModel
 
 
 class ClassificationHead(torch.nn.Module):
@@ -17,6 +17,24 @@ class XLMRClassifier(torch.nn.Module):
     def __init__(self, config):
         super(XLMRClassifier, self).__init__()
         self.lm = XLMRobertaModel.from_pretrained("xlm-roberta-base")
+        self.classification_head = ClassificationHead(
+            self.lm.config.hidden_size, 2, config.hp.dropout
+        )
+
+    def forward(self, batch):
+        lm_out_dict = self.lm(
+            input_ids=batch["input_ids"],
+            attention_mask=batch["attention_mask"],
+            return_dict=True,
+        )
+        logits = self.classification_head(lm_out_dict["pooler_output"])
+        return {"logits": logits}
+
+
+class MBERTClassifier(torch.nn.Module):
+    def __init__(self, config):
+        super(MBERTClassifier, self).__init__()
+        self.lm = BertModel.from_pretrained("bert-base-multilingual-uncased")
         self.classification_head = ClassificationHead(
             self.lm.config.hidden_size, 2, config.hp.dropout
         )

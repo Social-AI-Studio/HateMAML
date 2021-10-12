@@ -1,5 +1,5 @@
-from math import ceil
 import torch
+from math import ceil
 
 
 class HFDataset(torch.utils.data.Dataset):
