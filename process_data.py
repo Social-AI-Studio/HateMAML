@@ -11,7 +11,7 @@ def process_row(row):
     return row
 
 
-def process_src_pkl(src_pkl_path, force):
+def process_src_pkl(src_pkl_path, force, lang=None):
     dest_pkl_path = os.path.join(DEST_DATA_PKL_DIR, src_pkl_path)
     src_pkl_path = os.path.join(SRC_DATA_PKL_DIR, src_pkl_path)
 
@@ -23,6 +23,9 @@ def process_src_pkl(src_pkl_path, force):
         )
 
     src_data_df = pd.read_pickle(src_pkl_path)
+    if lang is not None:
+        print(f"filtering only '{lang}' samples from the source pickle")
+        src_data_df = src_data_df.query(f"lang == '{lang}'")
     dest_data_df = src_data_df.apply(process_row, axis=1)
 
     dest_data_df.to_pickle(dest_pkl_path, compression=None)
@@ -34,7 +37,7 @@ def main(args):
     for src_pkl_path in src_pkl_paths:
         if src_pkl_path == "":
             continue
-        process_src_pkl(src_pkl_path, args["force"])
+        process_src_pkl(src_pkl_path, args["force"], args["lang"])
 
 
 if __name__ == "__main__":
@@ -44,6 +47,12 @@ if __name__ == "__main__":
         type=str,
         required=True,
         help="comma-separated source data pickle file names (WITHOUT the `data/raw/` prefix)",
+    )
+    parser.add_argument(
+        "--lang",
+        type=str,
+        default=None,
+        help="if provided, only samples with this language code would be processed. helpful if a certain language from the raw pickles are to be picked.",
     )
     parser.add_argument(
         "--force",

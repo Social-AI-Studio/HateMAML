@@ -11,6 +11,9 @@ def get_dataloader(dataset_name, split_name, config):
 
     pkl_path = os.path.join(DEST_DATA_PKL_DIR, f"{dataset_name}_{split_name}.pkl")
     data_df = pd.read_pickle(pkl_path, compression=None)
+    if config.lang is not None:
+        print(f"filtering only '{config.lang}' samples from {split_name} pickle")
+        data_df = data_df.query(f"lang == '{config.lang}'")
     if config.dataset_type == "bert":
         dataset = HFDataset(
             data_df, config.tokenizer, max_seq_len=config.hp.max_seq_len
@@ -43,6 +46,7 @@ def get_3_splits_dataloaders(dataset_name, config):
     for split_name in split_names:
         dataloaders[split_name] = get_dataloader(dataset_name, split_name, config)
     return dataloaders
+
 
 def build_vocabulary_from_train_split(dataset_name, config, min_df=1):
     pkl_path = os.path.join(DEST_DATA_PKL_DIR, f"{dataset_name}_train.pkl")

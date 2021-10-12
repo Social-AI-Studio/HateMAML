@@ -157,6 +157,12 @@ if __name__ == "__main__":
     # parse commandline arguments.
     parser = argparse.ArgumentParser()
     parser.add_argument(
+        "--lang",
+        type=str,
+        default=None,
+        help="if provided, only samples with this language code would be used. helpful if certain languages from the pickles are to be used.",
+    )
+    parser.add_argument(
         "--model_type",
         type=str,
         required=True,
