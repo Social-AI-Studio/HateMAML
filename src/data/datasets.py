@@ -62,5 +62,5 @@ class LSTMDataset(torch.utils.data.Dataset):
         ret_dict = dict()
         ret_dict["input_ids"] = self.input_ids[idx].reshape(-1)
         ret_dict["sequence_len"] = torch.tensor(self.sequence_lens[idx]).long()
-        ret_dict["labels"] = torch.tensor(self.labels[idx])
+        ret_dict["label"] = torch.tensor(self.labels[idx])
         return ret_dict

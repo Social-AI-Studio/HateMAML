@@ -3,6 +3,7 @@ from src.data.datasets import HFDataset, LSTMDataset
 from math import ceil
 import os
 import pandas as pd
+from sklearn.feature_extraction.text import CountVectorizer
 import torch
 
 
@@ -18,7 +19,7 @@ def get_dataloader(dataset_name, split_name, config):
         dataset = LSTMDataset(
             df=data_df,
             vocab=config.vocab,
-            max_seq_len=config.hp.max_seq_len,
+            max_seq_length=config.hp.max_seq_len,
             pad_token=config.pad_token,
             unk_token=config.unk_token,
         )
@@ -42,3 +43,10 @@ def get_3_splits_dataloaders(dataset_name, config):
     for split_name in split_names:
         dataloaders[split_name] = get_dataloader(dataset_name, split_name, config)
     return dataloaders
+
+def build_vocabulary_from_train_split(dataset_name, config, min_df=1):
+    pkl_path = os.path.join(DEST_DATA_PKL_DIR, f"{dataset_name}_train.pkl")
+    data_df = pd.read_pickle(pkl_path, compression=None)
+    vectorizer = CountVectorizer(min_df=min_df)
+    vectorizer.fit_transform(data_df.text)
+    return set(vectorizer.vocabulary_.keys())
