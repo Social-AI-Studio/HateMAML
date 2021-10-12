@@ -41,16 +41,16 @@ mBERT | SemEval20 | Turkish | Zero-shot|
 mBERT | SemEval20 | Danish | Zero-shot|
 mBERT | SemEval20 | Arabic | Zero-shot|
 mBERT | SemEval20 | Greek | Zero-shot|
-mBERT | SemEval20 | Turkish | | | Few-shot|
-mBERT | SemEval20 | Danish | | | Few-shot|
-mBERT | SemEval20 | Arabic | | | Few-shot|
-mBERT | SemEval20 | Greek | | | Few-shot|
+mBERT | SemEval20 | Turkish | Few-shot|
+mBERT | SemEval20 | Danish | Few-shot|
+mBERT | SemEval20 | Arabic | Few-shot|
+mBERT | SemEval20 | Greek |  Few-shot|
 XLM-R | SemEval20 | English | | | |
-XLM-R | SemEval20 | Turkish | | | Zero-shot|
-XLM-R | SemEval20 | Danish | | | Zero-shot|
-XLM-R | SemEval20 | Arabic | | | Zero-shot|
-XLM-R | SemEval20 | Greek | | | Zero-shot|
-XLM-R | SemEval20 | Turkish | | | Few-shot|
-XLM-R | SemEval20 | Danish | | | Few-shot|
-XLM-R | SemEval20 | Arabic | | | Few-shot|
-XLM-R | SemEval20 | Greek | | | Few-shot|
+XLM-R | SemEval20 | Turkish | Zero-shot|
+XLM-R | SemEval20 | Danish | Zero-shot|
+XLM-R | SemEval20 | Arabic | Zero-shot|
+XLM-R | SemEval20 | Greek | Zero-shot|
+XLM-R | SemEval20 | Turkish | Few-shot|
+XLM-R | SemEval20 | Danish | Few-shot|
+XLM-R | SemEval20 | Arabic | Few-shot|
+XLM-R | SemEval20 | Greek | Few-shot|
