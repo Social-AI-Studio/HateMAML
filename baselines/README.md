@@ -15,3 +15,42 @@ The following baselines are proposed for the task **the cross-lingual adaptation
 Notes:
 
 1. `CH` means `classification head`.
+
+
+# Dataset Summary
+| Dataset | Lang | Train | Test| Dev | Domain | F1 |
+| --- | --- | --- | --- | --- | --- | --- |
+|HateEval19| |  
+|LCS2 | |
+|SemEval20| |  
+
+# Experimental Results
+| Model | Dataset | Lang | Training Setting | Acc | F1 | Notes |  
+| --- | --- | --- | --- | --- | --- | --- |
+mBERT | HateEvaL | English | | | |
+mBERT | HateEvaL | Spanish | Zero-shot|
+mBERT | HateEvaL | Spanish | Few-shot|
+XLM-R | HateEvaL | English | | | |
+XLM-R | HateEvaL | Spanish | Zero-shot|
+XLM-R | HateEvaL | Spanish | Few-shot|
+mBERT | LCS2 | mixed | | | |
+XLM-R | LCS2 | mixed | | | |
+mBERT | SemEval20 | Turkish | Zero-shot|
+mBERT | SemEval20 | English | | | |
+mBERT | SemEval20 | Turkish | Zero-shot|
+mBERT | SemEval20 | Danish | Zero-shot|
+mBERT | SemEval20 | Arabic | Zero-shot|
+mBERT | SemEval20 | Greek | Zero-shot|
+mBERT | SemEval20 | Turkish | | | Few-shot|
+mBERT | SemEval20 | Danish | | | Few-shot|
+mBERT | SemEval20 | Arabic | | | Few-shot|
+mBERT | SemEval20 | Greek | | | Few-shot|
+XLM-R | SemEval20 | English | | | |
+XLM-R | SemEval20 | Turkish | | | Zero-shot|
+XLM-R | SemEval20 | Danish | | | Zero-shot|
+XLM-R | SemEval20 | Arabic | | | Zero-shot|
+XLM-R | SemEval20 | Greek | | | Zero-shot|
+XLM-R | SemEval20 | Turkish | | | Few-shot|
+XLM-R | SemEval20 | Danish | | | Few-shot|
+XLM-R | SemEval20 | Arabic | | | Few-shot|
+XLM-R | SemEval20 | Greek | | | Few-shot|
