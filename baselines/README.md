@@ -35,6 +35,9 @@ Notes:
 |HASOC20| German| 2373 | 526 |
 |AMI Evalita | English | 4000 | 1000 | | Misogyny | 
 |AMI Evalita | Italian | 4000 | 1000 | | Misogyny |
+|Ousidhoum19 | English | 5647  | | | fear, hostility, directness|
+|Ousidhoum19 | French | 4014  | | | |
+|Ousidhoum19 | Arabic | 3353  | | | |
 |Waseem16 | English | 11,542 |4,947 | | racism and  sexism | 
 |OffensEval19 | English | 13,240 | 860 | | insults, swear, threats |  
 
