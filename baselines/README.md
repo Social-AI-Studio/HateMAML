@@ -18,11 +18,25 @@ Notes:
 
 
 # Dataset Summary
-| Dataset | Lang | Train | Test| Dev | Domain | F1 |
-| --- | --- | --- | --- | --- | --- | --- |
-|HateEval19| |  
-|LCS2 | |
-|SemEval20| |  
+| Dataset | Lang | Train | Test| Dev | Domain | Best F1 | Source |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+|HateEval19| English | 9,000  | 2,971 | | immigrant, woman |
+|HateEval19| Spanish | 4,500  | 1,600 | | immigrant, woman |
+|LCS2 | | | | | politics, extremism |
+|SemEval20| Arabic | 8000 | 200 | | twitter stream | | [pdf](https://arxiv.org/pdf/2006.07235.pdf) |
+|SemEval20| Danish | 2961 | 329 |
+|SemEval20| Greek | 8743 | 1544 |
+|SemEval20| Turkish | 31756 | 3528 |
+|HASOC19| English| 5852 | 1153 | | | | [pdf](https://dl.acm.org/doi/10.1145/3368567.3368584)|
+|HASOC19| Hindi| 4665 | 1318 | | twitter stream |
+|HASOC19| German| 3819 | 850 | 
+|HASOC20| English| 3708 | 814 | | | | [pdf](https://dl.acm.org/doi/abs/10.1145/3441501.3441517)|
+|HASOC20| Hindi| 2963 | 663 | | 
+|HASOC20| German| 2373 | 526 |
+|AMI Evalita | English | 4000 | 1000 | | Misogyny | 
+|AMI Evalita | Italian | 4000 | 1000 | | Misogyny |
+|Waseem16 | English | 11,542 |4,947 | | racism and  sexism | 
+|OffensEval19 | English | 13,240 | 860 | | insults, swear, threats |  
 
 # Experimental Results
 | Model | Dataset | Lang | Training Setting | Acc | F1 | Notes |  
