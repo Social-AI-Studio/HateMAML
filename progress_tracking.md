@@ -12,10 +12,27 @@ Submission Due - ARR Nov 15, 2021 (ACL21)
 2. Selected baselines XLM-R, mBERT
 
 # Tentative work outline
-- Oct 15: TBA
-- Oct 20: TBA
-- Oct 25: TBA
-- Oct 30: TBA
-- Nov 5: TBA
-- Nov 10: TBA
-- Nov 15: TBA
+- Oct 13: 
+  - implement proposed model
+  - design experiments
+  - simultaneously run relevant experiments
+  - create an overleaf (ACL21)
+  - organize experiment & results on overleaf Tables
+  - prepare a report for meeting with profs
+- Oct 20: 
+  - jot down preliminary exp +analysis on overleaf
+  - run more experiments
+  - run ablation on zeroshot + few-shot
+  - run experiments on domain adaptation
+  - add ablations results on overleaf
+  - discuss abaltions on overleaf
+- Oct 27 
+  - put a basic skeleton for paper
+  - run more experiments to prepare the paper
+  - get started on related works
+  - work on introduction draft
+- Nov 2: 
+  - fill in sections with relevant information
+  - run more experiments
+- Nov 10: paper draft ready
+- Nov 15: paper submission to ARR
