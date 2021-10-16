@@ -38,6 +38,7 @@ def main(args):
     # config can be initialized with default instead of empty values.
     config = EmptyConfig()
 
+    config.lang = args["lang"]
     if args["model_type"] in ["xlmr", "mbert"]:
         config.dataset_type = "bert"
         if args["model_type"] == "xlmr":
@@ -151,13 +152,28 @@ def main(args):
         ckpt = torch.load(ckpt_path)
         lit_model.load_state_dict(ckpt["state_dict"])
         trainer = pl.Trainer(gpus=1)
-        trainer.test(model=lit_model, test_dataloaders=dataloaders["test"])
+        test_splits = [i.strip() for i in args["test_splits"].strip().split(',')]
+        if "train" in test_splits or "all" in test_splits:
+            print('testing on train split of dataset:')
+            trainer.test(model=lit_model, test_dataloaders=dataloaders["train"])
+        if "val" in test_splits or "all" in test_splits:
+            print('testing on val split of dataset:')
+            trainer.test(model=lit_model, test_dataloaders=dataloaders["val"])
+        if "test" in test_splits or "all" in test_splits:
+            print('testing on test split of dataset:')
+            trainer.test(model=lit_model, test_dataloaders=dataloaders["test"])
 
 
 if __name__ == "__main__":
 
     # parse commandline arguments.
     parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--lang",
+        type=str,
+        default=None,
+        help="",
+    )
     parser.add_argument(
         "--model_type",
         type=str,
@@ -240,6 +256,12 @@ if __name__ == "__main__":
         type=str,
         default=None,
         help="if provided, this script will execute in testing mode.",
+    )
+    parser.add_argument(
+        "--test_splits",
+        type=str,
+        default=None,
+        help="`train`,`val`,`test`,`all`, or a comma seperated combination of these values.",
     )
     args = parser.parse_args()
     args = vars(args)
