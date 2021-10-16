@@ -11,7 +11,7 @@ import pytorch_lightning as pl
 from src.config import EmptyConfig
 from src.data.consts import RUN_BASE_DIR, PAD_TOKEN, UNK_TOKEN
 from src.data.load import get_3_splits_dataloaders
-from src.model.classifiers import MBERTClassifier,XLMRClassifier
+from src.model.classifiers import MBERTClassifier, XLMRClassifier
 from src.model.lightning import LitClassifier
 from src.utils import dump_hyperparams, load_glove_format_embs, read_hyperparams
 
@@ -44,7 +44,9 @@ def main(args):
         if args["model_type"] == "xlmr":
             config.tokenizer = AutoTokenizer.from_pretrained("xlm-roberta-base")
         else:
-            config.tokenizer = AutoTokenizer.from_pretrained("bert-base-multilingual-uncased")
+            config.tokenizer = AutoTokenizer.from_pretrained(
+                "bert-base-multilingual-uncased"
+            )
     else:
         config.dataset_type = "lstm"
     config.num_workers = args["num_workers"]
@@ -152,15 +154,15 @@ def main(args):
         ckpt = torch.load(ckpt_path)
         lit_model.load_state_dict(ckpt["state_dict"])
         trainer = pl.Trainer(gpus=1)
-        test_splits = [i.strip() for i in args["test_splits"].strip().split(',')]
+        test_splits = [i.strip() for i in args["test_splits"].strip().split(",")]
         if "train" in test_splits or "all" in test_splits:
-            print('testing on train split of dataset:')
+            print("testing on train split of dataset:")
             trainer.test(model=lit_model, test_dataloaders=dataloaders["train"])
         if "val" in test_splits or "all" in test_splits:
-            print('testing on val split of dataset:')
+            print("testing on val split of dataset:")
             trainer.test(model=lit_model, test_dataloaders=dataloaders["val"])
         if "test" in test_splits or "all" in test_splits:
-            print('testing on test split of dataset:')
+            print("testing on test split of dataset:")
             trainer.test(model=lit_model, test_dataloaders=dataloaders["test"])
 
 
