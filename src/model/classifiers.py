@@ -53,7 +53,9 @@ class LSTMClassifier(torch.nn.Module):
     def __init__(self, config):
         super(LSTMClassifier, self).__init__()
         self.hidden_dim = config.hp.hidden_dim
-        self.embeddings = torch.nn.Embedding.from_pretrained(torch.from_numpy(config.embeddings))
+        self.embeddings = torch.nn.Embedding.from_pretrained(
+            torch.from_numpy(config.embeddings)
+        )
         self.lstm = torch.nn.LSTM(
             input_size=config.embeddings.shape[-1],
             hidden_size=self.hidden_dim,
