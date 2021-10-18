@@ -97,6 +97,7 @@ def compute_loss(model,iterator,device):
 
     loss=0.0
     acc=0.0
+    i=0
 
     for batch in tqdm(iterator):
 
@@ -106,8 +107,9 @@ def compute_loss(model,iterator,device):
         outputs = model(input_ids, attention_mask=attention_mask, labels=labels)
         cur_loss=outputs[0].mean()
         loss+=cur_loss
+        i+=1
 
-    loss/=len(iterator)
+    loss/=len(i)
 
     return  loss
 
