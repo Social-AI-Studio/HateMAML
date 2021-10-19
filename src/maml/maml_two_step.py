@@ -71,22 +71,98 @@ def accuracy(predictions, targets):
     return (predictions == targets).sum().float() / targets.size(0)
 
 
-def train_from_scratch(model, opt, scheduler, epochs, train_dataloader, test_dataloader):
+def evaluate(model, validation_dataloader, type = "test"):
+    model.eval()
+
+    total_eval_accuracy = 0
+    total_eval_loss = 0
+    nb_eval_steps = 0
+
+    for batch in validation_dataloader:
+        batch["labels"] = batch.pop("label")
+
+        with torch.no_grad():        
+            outputs = model(**batch)
+        
+        loss = outputs[0]            
+        logits = outputs[1]
+
+        logits = logits.detach().cpu().numpy()
+        label_ids = batch["labels"].to('cpu').numpy()
+
+        total_eval_loss += loss.item()
+        total_eval_accuracy += accuracy(logits, label_ids)
+
+        nb_eval_steps += 1        
+
+    val_accuracy = total_eval_accuracy / len(validation_dataloader)
+    val_loss = total_eval_loss / len(validation_dataloader)
+    log_str = type.upper() + "iction" if type == "Pred" else "uation"
+
+    print("*** Running Model {} **".format(log_str))
+    print("Accuracy: {0:.2f}".format(val_accuracy))
+    print("Loss: {0:.2f}".format(val_loss))
+
+def train_from_scratch(model, opt, scheduler, epochs, train_dataloader, eval_dataloader, test_dataloader):
+    """
+    Returns the fine-tuned model which has similar behavior of the pre-trained model e.g. BERT, XLM-R.
+
+    Use this method to fine-tune using high-resouce training samples on a hate detection task. 
+
+    Args:
+        train_dataloader (:obj:`torch.utils.data.DataLoader`, `optional`):
+            The train dataloader to use.
+        
+        eval_dataloader (:obj:`torch.utils.data.DataLoader`, `optional`):
+            The test dataloader to use.
+
+        test_dataloader (:obj:`torch.utils.data.DataLoader`, `optional`):
+            The test dataloader to use.
+
+        epochs (int): The number of training epochs to run.
+
+        opt (torch.optim): An optimizer object to use for gradient update.
+
+        scheduler (`get_linear_schedule_with_warmup`): 
+            An scheduler to tune the learning rate for BERT training.
+            Used in HF transformer codebase.
+    
+    Returns:
+            :class:`~transformers.BertModel`: Returns fine-tuned model e.g. BERT.
+    """
+
+    nb_train_steps = 0
     for epoch in range(epochs):
         model.train()
         total_train_loss = 0
-        for idx, batch in enumerate(train_dataloader):
-            print(idx)
+        total_train_acc = 0
+        for batch in train_dataloader:
             model.zero_grad()
             batch["labels"] = batch.pop("label")
-            output = model(**batch)
-            loss = output[0]
-            total_train_loss += loss.item()
+            outputs = model(**batch)
+            loss = outputs[0]
+            logits = outputs[1]
+
+            logits = logits.detach().cpu().numpy()
+            label_ids = batch["labels"].to('cpu').numpy()
+            acc = accuracy(logits, label_ids)
+
             loss.backward()
             opt.step()
             scheduler.step()
-            if (idx + 1) % 10 == 0:
-                print("loss {}, ".format(loss))
+
+            total_train_loss += loss.item()
+            total_train_acc += acc
+
+            if (nb_train_steps + 1) % 100 == 0:
+                avg_train_loss = total_train_loss / step
+                print("epoch {}, step {}, training loss: {0:.2f}".format(epoch+1, step, avg_train_loss))
+                evaluate(model, eval_dataloader, type="eval")
+
+            nb_train_steps += 1
+    
+    evaluate(model, test_dataloader, type="pred")
+    return model
 
 
 def main(args,
@@ -96,7 +172,19 @@ def main(args,
          adaptation_steps=1,
          num_iterations=100,
          cuda=False,
-         seed=42, ):
+         seed=42):
+
+    """
+    An implementation of two-step *Model-Agnostic Meta-Learning* algorithm for hate detection 
+    on low-resouce languages.
+
+    Args:
+        meta_lr (float): The learning rate used to update the model.
+        fast_lr (float): The learning rate used to update the MAML inner loop.
+        adaptation_steps (int); The number of inner loop steps.
+        num_iterations (int): The total number of iteration MAML will run (outer loop update).
+
+    """
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
@@ -125,13 +213,13 @@ def main(args,
     ]
     opt = optim.AdamW(optimizer_grouped_parameters, lr=meta_lr, eps=args.adam_epsilon)
     dataloaders = get_split_dataloaders(args)
-    train_dataloader, val_dataloader, test_dataloader = dataloaders['train'], dataloaders['val'], dataloaders['test']
+    train_dataloader, eval_dataloader, test_dataloader = dataloaders['train'], dataloaders['val'], dataloaders['test']
 
     total_training_steps = len(train_dataloader) // gradient_accumulation_steps * num_train_epochs
     scheduler = get_linear_schedule_with_warmup(
         opt, num_warmup_steps=1, num_training_steps=total_training_steps
     )
-    train_from_scratch(model, opt, scheduler, num_train_epochs, train_dataloader, test_dataloader)
+    train_from_scratch(model, opt, scheduler, num_train_epochs, train_dataloader, eval_dataloader, test_dataloader)
 
     # Step 1 starts from here. This step assumes we have a pretrained base model from `train_from_scratch`, 
     # possibly trained on English. We will now meta-train the base model with MAML algorithm. `Meta-training`
