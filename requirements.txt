@@ -1,3 +1,6 @@
 learn2learn
 torch
 transformers
+sklearn
+pandas
+ekphrasis
