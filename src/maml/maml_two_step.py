@@ -94,7 +94,7 @@ def main(args,
          fast_lr=0.5,
          meta_batch_size=32,
          adaptation_steps=1,
-         num_iterations=1000,
+         num_iterations=100,
          cuda=False,
          seed=42, ):
     random.seed(seed)
@@ -133,52 +133,79 @@ def main(args,
     )
     train_from_scratch(model, opt, scheduler, num_train_epochs, train_dataloader, test_dataloader)
 
-    #
-    # maml = l2l.algorithms.MAML(model, lr=fast_lr, first_order=False)
-    # loss = nn.CrossEntropyLoss(reduction='mean')
-    #
-    # for iteration in tqdm(num_train_epochs):
-    #     opt.zero_grad()
-    #     meta_train_error = 0.0
-    #     meta_train_accuracy = 0.0
-    #     meta_valid_error = 0.0
-    #     meta_valid_accuracy = 0.0
-    #     for task in meta_batch_size:
-    #         batch = tuple(t.to(device) for t in task)
-    #
-    #         train_query_inp = ""
-    #         train_support_inp = ""
-    #         test_query_inp = ""
-    #         test_support_inp = ""
-    #
-    #         # Compute meta-training loss
-    #         learner = maml.clone()
-    #         for _ in range(adaptation_steps):
-    #             outputs = learner(**train_support_inp)
-    #             loss = outputs[0]
-    #             loss = loss.mean()
-    #             learner.adapt(loss, allow_nograd=True, allow_unused=True)
-    #             meta_train_error += loss
-    #
-    #         outputs = learner(**train_query_inp)
-    #         loss = outputs[0]
-    #         loss = loss.mean()
-    #         meta_valid_error += loss
-    #         # Print some metrics
-    #
-    #     meta_valid_error.backward()
-    #     print('\n')
-    #     print('Iteration', iteration)
-    #     print('Meta Train Error', meta_train_error / meta_batch_size)
-    #     print('Meta Train Accuracy', meta_train_accuracy / meta_batch_size)
-    #     print('Meta Valid Error', meta_valid_error / meta_batch_size)
-    #     print('Meta Valid Accuracy', meta_valid_accuracy / meta_batch_size)
-    #
-    #     # Average the accumulated gradients and optimize
-    #     for p in maml.parameters():
-    #         p.grad.data.mul_(1.0 / meta_batch_size)
-    #     opt.step()
+    # Step 1 starts from here. This step assumes we have a pretrained base model from `train_from_scratch`, 
+    # possibly trained on English. We will now meta-train the base model with MAML algorithm. `Meta-training`
+    # support set only contains input from `English` training set. `Meta-training` query set can both contain
+    # samples from English and other languages (validation set).
 
+    maml = l2l.algorithms.MAML(model, lr=fast_lr, first_order=False)
+
+    for iteration in tqdm(num_iterations):
+        meta_train_error = 0.0
+        meta_train_accuracy = 0.0
+        meta_valid_error = 0.0
+        meta_valid_accuracy = 0.0
+        for task in meta_batch_size:
+            batch = tuple(t.to(device) for t in task)
+            
+            n_meta_lr = args.batch_size//2
+
+            train_query_inp = {'input_ids': batch[0][:n_meta_lr],
+                                        'attention_mask': batch[1][:n_meta_lr],
+                                        'labels': batch[3][:n_meta_lr]}
+            train_support_inp = {'input_ids': batch[0][n_meta_lr:],
+                                        'attention_mask': batch[1][n_meta_lr:],
+                                        'labels': batch[3][n_meta_lr:]}
+
+            # train support inp should also contain other languages that we want to meta-adapt
+            # in step two 
+    
+            # Compute meta-training loss
+            learner = maml.clone()
+            for _ in range(adaptation_steps):
+                outputs = learner(**train_support_inp)
+                loss = outputs[0]
+                if args.n_gpu > 1:
+                    loss = loss.mean()
+                learner.adapt(loss, allow_nograd=True, allow_unused=True)
+                meta_train_error += loss
+                meta_train_accuracy = 10000 # need to change later
+    
+            outputs = learner(**train_query_inp)
+            loss = outputs[0]
+            if args.n_gpu > 1:
+                loss = loss.mean()
+            meta_valid_error += loss
+            meta_valid_accuracy = 10000 # need to change later
+
+        
+        meta_valid_error = meta_valid_error / meta_batch_size
+
+        meta_valid_error.backward()
+        # Print some metrics
+        print('\n')
+        print('Iteration', iteration)
+        print('Meta Train Error', meta_train_error / meta_batch_size)
+        print('Meta Train Accuracy', meta_train_accuracy / meta_batch_size)
+        print('Meta Valid Error', meta_valid_error / meta_batch_size)
+        print('Meta Valid Accuracy', meta_valid_accuracy / meta_batch_size)
+    
+        # Average the accumulated gradients and optimize
+        for p in maml.parameters():
+            if p.grad is not None:
+                p.grad.data.mul_(1.0 / meta_batch_size)
+        opt.step()
+        opt.zero_grad()
+
+    # Step 2. This section will be update with Meta adaption codes. It will only train on 
+    # low-resource langauges that we want to adapt to e.g. Spanish. It will follow similar code as
+    # above but a little modification (no English samples!). 
+
+    # **** THE LAST STEP ****
+
+    # Zero-shot, Few-shot or Full-tuned evaluation? You can now take this model and fine-tune it on full low-resource 
+    # training samples. If we don't fine-tune that it can be considered as few-shot model. If we don't apply step 2
+    # it becomes a zero-shot model.
 
 def get_split_dataloaders(config):
     config.tokenizer = AutoTokenizer.from_pretrained(config.model_name_or_path)
