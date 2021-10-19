@@ -6,13 +6,23 @@ from sklearn.feature_extraction.text import CountVectorizer
 import torch
 
 
-def get_dataloader(dataset_name, split_name, config):
+def get_dataloader(dataset_name, split_name, config, train_few_dataset_name=None):
 
     pkl_path = os.path.join(DEST_DATA_PKL_DIR, f"{dataset_name}_{split_name}.pkl")
     data_df = pd.read_pickle(pkl_path, compression=None)
+
+    if train_few_dataset_name is not None and split_name == "train":
+        few_pkl_path = os.path.join(
+            DEST_DATA_PKL_DIR, f"{train_few_dataset_name}_few_{split_name}.pkl"
+        )
+        few_df = pd.read_pickle(few_pkl_path, compression=None)
+        print(f"picking {few_df.shape[0]} rows from `{few_pkl_path}` as few samples")
+        data_df = pd.concat([data_df, few_df], axis=0, ignore_index=True)
+
     if config.lang is not None:
         print(f"filtering only '{config.lang}' samples from {split_name} pickle")
         data_df = data_df.query(f"lang == '{config.lang}'")
+
     if config.dataset_type == "bert":
         dataset = HFDataset(
             data_df, config.tokenizer, max_seq_len=config.hp.max_seq_len
@@ -34,7 +44,7 @@ def get_dataloader(dataset_name, split_name, config):
     return dataloader
 
 
-def get_3_splits_dataloaders(dataset_name, config):
+def get_3_splits_dataloaders(dataset_name, config, train_few_dataset_name=None):
     """
     give all 3 splits' dataloaders for the `dataset_name` dataset.
     """
@@ -43,7 +53,9 @@ def get_3_splits_dataloaders(dataset_name, config):
     dataloaders = dict()
 
     for split_name in split_names:
-        dataloaders[split_name] = get_dataloader(dataset_name, split_name, config)
+        dataloaders[split_name] = get_dataloader(
+            dataset_name, split_name, config, train_few_dataset_name
+        )
     return dataloaders
 
 

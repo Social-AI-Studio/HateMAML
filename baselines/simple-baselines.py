@@ -25,6 +25,11 @@ def main(args):
         args["test_ckpt"] is None
     ), "Either set `--train` flag or provide `--test_ckpt` string argument, not both or none"
 
+    if (args["train_few_dataset_name"] is not None) and (not args["train"]):
+        raise AssertionError(
+            "provide `--train_few_dataset_name` only if `--train` is set"
+        )
+
     assert args["model_type"] in [
         "xlmr",
         "mbert",
@@ -78,7 +83,9 @@ def main(args):
         )
 
     dataloaders = get_3_splits_dataloaders(
-        dataset_name=args["dataset_name"], config=config
+        dataset_name=args["dataset_name"],
+        train_few_dataset_name=args["train_few_dataset_name"],
+        config=config,
     )
     for split_name in dataloaders.keys():
         print(
@@ -101,6 +108,7 @@ def main(args):
     print("moved model to device:", device)
 
     if args["train"]:
+
         print("starting train")
 
         lit_model.set_trainable(True)
@@ -252,6 +260,12 @@ if __name__ == "__main__":
         "--train",
         action="store_true",
         # help="",
+    )
+    parser.add_argument(
+        "--train_few_dataset_name",
+        type=str,
+        default=None,
+        help="if provided, a _few_ samples from train split of this dataset will get included in final train data.",
     )
     parser.add_argument(
         "--test_ckpt",
