@@ -42,27 +42,21 @@ def parse_helper():
                         default=64,
                         type=int,
                         help="Size of the mini batch")
-    parser.add_argument("--dataset_name", default="hateval2019en", type=str,
+    parser.add_argument("--dataset_name", default="hateval2019", type=str,
                         help="Select a dataset for model training",
                         )
-    parser.add_argument("--lang", type=str, default=None,
-                        help="")
+    parser.add_argument("--base_lang", type=str, default=None,
+                        help="Languages to use for fine-tuning training.")
+    parser.add_argument("--meta_train_lang", type=str, default=None,
+                        help="Additional languages to use for meta-training.")
 
-    parser.add_argument(
-        "--max_seq_len",
-        type=int,
-        default=64,
-        help="Maximum sequence length. Bert can take 512 tokens max.",
-    )
-    parser.add_argument(
-        "--num_workers",
-        type=int,
-        default=1,
-        help="Number of workers for tokenization.",
-    )
+    parser.add_argument("--max_seq_len", type=int, default=64,
+                        help="The maximum sequence length of the inputs.")
+    parser.add_argument("--num_workers", type=int, default=1,
+                        help="Number of workers for tokenization.")
+
     args = parser.parse_args()
     logger.info(args)
-    print(args)
     return args
 
 
@@ -71,7 +65,7 @@ def accuracy(predictions, targets):
     return (predictions == targets).sum().float() / targets.size(0)
 
 
-def evaluate(model, validation_dataloader, type = "test"):
+def evaluate(model, validation_dataloader, type="test"):
     model.eval()
 
     total_eval_accuracy = 0
@@ -81,10 +75,10 @@ def evaluate(model, validation_dataloader, type = "test"):
     for batch in validation_dataloader:
         batch["labels"] = batch.pop("label")
 
-        with torch.no_grad():        
+        with torch.no_grad():
             outputs = model(**batch)
-        
-        loss = outputs[0]            
+
+        loss = outputs[0]
         logits = outputs[1]
 
         logits = logits.detach().cpu().numpy()
@@ -93,7 +87,7 @@ def evaluate(model, validation_dataloader, type = "test"):
         total_eval_loss += loss.item()
         total_eval_accuracy += accuracy(logits, label_ids)
 
-        nb_eval_steps += 1        
+        nb_eval_steps += 1
 
     val_accuracy = total_eval_accuracy / len(validation_dataloader)
     val_loss = total_eval_loss / len(validation_dataloader)
@@ -103,13 +97,17 @@ def evaluate(model, validation_dataloader, type = "test"):
     print("Accuracy: {0:.2f}".format(val_accuracy))
     print("Loss: {0:.2f}".format(val_loss))
 
-def train_from_scratch(model, opt, scheduler, epochs, train_dataloader, eval_dataloader, test_dataloader):
+
+def train_from_scratch(args, model, opt, scheduler, epochs, train_dataloader, eval_dataloader, test_dataloader):
     """
     Returns the fine-tuned model which has similar behavior of the pre-trained model e.g. BERT, XLM-R.
 
     Use this method to fine-tune using high-resouce training samples on a hate detection task. 
 
     Args:
+        model (BERTModelClass):
+            The model for task-specific fine-tuning from scratch.
+
         train_dataloader (:obj:`torch.utils.data.DataLoader`, `optional`):
             The train dataloader to use.
         
@@ -142,25 +140,23 @@ def train_from_scratch(model, opt, scheduler, epochs, train_dataloader, eval_dat
             outputs = model(**batch)
             loss = outputs[0]
             logits = outputs[1]
-
             logits = logits.detach().cpu().numpy()
             label_ids = batch["labels"].to('cpu').numpy()
             acc = accuracy(logits, label_ids)
-
             loss.backward()
             opt.step()
             scheduler.step()
 
             total_train_loss += loss.item()
             total_train_acc += acc
-
             if (nb_train_steps + 1) % 100 == 0:
-                avg_train_loss = total_train_loss / step
-                print("epoch {}, step {}, training loss: {0:.2f}".format(epoch+1, step, avg_train_loss))
+                avg_train_loss = total_train_loss / nb_train_steps
+                print("epoch {}, step {}, training loss: {0:.2f}".format(epoch + 1, nb_train_steps, avg_train_loss))
                 evaluate(model, eval_dataloader, type="eval")
 
             nb_train_steps += 1
-    
+
+    print(f"Evaluating base model performance on test set. Training lang = {args.base_lang}")
     evaluate(model, test_dataloader, type="pred")
     return model
 
@@ -168,12 +164,11 @@ def train_from_scratch(model, opt, scheduler, epochs, train_dataloader, eval_dat
 def main(args,
          meta_lr=0.003,
          fast_lr=0.5,
-         meta_batch_size=32,
+         meta_batch_size=None,
          adaptation_steps=1,
-         num_iterations=100,
+         num_iterations=10,
          cuda=False,
          seed=42):
-
     """
     An implementation of two-step *Model-Agnostic Meta-Learning* algorithm for hate detection 
     on low-resouce languages.
@@ -183,7 +178,6 @@ def main(args,
         fast_lr (float): The learning rate used to update the MAML inner loop.
         adaptation_steps (int); The number of inner loop steps.
         num_iterations (int): The total number of iteration MAML will run (outer loop update).
-
     """
     random.seed(seed)
     np.random.seed(seed)
@@ -191,7 +185,7 @@ def main(args,
     device = torch.device('cpu')
     if cuda and torch.cuda.device_count():
         torch.cuda.manual_seed(seed)
-        device = torch.device('cuda')
+        device = torch.device('cuda:{}'.format(3))
 
     num_train_epochs = 3
     train_dataloader = 1000  # dummy
@@ -212,14 +206,22 @@ def main(args,
         {"params": [p for n, p in model.named_parameters() if any(nd in n for nd in no_decay)], "weight_decay": 0.0},
     ]
     opt = optim.AdamW(optimizer_grouped_parameters, lr=meta_lr, eps=args.adam_epsilon)
-    dataloaders = get_split_dataloaders(args)
-    train_dataloader, eval_dataloader, test_dataloader = dataloaders['train'], dataloaders['val'], dataloaders['test']
+
+    # Load English samples
+    base_lang_dataloaders = get_split_dataloaders(args, lang=args.base_lang)
+    train_dataloader, eval_dataloader, test_dataloader = base_lang_dataloaders['train'], base_lang_dataloaders['val'], \
+                                                         base_lang_dataloaders['test']
+
+    meta_lang_dataloaders = get_split_dataloaders(args, lang=args.meta_train_lang)
+    meta_batch_size = meta_lang_dataloaders['val']
 
     total_training_steps = len(train_dataloader) // gradient_accumulation_steps * num_train_epochs
     scheduler = get_linear_schedule_with_warmup(
         opt, num_warmup_steps=1, num_training_steps=total_training_steps
     )
-    train_from_scratch(model, opt, scheduler, num_train_epochs, train_dataloader, eval_dataloader, test_dataloader)
+
+    train_from_scratch(args, model, opt, scheduler, num_train_epochs, train_dataloader, eval_dataloader, test_dataloader)
+    print(f"**** Zero-shot evaluation on before MAML # Lang = {args.meta_train_lang} ****")
 
     # Step 1 starts from here. This step assumes we have a pretrained base model from `train_from_scratch`, 
     # possibly trained on English. We will now meta-train the base model with MAML algorithm. `Meta-training`
@@ -235,19 +237,19 @@ def main(args,
         meta_valid_accuracy = 0.0
         for task in meta_batch_size:
             batch = tuple(t.to(device) for t in task)
-            
-            n_meta_lr = args.batch_size//2
+
+            n_meta_lr = args.batch_size // 2
 
             train_query_inp = {'input_ids': batch[0][:n_meta_lr],
-                                        'attention_mask': batch[1][:n_meta_lr],
-                                        'labels': batch[3][:n_meta_lr]}
+                               'attention_mask': batch[1][:n_meta_lr],
+                               'labels': batch[3][:n_meta_lr]}
             train_support_inp = {'input_ids': batch[0][n_meta_lr:],
-                                        'attention_mask': batch[1][n_meta_lr:],
-                                        'labels': batch[3][n_meta_lr:]}
+                                 'attention_mask': batch[1][n_meta_lr:],
+                                 'labels': batch[3][n_meta_lr:]}
 
             # train support inp should also contain other languages that we want to meta-adapt
             # in step two 
-    
+
             # Compute meta-training loss
             learner = maml.clone()
             for _ in range(adaptation_steps):
@@ -257,16 +259,15 @@ def main(args,
                     loss = loss.mean()
                 learner.adapt(loss, allow_nograd=True, allow_unused=True)
                 meta_train_error += loss
-                meta_train_accuracy = 10000 # need to change later
-    
+                meta_train_accuracy = 10000  # need to change later
+
             outputs = learner(**train_query_inp)
             loss = outputs[0]
             if args.n_gpu > 1:
                 loss = loss.mean()
             meta_valid_error += loss
-            meta_valid_accuracy = 10000 # need to change later
+            meta_valid_accuracy = 10000  # need to change later
 
-        
         meta_valid_error = meta_valid_error / meta_batch_size
 
         meta_valid_error.backward()
@@ -277,7 +278,7 @@ def main(args,
         print('Meta Train Accuracy', meta_train_accuracy / meta_batch_size)
         print('Meta Valid Error', meta_valid_error / meta_batch_size)
         print('Meta Valid Accuracy', meta_valid_accuracy / meta_batch_size)
-    
+
         # Average the accumulated gradients and optimize
         for p in maml.parameters():
             if p.grad is not None:
@@ -295,18 +296,22 @@ def main(args,
     # training samples. If we don't fine-tune that it can be considered as few-shot model. If we don't apply step 2
     # it becomes a zero-shot model.
 
-def get_split_dataloaders(config):
+    print(f"**** Zero-shot evaluation on meta adapted model # Lang = {args.meta_train_lang} ****")
+    evaluate(model, meta_lang_dataloaders['test'], type="pred")
+
+
+def get_split_dataloaders(config, lang):
     config.tokenizer = AutoTokenizer.from_pretrained(config.model_name_or_path)
     dataset_name = config.dataset_name
     split_names = ["train", "val", "test"]
     dataloaders = dict()
 
     for split_name in split_names:
-        pkl_path = os.path.join("../../" + SRC_DATA_PKL_DIR, f"{dataset_name}_{split_name}.pkl")
+        pkl_path = os.path.join("../../" + SRC_DATA_PKL_DIR, f"{dataset_name}{lang}_{split_name}.pkl")
         data_df = pd.read_pickle(pkl_path, compression=None)
-        if config.lang is not None:
-            print(f"filtering only '{config.lang}' samples from {split_name} pickle")
-            data_df = data_df.query(f"lang == '{config.lang}'")
+        if lang is not None:
+            print(f"filtering only '{lang}' samples from {split_name} pickle")
+            data_df = data_df.query(f"lang == '{lang}'")
         if config.dataset_type == "bert":
             dataset = HFDataset(
                 data_df, config.tokenizer, max_seq_len=config.max_seq_len
@@ -324,4 +329,4 @@ def get_split_dataloaders(config):
 
 if __name__ == '__main__':
     args = parse_helper()
-    main(args)
+    main(args, cuda=True)
