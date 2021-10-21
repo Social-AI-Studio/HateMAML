@@ -1,4 +1,9 @@
+import sys
+
+sys.path.append(".")
+
 import argparse
+import datetime
 import random
 import numpy as np
 import torch
@@ -14,6 +19,7 @@ from src.model.lightning import LitClassifier
 import os
 logger = logging.getLogger(__name__)
 from src.model.classifiers import MBERTClassifier, XLMRClassifier
+from src.data.consts import RUN_BASE_DIR
 
 
 
@@ -101,6 +107,11 @@ def parse_helper():
     args = parser.parse_args()
     logger.info(args)
     return vars(args)
+
+
+def checkpoint_model(model,epoch,epoch_error,run_name,):
+    save_path = os.path.join(RUN_BASE_DIR,"xmamal",run_name,f"epoch={epoch}_error={epoch_error}.ckpt")
+    torch.save(model.state_dict(), save_path) 
 
 
 def accuracy(predictions, targets):
@@ -196,6 +207,8 @@ def main(args,
     list_of_task.append(val_dataset)
     num_support=int(0.5*config.hp.batch_size)
 
+    run_name = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
+
 
 
     for n_epoch in range(config.hp.num_iter):
@@ -233,6 +246,7 @@ def main(args,
         opt.zero_grad()
         iteration_error.backward()
         opt.step()
+        checkpoint_model(mamal_model,n_epoch,iteration_error,run_name)
 
 
     # Save Model add code
