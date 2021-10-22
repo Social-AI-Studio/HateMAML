@@ -47,7 +47,7 @@ def parse_helper():
     parser.add_argument("--adam_epsilon", default=1e-8, type=float,
                         help="Epsilon for Adam optimizer.")
     parser.add_argument("--batch_size",
-                        default=64,
+                        default=32,
                         type=int,
                         help="Size of the mini batch")
     parser.add_argument("--base_lang", type=str, default=None, required=True,
@@ -90,8 +90,21 @@ def accuracy(predictions, labels):
     preds = np.argmax(predictions, axis=1)
     return (preds == labels).mean()
 
+def report_memory(name=''):
+    """Simple GPU memory report."""
 
-def evaluate(model, validation_dataloader, device, type="test"):
+    mega_bytes = 1024.0 * 1024.0
+    string = name + ' memory (MB)'
+    string += ' | allocated: {}'.format(
+        torch.cuda.memory_allocated() / mega_bytes)
+    string += ' | max allocated: {}'.format(
+        torch.cuda.max_memory_allocated() / mega_bytes)
+    string += ' | cached: {}'.format(torch.cuda.memory_cached() / mega_bytes)
+    string += ' | max cached: {}'.format(
+        torch.cuda.max_memory_cached()/ mega_bytes)
+    print(string, end='\r')
+
+def evaluate(args, model, validation_dataloader, device, type="test"):
     model.eval()
 
     total_eval_accuracy = 0
@@ -100,19 +113,19 @@ def evaluate(model, validation_dataloader, device, type="test"):
 
     for batch in validation_dataloader:
         batch["labels"] = batch.pop("label")
-        batch = move_to(batch ,device)
-
         with torch.no_grad():
+            batch = move_to(batch ,device)
             outputs = model(**batch)
+            loss = outputs[0]
+            if args.n_gpu > 1:
+                loss = loss.mean()
+            logits = outputs[1]
 
-        loss = outputs[0]
-        logits = outputs[1]
+            logits = logits.detach().cpu().numpy()
+            label_ids = batch["labels"].to('cpu').numpy()
 
-        logits = logits.detach().cpu().numpy()
-        label_ids = batch["labels"].to('cpu').numpy()
-
-        total_eval_loss += loss.item()
-        total_eval_accuracy += accuracy(logits, label_ids)
+            total_eval_loss += loss.item()
+            total_eval_accuracy += accuracy(logits, label_ids)
 
         nb_eval_steps += 1
 
@@ -173,25 +186,29 @@ def train_from_scratch(args, model, opt, scheduler, train_dataloader, eval_datal
             batch  = move_to(batch, device)
             outputs = model(**batch)
             loss = outputs[0]
+            if args.n_gpu > 1:
+                loss = loss.mean()
             logits = outputs[1]
+
             logits = logits.detach().cpu().numpy()
             label_ids = batch["labels"].to('cpu').numpy()
             acc = accuracy(logits, label_ids)
             loss.backward()
             opt.step()
             scheduler.step()
-
             total_train_loss += loss.item()
             total_train_acc += acc
             if (nb_train_steps + 1) % 50 == 0:
+                report_memory(name = "fine-tune-base")
                 avg_train_loss = total_train_loss / nb_train_steps
                 logger.info(f"  Epoch {epoch+1}, step {nb_train_steps+1}, training loss: {avg_train_loss:.3f}")
-                evaluate(model, eval_dataloader, device, type="eval")
+                evaluate(args, model, eval_dataloader, device, type="eval")
+                break
 
             nb_train_steps += 1
 
     logger.info(f"Evaluating base model performance on test set. Training lang = {args.base_lang}")
-    evaluate(model, test_dataloader, device, type="pred")
+    evaluate(args, model, test_dataloader, device, type="pred")
     return model
 
 
@@ -219,13 +236,19 @@ def main(args,
     device = torch.device('cpu')
     if cuda and torch.cuda.device_count():
         torch.cuda.manual_seed(seed)
-        device = torch.device('cuda:{}'.format(3))
-        args.n_gpu = 1
+        device = torch.device('cuda')
+        args.n_gpu = torch.cuda.device_count()
     logger.info(f"device : {device}")
+    logger.info(f"gpu : {args.n_gpu}")
 
     # Download configuration from huggingface.co and cache.
     config = AutoConfig.from_pretrained(args.model_name_or_path, num_labels=2)
     model = AutoModelForSequenceClassification.from_config(config)
+
+    if torch.cuda.device_count() > 0:
+        device_ids = list(range(torch.cuda.device_count()))
+        model = nn.DataParallel(model, device_ids=device_ids)
+
     model.to(device)
 
     no_decay = ["bias", "LayerNorm.weight"]
@@ -255,7 +278,7 @@ def main(args,
 
     model = train_from_scratch(args, model, opt, scheduler, train_dataloader, eval_dataloader, test_dataloader, device)
     logger.info(f"**** Zero-shot evaluation on before MAML # Lang = {args.meta_train_lang} ****")
-    evaluate(model, meta_lang_dataloaders['val'], device, type="pred")
+    evaluate(args, model, meta_lang_dataloaders['val'], device, type="pred")
     # Step 1 starts from here. This step assumes we have a pretrained base model from `train_from_scratch`, 
     # possibly trained on English. We will now meta-train the base model with MAML algorithm. `Meta-training`
     # support set only contains input from `English` training set. `Meta-training` query set can both contain
@@ -263,12 +286,12 @@ def main(args,
 
     maml = l2l.algorithms.MAML(model, lr=fast_lr, first_order=True)
     logger.info("*** MAML training starts now ***")
-    for iteration in tqdm(range(num_iterations)):
+    for iteration in tqdm(range(num_iterations)): #outer loop
         meta_train_error = 0.0
         meta_train_accuracy = 0.0
         meta_valid_error = 0.0
         meta_valid_accuracy = 0.0
-        for task in meta_tasks:
+        for idx, task in enumerate(meta_tasks):
             batch = move_to(task, device)
 
             n_meta_lr = args.batch_size // 2
@@ -284,25 +307,39 @@ def main(args,
 
             # Compute meta-training loss
             learner = maml.clone()
+
+            report_memory(name = f"maml{idx}")
+
             for _ in range(adaptation_steps):
                 outputs = learner(**train_support_inp)
                 loss = outputs[0]
+                logits = outputs[0]
+                logger.debug(train_query_inp)
+                logger.debug(train_query_inp['labels'].shape)
+                logger.debug(logits.shape)
+
+                # logits = logits.detach().cpu().numpy()
+                # label_ids = train_support_inp["labels"].to('cpu').numpy()
+
+                # acc = accuracy(logits, label_ids)
                 if args.n_gpu > 1:
                     loss = loss.mean()
                 learner.adapt(loss, allow_nograd=True, allow_unused=True)
-                meta_train_error += loss
-                meta_train_accuracy = 10000  # need to change later
+                meta_train_error += loss.item()
+                meta_train_accuracy = 10000 
 
             outputs = learner(**train_query_inp)
-            loss = outputs[0]
+            eval_loss = outputs[0]
             if args.n_gpu > 1:
-                loss = loss.mean()
-            meta_valid_error += loss
+                eval_loss = eval_loss.mean()
+            meta_valid_error += eval_loss.item()
             meta_valid_accuracy = 10000  # need to change later
-
+            eval_loss.backward()
+        
+        meta_train_error = meta_train_error / meta_batch_size * adaptation_steps
         meta_valid_error = meta_valid_error / meta_batch_size
 
-        meta_valid_error.backward()
+        # meta_valid_error.backward()
         # Print some metrics
         print('\n')
         print('Iteration', iteration)
@@ -318,18 +355,18 @@ def main(args,
         opt.step()
         opt.zero_grad()
 
-    # Step 2. This section will be update with Meta adaption codes. It will only train on 
+    # Step 2. This section will be updated with Meta-adaption codes. It will only train on 
     # low-resource langauges that we want to adapt to e.g. Spanish. It will follow similar code as
-    # above but a little modification (no English samples!). 
+    # above but a little modification on `query` and `support` set preparation (no English samples!). 
 
     # **** THE LAST STEP ****
 
-    # Zero-shot, Few-shot or Full-tuned evaluation? You can now take this model and fine-tune it on full low-resource 
-    # training samples. If we don't fine-tune that it can be considered as few-shot model. If we don't apply step 2
-    # it becomes a zero-shot model.
+    # Zero-shot, Few-shot or Full-tuned evaluation? You can now take the meta-adapted model and fine-tune it on 
+    # all the available low-resource training samples. If we don't fine-tune that it can be considered as few-shot model. 
+    # If we don't apply step 2, it becomes a zero-shot model.
 
     logger.info(f"**** Zero-shot evaluation on meta adapted model # Lang = {args.meta_train_lang} ****")
-    evaluate(model, meta_lang_dataloaders['test'], type="pred")
+    evaluate(args, model, meta_lang_dataloaders['test'], device, type="pred")
 
 
 def get_split_dataloaders(config, lang):
