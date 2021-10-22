@@ -120,14 +120,14 @@ def main(args):
 
         checkpoint_callback = pl.callbacks.ModelCheckpoint(
             dirpath=run_dir,
-            filename="{epoch}-{val_acc:.3f}",
-            save_last=True,
-            save_top_k=5,
+            filename="{epoch}-{val_macro_f1:.3f}",
+            save_last=False,
+            save_top_k=-1,
             monitor="val_macro_f1",
             mode="max",
         )
         early_stop_callback = pl.callbacks.early_stopping.EarlyStopping(
-            monitor="val_acc",
+            monitor="val_macro_f1",
             min_delta=0.00,
             patience=config.hp.es_patience,
             verbose=False,
