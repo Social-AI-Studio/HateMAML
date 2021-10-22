@@ -110,7 +110,9 @@ def parse_helper():
 
 
 def checkpoint_model(model,epoch,epoch_error,run_name,):
-    save_path = os.path.join(RUN_BASE_DIR,"xmamal",run_name,f"epoch={epoch}_error={epoch_error}.ckpt")
+    run_dir = os.path.join(RUN_BASE_DIR,"xmamal",run_name)
+    os.makedirs(run_dir)
+    save_path = os.path.join(run_dir,f"epoch={epoch}_error={epoch_error}.ckpt")
     torch.save(model.state_dict(), save_path) 
 
 
