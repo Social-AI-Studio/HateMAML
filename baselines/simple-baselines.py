@@ -25,10 +25,9 @@ def main(args):
         args["test_ckpt"] is None
     ), "Either set `--train` flag or provide `--test_ckpt` string argument, not both or none"
 
-    if (args["train_few_dataset_name"] is not None) and (not args["train"]):
-        raise AssertionError(
-            "provide `--train_few_dataset_name` only if `--train` is set"
-        )
+    assert (args["train_ckpt"] is None) or (
+        args["test_ckpt"] is None
+    ), "Can not provide both `--train_ckpt` and `--test_ckpt`"
 
     assert args["model_type"] in [
         "xlmr",
@@ -63,6 +62,7 @@ def main(args):
         config.hp.epochs = args["epochs"]
         config.hp.max_seq_len = args["max_seq_len"]
         config.hp.dropout = args["dropout"]
+        config.hp.train_ckpt = args["train_ckpt"]
         if args["model_type"] == "lstm":
             config.hp.embedding_txt_path = args["embedding_txt_path"]
             config.hp.hidden_dim = args["hidden_dim"]
@@ -84,7 +84,7 @@ def main(args):
 
     dataloaders = get_3_splits_dataloaders(
         dataset_name=args["dataset_name"],
-        train_few_dataset_name=args["train_few_dataset_name"],
+        train_few_dataset_name=None,
         config=config,
     )
     for split_name in dataloaders.keys():
@@ -109,6 +109,14 @@ def main(args):
 
     if args["train"]:
 
+        if args["train_ckpt"] is not None:
+            ckpt_path = os.path.join(
+                RUN_BASE_DIR, "baselines", args["model_type"], args["train_ckpt"]
+            )
+            print(f"loading model from `{ckpt_path}`")
+            ckpt = torch.load(ckpt_path)
+            lit_model.load_state_dict(ckpt["state_dict"])
+            lit_model.reinitialise_head()
         print("starting train")
 
         lit_model.set_trainable(True)
@@ -262,10 +270,10 @@ if __name__ == "__main__":
         # help="",
     )
     parser.add_argument(
-        "--train_few_dataset_name",
+        "--train_ckpt",
         type=str,
         default=None,
-        help="if provided, a _few_ samples from train split of this dataset will get included in final train data.",
+        help="if provided, the classifier _encoder_ (not the head)  will be loaded from this checkpoint.",
     )
     parser.add_argument(
         "--test_ckpt",

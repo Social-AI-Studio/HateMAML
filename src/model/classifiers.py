@@ -9,6 +9,10 @@ class ClassificationHead(torch.nn.Module):
         self.dropout = torch.nn.Dropout(dropout_prob)
         self.ff2 = torch.nn.Linear(in_dim // 2, out_dim)
 
+    def reinitialise(self):
+        self.ff1.reset_parameters()
+        self.ff2.reset_parameters()
+
     def forward(self, in_tensor):
         return self.ff2(self.dropout(self.ff1(in_tensor)))
 
@@ -21,6 +25,9 @@ class XLMRClassifier(torch.nn.Module):
         self.classification_head = ClassificationHead(
             self.lm.config.hidden_size, 2, dropout
         )
+
+    def reinitialise_head(self):
+        self.classification_head.reinitialise()
 
     def forward(self, batch):
         lm_out_dict = self.lm(
@@ -40,6 +47,9 @@ class MBERTClassifier(torch.nn.Module):
         self.classification_head = ClassificationHead(
             self.lm.config.hidden_size, 2, dropout
         )
+
+    def reinitialise_head(self):
+        self.classification_head.reinitialise()
 
     def forward(self, batch):
         lm_out_dict = self.lm(
@@ -69,6 +79,9 @@ class LSTMClassifier(torch.nn.Module):
         self.classification_head = ClassificationHead(
             2 * self.hidden_dim, 2, config.hp.dropout
         )
+
+    def reinitialise_head(self):
+        self.classification_head.reinitialise()
 
     def forward(self, batch):
         embedding_out = self.embeddings(batch["input_ids"])

@@ -14,6 +14,9 @@ class LitClassifier(pl.LightningModule):
         self.lr = config.hp.lr if config is not None else 2e-6
         self.criterion = torch.nn.CrossEntropyLoss()
 
+    def reinitialise_head(self):
+        self.model.reinitialise_head()
+
     def set_trainable(self, trainable):
         for param in self.parameters():
             param.requires_grad = trainable
