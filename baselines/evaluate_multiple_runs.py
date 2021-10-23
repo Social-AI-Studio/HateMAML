@@ -1,0 +1,145 @@
+import datetime
+import glob
+import json
+import os
+import sys
+
+sys.path.append(".")
+
+import argparse
+from pytorch_lightning import loggers as pl_loggers
+import pytorch_lightning as pl
+
+from src.config import EmptyConfig
+from src.data.load import get_dataloader
+from src.model.classifiers import MBERTClassifier, XLMRClassifier
+from src.model.lightning import LitClassifier
+from src.utils import read_hyperparams
+
+
+import torch
+from transformers import AutoTokenizer
+
+
+def find_best_checkpoint_from_dir(dir):
+    checkpoint_paths = glob.glob(os.path.join(dir, "epoch=*.ckpt"))
+    l = list()
+    for checkpoint_path in checkpoint_paths:
+        ckpt_name = os.path.split(checkpoint_path)[1]
+        val_macro_f1_val = float(ckpt_name[-10:-5])
+        l.append(
+            (
+                val_macro_f1_val,
+                checkpoint_path,
+            )
+        )
+    l.sort()
+    print(f">>>found best checkpoint `{l[-1][1]}` with val_macro_f1_val=`{l[-1][0]}`")
+    return l[-1][1]
+
+
+def main(args):
+    assert args["model_type"] in [
+        "xlmr",
+        "mbert",
+        "lstm",
+    ], '`--model_type` argument must be in ["xlmr","mbert","lstm"]'
+
+    if args["model_type"] == "lstm":
+        raise NotImplementedError('not implemented for model_type == "lstm"')
+
+    if args["model_type"] in ["xlmr", "mbert"]:
+        dataset_type = "bert"
+        if args["model_type"] == "xlmr":
+            tokenizer = AutoTokenizer.from_pretrained("xlm-roberta-base")
+        else:
+            tokenizer = AutoTokenizer.from_pretrained("bert-base-multilingual-uncased")
+    else:
+        raise NotImplementedError('not implemented for model_type == "lstm"')
+
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
+    if args["model_type"] == "xlmr":
+        model = XLMRClassifier(config=None)
+    if args["model_type"] == "mbert":
+        model = MBERTClassifier(config=None)
+    elif args["model_type"] == "lstm":
+        model = LSTMClassifier(config=None)
+
+    lit_model = LitClassifier(model, config=None)
+    lit_model.to(device)
+    print(">>>moved model to device:", device)
+
+    trainer = pl.Trainer(gpus=1)
+
+    test_run_dirs = glob.glob(os.path.join(args["test_run_dirs_parent"], "*"))
+    for test_run_dir in test_run_dirs:
+        if not os.path.isdir(test_run_dir):
+            continue
+        print(f">>>>test_run_dir = `{test_run_dir}`. finding best checkpoint now.")
+        best_checkpoint = find_best_checkpoint_from_dir(test_run_dir)
+
+        # config can be initialized with default instead of empty values.
+        config = EmptyConfig()
+
+        config.lang = args["lang"]
+        config.num_workers = args["num_workers"]
+        config.dataset_type = dataset_type
+        config.tokenizer = tokenizer
+
+        config.hp = read_hyperparams(test_run_dir)
+        print(f">>>success loading hyperparams from path {test_run_dir}")
+
+        print(">>>starting test")
+        ckpt = torch.load(best_checkpoint)
+        lit_model.load_state_dict(ckpt["state_dict"])
+        for test_dataset_name in args["test_dataset_names"].split(","):
+            print(">>>>testing on dataset:", test_dataset_name)
+            test_dataloader = get_dataloader(test_dataset_name, "test", config)
+            test_results = trainer.test(
+                model=lit_model, test_dataloaders=test_dataloader
+            )[0]
+            print(
+                f">>>>test_macro_f1 = {test_results['test_macro_f1']}, test_acc = {test_results['test_acc']}"
+            )
+
+
+if __name__ == "__main__":
+
+    # parse commandline arguments.
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--model_type",
+        type=str,
+        required=True,
+        help="should be one of: xlmr, mbert, lstm",
+    )
+    parser.add_argument(
+        "--test_run_dirs_parent",
+        type=str,
+        default=None,
+        help="parent directory of the runs to be evaluated on",
+    )
+    parser.add_argument(
+        "--test_dataset_names",
+        type=str,
+        default=None,
+        help="(comma separated) names of datasets to be tested on",
+    )
+    parser.add_argument(
+        "--lang",
+        type=str,
+        default=None,
+        help="provide if samples from `lang` language are to be filtered",
+    )
+    parser.add_argument(
+        "--num_workers",
+        type=int,
+        default=1,
+        # help="",
+    )
+    args = parser.parse_args()
+    args = vars(args)
+    print(">>>commandline args provided:\n", json.dumps(args, sort_keys=True, indent=4))
+
+    main(args)

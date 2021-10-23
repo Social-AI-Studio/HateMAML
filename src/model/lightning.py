@@ -8,10 +8,10 @@ class LitClassifier(pl.LightningModule):
     A wrapper class to facilitate training through pytorch lightning.
     """
 
-    def __init__(self, model, config):
+    def __init__(self, model, config=None):
         super().__init__()
         self.model = model
-        self.lr = config.hp.lr
+        self.lr = config.hp.lr if config is not None else 2e-6
         self.criterion = torch.nn.CrossEntropyLoss()
 
     def set_trainable(self, trainable):

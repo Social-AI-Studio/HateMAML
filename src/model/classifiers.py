@@ -14,11 +14,12 @@ class ClassificationHead(torch.nn.Module):
 
 
 class XLMRClassifier(torch.nn.Module):
-    def __init__(self, config):
+    def __init__(self, config=None):
         super(XLMRClassifier, self).__init__()
         self.lm = XLMRobertaModel.from_pretrained("xlm-roberta-base")
+        dropout = config.hp.dropout if config is not None else 0
         self.classification_head = ClassificationHead(
-            self.lm.config.hidden_size, 2, config.hp.dropout
+            self.lm.config.hidden_size, 2, dropout
         )
 
     def forward(self, batch):
@@ -32,11 +33,12 @@ class XLMRClassifier(torch.nn.Module):
 
 
 class MBERTClassifier(torch.nn.Module):
-    def __init__(self, config):
+    def __init__(self, config=None):
         super(MBERTClassifier, self).__init__()
         self.lm = BertModel.from_pretrained("bert-base-multilingual-uncased")
+        dropout = config.hp.dropout if config is not None else 0
         self.classification_head = ClassificationHead(
-            self.lm.config.hidden_size, 2, config.hp.dropout
+            self.lm.config.hidden_size, 2, dropout
         )
 
     def forward(self, batch):
