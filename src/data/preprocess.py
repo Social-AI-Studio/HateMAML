@@ -2,6 +2,7 @@ from src.data.preprocess_en import preprocess_en_text
 from src.data.preprocess_es import preprocess_es_text
 from src.data.preprocess_da import preprocess_da_text
 from src.data.preprocess_ar import preprocess_ar_text
+from src.data.preprocess_gr import preprocess_gr_text
 
 import html
 
@@ -21,6 +22,8 @@ def preprocess_text(text, lang):
         text = preprocess_da_text(text)
     elif lang == "ar":
         text = preprocess_ar_text(text)
+    elif lang == "gr":
+        text = preprocess_gr_text(text)
     else:
         raise ValueError(f"Unknown language {lang}")
     return text
