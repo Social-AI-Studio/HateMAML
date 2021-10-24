@@ -7,8 +7,11 @@ import os
 from typing_extensions import runtime
 import numpy as np
 import pandas as pd
-from src.data.consts import RUN_BASE_DIR, SRC_DATA_PKL_DIR
+from sklearn.utils.sparsefuncs import inplace_csr_column_scale
+from baselines.STCKA.utils.metrics import assess
+from src.data.consts import DEST_DATA_PKL_DIR, RUN_BASE_DIR, SRC_DATA_PKL_DIR
 import torch
+import torch.nn.functional as F
 import learn2learn as l2l
 
 from torch import nn, optim
@@ -19,7 +22,6 @@ from transformers import AutoConfig, AutoModel, get_linear_schedule_with_warmup,
     AutoTokenizer
 
 from src.data.datasets import HFDataset
-from src.data.load import get_dataloader
 
 logging.basicConfig(
                 format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
@@ -135,10 +137,11 @@ def checkpoint_model(args, model, optimizer, scheduler):
 def evaluate(args, model, validation_dataloader, device, type="test"):
     model.eval()
 
-    total_eval_accuracy = 0
     total_eval_loss = 0
     nb_eval_steps = 0
 
+    pred_label = None
+    target_label = None
     for batch in validation_dataloader:
         batch["labels"] = batch.pop("label")
         with torch.no_grad():
@@ -149,23 +152,29 @@ def evaluate(args, model, validation_dataloader, device, type="test"):
                 loss = loss.mean()
             logits = outputs[1]
 
-            logits = logits.detach().cpu().numpy()
-            label_ids = batch["labels"].to('cpu').numpy()
+            if pred_label is not None and target_label is not None:
+                pred_label = torch.cat((pred_label, logits), 0)
+                target_label = torch.cat((target_label, batch["labels"]))
+            else:
+                pred_label = logits
+                target_label = batch["labels"]
 
             total_eval_loss += loss.item()
-            total_eval_accuracy += accuracy(logits, label_ids)
 
         nb_eval_steps += 1
 
-    val_accuracy = total_eval_accuracy / len(validation_dataloader)
     val_loss = total_eval_loss / len(validation_dataloader)
+    acc, p, r, f1 = assess(pred_label, target_label)
+
     log_str = type.capitalize() + "iction" if type == "pred" else type.capitalize() + "uation"
 
     logger.info("*** Running Model {} **".format(log_str))
     logger.info(f"  Num examples = {len(validation_dataloader)*args.batch_size}")
-    logger.info(f"  Accuracy = {val_accuracy:.3f}")
     logger.info(f"  Loss = {val_loss:.3f}")
+    logger.info(f"  Accuracy = {acc:.3f}")
+    logger.info(f"  F1 = {f1:.3f}")
 
+    return acc, val_loss
 
 def train_from_scratch(args, model, opt, scheduler, train_dataloader, eval_dataloader, test_dataloader, device):
     """
@@ -204,6 +213,8 @@ def train_from_scratch(args, model, opt, scheduler, train_dataloader, eval_datal
 
 
     nb_train_steps = 0
+    max_val_loss = 1000000
+    val_loss = None
     for epoch in range(args.num_train_epochs):
         model.train()
         total_train_loss = 0
@@ -229,7 +240,11 @@ def train_from_scratch(args, model, opt, scheduler, train_dataloader, eval_datal
             if (nb_train_steps + 1) % 500 == 0:
                 avg_train_loss = total_train_loss / nb_train_steps
                 logger.info(f"  Epoch {epoch+1}, step {nb_train_steps+1}, training loss: {avg_train_loss:.3f} \n")
-                evaluate(args, model, eval_dataloader, device, type="eval")
+                val_acc, val_loss = evaluate(args, model, eval_dataloader, device, type="eval")
+                if max_val_loss > val_loss:
+                    max_val_loss = val_loss
+                    checkpoint_model(args, model, opt, scheduler)
+
                 report_memory(name = "fine-tune-base")
 
             nb_train_steps += 1
@@ -262,7 +277,7 @@ def main(args,
     device = torch.device('cpu')
     if cuda and torch.cuda.device_count():
         torch.cuda.manual_seed(seed)
-        device = torch.device('cuda')
+        device = torch.device('cuda:2')
         args.n_gpu = torch.cuda.device_count()
     logger.info(f"device : {device}")
     logger.info(f"gpu : {args.n_gpu}")
@@ -313,23 +328,46 @@ def main(args,
 
     if torch.cuda.device_count() > 0:
         device_ids = list(range(torch.cuda.device_count()))
-        model = nn.DataParallel(model, device_ids=device_ids)
+        model = nn.DataParallel(model, device_ids=[2])
 
     model.to(device)
 
     if not args.load_saved_base_model and args.overwrite_base_model:
         model = train_from_scratch(args, model, optimizer, scheduler, train_dataloader, eval_dataloader, test_dataloader, device)
-
-
-    aux_lang_dataloaders = get_split_dataloaders(args, dataset_name=args.dataset_name, lang=args.aux_lang)
-
-    meta_tasks = aux_lang_dataloaders['val']
-    meta_batch_size = len(meta_tasks)
-
+    
     target_lang_dataloaders = get_split_dataloaders(args, dataset_name=args.dataset_name, lang=args.target_lang)
 
+    if args.exp_setting == "x-maml":
+        aux_lang_dataloaders = get_split_dataloaders(args, dataset_name=args.dataset_name, lang=args.aux_lang)
 
-    logger.info(f"**** Zero-shot evaluation on before MAML # Lang = {args.target_lang} ****")
+        meta_tasks = aux_lang_dataloaders['val']
+        meta_batch_size = len(meta_tasks)
+
+    elif args.exp_setting == "maml":
+        meta_tasks = get_dataloader(
+            f"{args.dataset_name}{args.target_lang}", split_name="train", config=args, train_few_dataset_name= f"{args.dataset_name}{args.target_lang}"
+        )
+        meta_batch_size = len(meta_tasks)
+
+    elif args.exp_setting == "hmaml-step1":
+        meta_tasks = get_dataloader(
+            f"{args.dataset_name}{args.target_lang}", split_name="train", config=args, train_few_dataset_name= f"{args.dataset_name}{args.target_lang}"
+        )
+        meta_batch_size = len(meta_tasks)
+
+        meta_domain_tasks = get_dataloader(
+            f"{args.dataset_name}{args.aux_lang}", split_name="train", config=args, train_few_dataset_name= f"{args.dataset_name}{args.aux_lang}"
+        )
+    elif args.exp_setting == "hmaml-zero-refine":
+        silver_dataset = get_silver_dataset_for_meta_refine(args, model, target_lang_dataloaders['train'], device)
+        meta_tasks = torch.utils.data.DataLoader(
+            silver_dataset, batch_size=args.batch_size, num_workers=args.num_workers, drop_last = True,
+        )
+        meta_batch_size = len(meta_tasks)
+    else:
+       raise ValueError(f"{args.exp_setting} is unknown!")
+    
+    logger.info(f"**** Zero-shot evaluation on {args.dataset_name} before MAML >>> Language = {args.target_lang} ****")
     evaluate(args, model, target_lang_dataloaders['test'], device, type="pred")
     # Step 1 starts from here. This step assumes we have a pretrained base model from `train_from_scratch`, 
     # possibly trained on English. We will now meta-train the base model with MAML algorithm. `Meta-training`
@@ -337,9 +375,13 @@ def main(args,
     # samples from English and other languages (validation set).
 
     maml = l2l.algorithms.MAML(model, lr=args.fast_lr, first_order=True)
+
     opt = optim.Adam(maml.parameters(), args.meta_lr)
 
+    logger.info("*********************************")
     logger.info("*** MAML training starts now ***")
+    logger.info("*********************************")
+
     for iteration in tqdm(range(args.num_meta_iterations)): #outer loop
         opt.zero_grad()
 
@@ -373,7 +415,6 @@ def main(args,
                 loss = outputs[0]
                 logits = outputs[1]
                 
-                logger.debug(train_query_inp)
 
                 logits = logits.detach().cpu().numpy()
                 label_ids = train_support_inp["labels"].to('cpu').numpy()
@@ -383,7 +424,7 @@ def main(args,
                 learner.adapt(loss, allow_nograd=True, allow_unused=True)
                 meta_train_error += loss.item()
                 meta_train_accuracy += accuracy(logits, label_ids) 
-
+                logger.info(loss)
             outputs = learner(**train_query_inp)
             eval_loss = outputs[0]
             eval_logits = outputs[1]
@@ -394,8 +435,27 @@ def main(args,
                 eval_loss = eval_loss.mean()
             meta_valid_error += eval_loss.item()
             meta_valid_accuracy += accuracy(eval_logits, eval_label_ids) 
-            eval_loss.backward()
-        
+            
+            if args.exp_setting == "hmaml-step1":
+                choice_idx = random.randint(0, len(meta_domain_tasks))
+                for indx, d_batch in meta_domain_tasks:
+                    if indx ==  choice_idx:
+                        d_task = d_batch
+                domain_query_inp = {'input_ids': d_task['input_ids'],
+                    'attention_mask': d_task['attention_mask'],
+                    'labels': d_task['label']}
+                outputs = learner(**domain_query_inp)
+                d_loss = outputs[0]
+                if args.n_gpu > 1:
+                    d_loss = d_loss.mean()
+
+                total_loss = eval_loss + d_loss
+
+            else:
+                total_loss = eval_loss
+
+            total_loss.backward()
+        print(meta_train_error)
         meta_train_error = meta_train_error / (meta_batch_size * adaptation_steps)
         meta_valid_error = meta_valid_error / meta_batch_size
 
@@ -414,6 +474,12 @@ def main(args,
                 p.grad.data.mul_(1.0 / meta_batch_size)
         opt.step()
 
+        if args.exp_setting == "hmaml-zero-refine":
+            silver_dataset = get_silver_dataset_for_meta_refine(args, model, target_lang_dataloaders['train'], device)
+            meta_tasks = torch.utils.data.DataLoader(
+                silver_dataset, batch_size=args.batch_size, num_workers=args.num_workers
+            )
+            meta_batch_size = len(meta_tasks)
 
     # Step 2. This section will be updated with Meta-adaption codes. It will only train on 
     # low-resource langauges that we want to adapt to e.g. Spanish. It will follow similar code as
@@ -425,9 +491,62 @@ def main(args,
     # all the available low-resource training samples. If we don't fine-tune that it can be considered as few-shot model. 
     # If we don't apply step 2, it becomes a zero-shot model.
 
-    logger.info(f"**** Zero-shot evaluation on meta adapted model # Lang = {args.target_lang} ****")
+    logger.info(f"**** Zero-shot evaluation on {args.dataset_name} meta adapted model >>> Language = {args.target_lang} ****")
     evaluate(args, model, target_lang_dataloaders['test'], device, type="pred")
 
+
+def get_silver_dataset_for_meta_refine(args, model, dataloader, device):
+    logger.info(f"Generating silver labels for target language {args.target_lang}")
+
+    model.eval()
+
+    silver_dataset = None
+
+    for batch in dataloader:
+        bindices = []
+        batch["labels"] = batch.pop("label")
+        with torch.no_grad():
+            batch = move_to(batch, device)
+            outputs = model(**batch)
+     
+            pred_label = outputs[1]
+
+            probabilities = F.softmax(pred_label, dim=-1)
+
+            for values in probabilities:
+                if values[0] > .95 or values[1] > .95:
+                    bindices.append(True)
+                else:
+                    bindices.append(False)
+            batch = move_to(batch, device='cpu')
+
+            cols = ['input_ids', 'attention_mask', 'labels']
+            silver_batch = dict()
+            for col in cols:
+                silver_batch[col] = batch[col][bindices].cpu().numpy()
+            
+            if silver_dataset is None:
+                silver_dataset =  silver_batch
+            else:
+                for key, value in silver_batch.items():
+                    silver_dataset[key] = np.concatenate((silver_dataset[key], value), axis=0)
+
+    silver_dataloader = SilverDataset(silver_dataset)
+    logger.info(f"Loading {len(silver_dataloader)} length silver dataset.")
+    return silver_dataloader
+
+
+class SilverDataset(torch.utils.data.Dataset):
+    def __init__(self, encodings):
+        self.labels = encodings.pop('labels')
+        self.encodings = encodings
+    def __getitem__(self, idx):
+        item = {key: torch.tensor(val[idx]) for key, val in self.encodings.items()}
+        item["label"] = torch.tensor(self.labels[idx])
+        return item
+
+    def __len__(self):
+        return len(self.labels)
 
 def get_split_dataloaders(config, dataset_name, lang):
     config.tokenizer = AutoTokenizer.from_pretrained(config.model_name_or_path)
@@ -454,6 +573,38 @@ def get_split_dataloaders(config, dataset_name, lang):
 
         dataloaders[split_name] = dataset
     return dataloaders
+
+
+def get_dataloader(dataset_name, split_name, config, train_few_dataset_name=None):
+
+    pkl_path = os.path.join(DEST_DATA_PKL_DIR, f"{dataset_name}_{split_name}.pkl")
+    data_df = pd.read_pickle(pkl_path, compression=None)
+
+    if train_few_dataset_name is not None and split_name == "train":
+        few_pkl_path = os.path.join(
+            DEST_DATA_PKL_DIR, f"{train_few_dataset_name}_few_{split_name}.pkl"
+        )
+        few_df = pd.read_pickle(few_pkl_path, compression=None)
+        print(f"picking {few_df.shape[0]} rows from `{few_pkl_path}` as few samples")
+        data_df = pd.concat([data_df, few_df], axis=0, ignore_index=True)
+
+    if config.lang is not None:
+        print(f"filtering only '{config.lang}' samples from {split_name} pickle")
+        data_df = data_df.query(f"lang == '{config.lang}'")
+
+    if config.dataset_type == "bert":
+        dataset = HFDataset(
+            data_df, config.tokenizer, max_seq_len=config.max_seq_len
+        )
+    else:
+        raise ValueError(f"Unknown dataset_type {config.dataset_type}")
+    
+    dataloader = torch.utils.data.DataLoader(
+        dataset, batch_size=config.batch_size, num_workers=config.num_workers
+    )
+
+    return dataloader
+
 
 
 if __name__ == '__main__':
