@@ -256,7 +256,7 @@ def main(args,
         mamal_model.zero_grad()
         
     print("Save Model")
-    checkpoint_model(mamal_model,config.hp.num_iter,config.lang,run_name+"_mamal_model"+"_"+config.dataset_name)
+    checkpoint_model(model,config.hp.num_iter,config.lang,run_name+"_mamal_model"+"_"+config.dataset_name)
 
 
     # Save Model add code
