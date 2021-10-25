@@ -116,7 +116,7 @@ def main(args):
             print(f"loading model from `{ckpt_path}`")
             ckpt = torch.load(ckpt_path)
             lit_model.load_state_dict(ckpt["state_dict"])
-            lit_model.reinitialise_head()
+
         print("starting train")
 
         lit_model.set_trainable(True)
