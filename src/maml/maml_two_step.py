@@ -237,7 +237,7 @@ def train_from_scratch(args, model, opt, scheduler, train_dataloader, eval_datal
             scheduler.step()
             total_train_loss += loss.item()
             total_train_acc += acc
-            if (nb_train_steps + 1) % 500 == 0:
+            if (nb_train_steps + 1) % 50 == 0:
                 avg_train_loss = total_train_loss / nb_train_steps
                 logger.info(f"  Epoch {epoch+1}, step {nb_train_steps+1}, training loss: {avg_train_loss:.3f} \n")
                 val_acc, val_loss = evaluate(args, model, eval_dataloader, device, type="eval")
@@ -302,9 +302,15 @@ def main(args,
     optimizer = optim.AdamW(optimizer_grouped_parameters, lr=args.meta_lr, eps=args.adam_epsilon)
 
     # Load English samples
-    source_lang_dataloaders = get_split_dataloaders(args, dataset_name="founta", lang=args.source_lang)
+    if args.dataset_name == "semeval2020":
+        dsn = "founta"
+    else:
+        dsn = args.dataset_name
+
+    source_lang_dataloaders = get_split_dataloaders(args, dataset_name=dsn, lang=args.source_lang)
     train_dataloader, eval_dataloader, test_dataloader = source_lang_dataloaders['train'], source_lang_dataloaders['val'], \
-                                                         source_lang_dataloaders['test']
+                                                    source_lang_dataloaders['test']
+
     
     total_training_steps = len(train_dataloader) // args.gradient_accumulation_steps * args.num_train_epochs
     scheduler = get_linear_schedule_with_warmup(
@@ -345,23 +351,24 @@ def main(args,
 
     elif args.exp_setting == "maml":
         meta_tasks = get_dataloader(
-            f"{args.dataset_name}{args.target_lang}", split_name="train", config=args, train_few_dataset_name= f"{args.dataset_name}{args.target_lang}"
+            split_name="train", config=args, train_few_dataset_name= f"{args.dataset_name}{args.target_lang}"
         )
         meta_batch_size = len(meta_tasks)
 
     elif args.exp_setting == "hmaml-step1":
         meta_tasks = get_dataloader(
-            f"{args.dataset_name}{args.target_lang}", split_name="train", config=args, train_few_dataset_name= f"{args.dataset_name}{args.target_lang}"
+            split_name="train", config=args, train_few_dataset_name= f"founta{args.source_lang}", lang=args.source_lang
         )
         meta_batch_size = len(meta_tasks)
+        logger.info(f"Number of meta tasks {meta_batch_size}")
 
         meta_domain_tasks = get_dataloader(
-            f"{args.dataset_name}{args.aux_lang}", split_name="train", config=args, train_few_dataset_name= f"{args.dataset_name}{args.aux_lang}"
+            split_name="train", config=args, train_few_dataset_name= f"{args.dataset_name}{args.aux_lang}", lang=args.aux_lang
         )
     elif args.exp_setting == "hmaml-zero-refine":
         silver_dataset = get_silver_dataset_for_meta_refine(args, model, target_lang_dataloaders['train'], device)
         meta_tasks = torch.utils.data.DataLoader(
-            silver_dataset, batch_size=args.batch_size, num_workers=args.num_workers, drop_last = True,
+            silver_dataset, batch_size=args.batch_size, num_workers=args.num_workers, shuffle=True, drop_last = True,
         )
         meta_batch_size = len(meta_tasks)
     else:
@@ -424,7 +431,6 @@ def main(args,
                 learner.adapt(loss, allow_nograd=True, allow_unused=True)
                 meta_train_error += loss.item()
                 meta_train_accuracy += accuracy(logits, label_ids) 
-                logger.info(loss)
             outputs = learner(**train_query_inp)
             eval_loss = outputs[0]
             eval_logits = outputs[1]
@@ -438,7 +444,7 @@ def main(args,
             
             if args.exp_setting == "hmaml-step1":
                 choice_idx = random.randint(0, len(meta_domain_tasks))
-                for indx, d_batch in meta_domain_tasks:
+                for indx, d_batch in enumerate(meta_domain_tasks):
                     if indx ==  choice_idx:
                         d_task = d_batch
                 domain_query_inp = {'input_ids': d_task['input_ids'],
@@ -455,8 +461,7 @@ def main(args,
                 total_loss = eval_loss
 
             total_loss.backward()
-        print(meta_train_error)
-        meta_train_error = meta_train_error / (meta_batch_size * adaptation_steps)
+        meta_train_error = meta_train_error / meta_batch_size
         meta_valid_error = meta_valid_error / meta_batch_size
 
         # meta_valid_error.backward()
@@ -477,7 +482,7 @@ def main(args,
         if args.exp_setting == "hmaml-zero-refine":
             silver_dataset = get_silver_dataset_for_meta_refine(args, model, target_lang_dataloaders['train'], device)
             meta_tasks = torch.utils.data.DataLoader(
-                silver_dataset, batch_size=args.batch_size, num_workers=args.num_workers
+                silver_dataset, batch_size=args.batch_size, num_workers=args.num_workers, shuffle = True, drop_last = True,
             )
             meta_batch_size = len(meta_tasks)
 
@@ -501,7 +506,7 @@ def get_silver_dataset_for_meta_refine(args, model, dataloader, device):
     model.eval()
 
     silver_dataset = None
-
+    threshold = 0.85
     for batch in dataloader:
         bindices = []
         batch["labels"] = batch.pop("label")
@@ -514,7 +519,7 @@ def get_silver_dataset_for_meta_refine(args, model, dataloader, device):
             probabilities = F.softmax(pred_label, dim=-1)
 
             for values in probabilities:
-                if values[0] > .95 or values[1] > .95:
+                if values[0] > threshold or values[1] > threshold:
                     bindices.append(True)
                 else:
                     bindices.append(False)
@@ -531,9 +536,12 @@ def get_silver_dataset_for_meta_refine(args, model, dataloader, device):
                 for key, value in silver_batch.items():
                     silver_dataset[key] = np.concatenate((silver_dataset[key], value), axis=0)
 
-    silver_dataloader = SilverDataset(silver_dataset)
-    logger.info(f"Loading {len(silver_dataloader)} length silver dataset.")
-    return silver_dataloader
+    for key, value in silver_dataset.items():
+        silver_dataset[key] = silver_dataset[key][:2000]
+    
+    silver_dataset = SilverDataset(silver_dataset)
+    logger.info(f"Loading refined silver dataset with {len(silver_dataset)} training samples.")
+    return silver_dataset
 
 
 class SilverDataset(torch.utils.data.Dataset):
@@ -554,7 +562,7 @@ def get_split_dataloaders(config, dataset_name, lang):
     dataloaders = dict()
 
     for split_name in split_names:
-        pkl_path = os.path.join(SRC_DATA_PKL_DIR, f"{dataset_name}{lang}_{split_name}.pkl")
+        pkl_path = os.path.join(DEST_DATA_PKL_DIR, f"{dataset_name}{lang}_{split_name}.pkl")
         logger.info(pkl_path)
         data_df = pd.read_pickle(pkl_path, compression=None)
         if lang is not None:
@@ -575,22 +583,16 @@ def get_split_dataloaders(config, dataset_name, lang):
     return dataloaders
 
 
-def get_dataloader(dataset_name, split_name, config, train_few_dataset_name=None):
+def get_dataloader(split_name, config, train_few_dataset_name=None, lang=None):
+    few_pkl_path = os.path.join(
+        DEST_DATA_PKL_DIR, f"{train_few_dataset_name}_few_{split_name}.pkl"
+    )
+    data_df = pd.read_pickle(few_pkl_path, compression=None)
+    print(f"picking {data_df.shape[0]} rows from `{few_pkl_path}` as few samples")
 
-    pkl_path = os.path.join(DEST_DATA_PKL_DIR, f"{dataset_name}_{split_name}.pkl")
-    data_df = pd.read_pickle(pkl_path, compression=None)
-
-    if train_few_dataset_name is not None and split_name == "train":
-        few_pkl_path = os.path.join(
-            DEST_DATA_PKL_DIR, f"{train_few_dataset_name}_few_{split_name}.pkl"
-        )
-        few_df = pd.read_pickle(few_pkl_path, compression=None)
-        print(f"picking {few_df.shape[0]} rows from `{few_pkl_path}` as few samples")
-        data_df = pd.concat([data_df, few_df], axis=0, ignore_index=True)
-
-    if config.lang is not None:
-        print(f"filtering only '{config.lang}' samples from {split_name} pickle")
-        data_df = data_df.query(f"lang == '{config.lang}'")
+    if lang is not None:
+        print(f"filtering only '{lang}' samples from {split_name} pickle")
+        data_df = data_df.query(f"lang == '{lang}'")
 
     if config.dataset_type == "bert":
         dataset = HFDataset(
@@ -600,7 +602,7 @@ def get_dataloader(dataset_name, split_name, config, train_few_dataset_name=None
         raise ValueError(f"Unknown dataset_type {config.dataset_type}")
     
     dataloader = torch.utils.data.DataLoader(
-        dataset, batch_size=config.batch_size, num_workers=config.num_workers
+        dataset, batch_size=config.batch_size, num_workers=config.num_workers, drop_last=True,
     )
 
     return dataloader
