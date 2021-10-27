@@ -63,6 +63,8 @@ def main(args):
         config.hp.max_seq_len = args["max_seq_len"]
         config.hp.dropout = args["dropout"]
         config.hp.train_ckpt = args["train_ckpt"]
+        config.hp.rng_seed = args["rng_seed"]
+
         if args["model_type"] == "lstm":
             config.hp.embedding_txt_path = args["embedding_txt_path"]
             config.hp.hidden_dim = args["hidden_dim"]
