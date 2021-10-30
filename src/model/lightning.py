@@ -83,5 +83,5 @@ class LitClassifier(pl.LightningModule):
         """
         defines optimizers and LR schedulers to be used by the trainer.
         """
-        optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)
+        optimizer = torch.optim.AdamW(self.parameters(), lr=self.lr)
         return optimizer
