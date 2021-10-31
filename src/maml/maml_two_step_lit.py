@@ -27,6 +27,9 @@ from transformers import AutoConfig, AutoModel, get_linear_schedule_with_warmup,
 
 from src.data.datasets import HFDataset
 
+
+logging.getLogger("pytorch_pretrained_bert").setLevel(logging.ERROR)
+
 run_suffix = datetime.datetime.now().strftime("%Y_%m_%d_%H")
 
 logger = logging.getLogger()
@@ -61,7 +64,7 @@ def parse_helper():
     # Required parameters
     parser.add_argument("--data_dir", default="../../data/processed/", type=str,
                         help="The input data dir. Should contain the .tsv files (or other data files) for the task.")
-    parser.add_argument("--model_name_or_path", default='bert-base-multilingual-cased', type=str,
+    parser.add_argument("--model_name_or_path", default='bert-base-multilingual-uncased', type=str,
                         help="Path to pre-trained model or shortcut name selected in the list: ")
     parser.add_argument("--dataset_type", default="bert", type=str,
                         help="The input data type. It could take bert, lstm, gpt2 as input.")
@@ -153,15 +156,12 @@ def compute_loss_acc(logits, labels, criterion):
     acc = (preds == labels).sum() / preds.shape[0]
     return loss, acc
 
-
 def checkpoint_ft_model(args, model):
     run_dir = os.path.join(RUN_BASE_DIR, "ft", f"{args.dataset_name}{args.target_lang}")
     os.makedirs(run_dir, exist_ok=True)
     output_dir = os.path.join(run_dir, args.model_name_or_path)
     logger.debug(f"Saving fine-tuned checkpoint to {output_dir}")
-
-    model_to_save = model.module if hasattr(model, "module") else model
-    model_to_save.save_pretrained(output_dir) 
+    torch.save(model.state_dict(), output_dir) 
 
 def evaluate(args, model, validation_dataloader, device, type="test"):
     loss_fn = torch.nn.CrossEntropyLoss()
@@ -246,7 +246,7 @@ def finetune(args, model, train_dataloader, eval_dataloader, test_dataloader, de
             opt.step()
             total_train_loss += loss.item()
             total_train_acc += acc
-            if (nb_train_steps + 1) % 5 == 0:
+            if (nb_train_steps + 1) % 50 == 0:
                 avg_train_loss = total_train_loss / nb_train_steps
                 logger.debug(f"  Epoch {epoch+1}, step {nb_train_steps+1}, training loss: {avg_train_loss:.3f} \n")
                 f1, _ = evaluate(args, model, eval_dataloader, device, type="eval")
@@ -260,14 +260,14 @@ def finetune(args, model, train_dataloader, eval_dataloader, test_dataloader, de
     logger.info(f"Evaluating fine-tuned model performance on test set. Training lang = {args.target_lang}")
     logger.info("============================================================")
 
-    logger.info(f"Loading fine-tuned model from the checkpoint {path_to_model}")
 
-    model = MBERTClassifier()
-    lit_model = LitClassifier(model)
+ 
     path_to_model = os.path.join(RUN_BASE_DIR, "ft", f"{args.dataset_name}{args.target_lang}", args.model_name_or_path)
+    logger.info(f"Loading fine-tuned model from the checkpoint {path_to_model}")
+    
+    model = MBERTClassifier()
     ckpt = torch.load(os.path.normpath(path_to_model))
-    lit_model.load_state_dict(ckpt['state_dict'])
-    model = lit_model.model
+    model.load_state_dict(ckpt)
     model.to(device)    
     evaluate(args, model, test_dataloader, device, type="pred")
 
@@ -297,8 +297,8 @@ def main(args,
         torch.cuda.manual_seed(seed)
         device = torch.device(f'cuda:{args.device_id}')
         args.n_gpu = 1
-    logger.debug(f"device : {device}")
-    logger.debug(f"gpu : {args.n_gpu}")
+    logger.info(f"device : {device}")
+    logger.info(f"gpu : {args.n_gpu}")
     
     model = MBERTClassifier()
     lit_model = LitClassifier(model)
@@ -408,7 +408,7 @@ def main(args,
             # report_memory(name = f"maml{idx}")
 
             for _ in range(adaptation_steps):
-                outputs = learner(**train_support_inp)
+                outputs = learner(train_support_inp)
                 loss, acc = compute_loss_acc(outputs["logits"], train_support_inp["labels"], loss_fn)
           
                 if args.n_gpu > 1:
@@ -416,7 +416,7 @@ def main(args,
                 learner.adapt(loss, allow_nograd=True, allow_unused=True)
                 meta_train_error += loss.item()
                 meta_train_accuracy += acc
-            outputs = learner(**train_query_inp)
+            outputs = learner(train_query_inp)
             eval_loss, eval_acc = compute_loss_acc(outputs["logits"], train_query_inp["labels"], loss_fn)
   
             if args.n_gpu > 1:
@@ -432,7 +432,8 @@ def main(args,
                 domain_query_inp = {'input_ids': d_task['input_ids'],
                     'attention_mask': d_task['attention_mask'],
                     'labels': d_task['label']}
-                outputs = learner(**domain_query_inp)
+                domain_query_inp = move_to(domain_query_inp, device)
+                outputs = learner(domain_query_inp)
                 d_loss, _ = compute_loss_acc(outputs["logits"], domain_query_inp["labels"], loss_fn)
                 if args.n_gpu > 1:
                     d_loss = d_loss.mean()
