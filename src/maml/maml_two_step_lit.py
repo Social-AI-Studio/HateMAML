@@ -11,6 +11,8 @@ import pandas as pd
 from sklearn.utils.sparsefuncs import inplace_csr_column_scale
 from baselines.STCKA.utils.metrics import assess
 from src.data.consts import DEST_DATA_PKL_DIR, RUN_BASE_DIR, SRC_DATA_PKL_DIR
+from src.model.classifiers import MBERTClassifier
+from src.model.lightning import LitClassifier
 import torch
 import torch.nn.functional as F
 import learn2learn as l2l
@@ -140,32 +142,16 @@ def accuracy(predictions, labels):
     preds = np.argmax(predictions, axis=1)
     return (preds == labels).mean()
 
-def report_memory(name=''):
-    """Simple GPU memory report."""
+def compute_loss_acc(logits, labels, criterion):
+    preds = torch.argmax(logits, dim=1)
+    loss = criterion(logits, labels)
 
-    mega_bytes = 1024.0 * 1024.0
-    string = name + ' memory (MB)'
-    string += ' | allocated: {}'.format(
-        torch.cuda.memory_allocated() / mega_bytes)
-    string += ' | max allocated: {}'.format(
-        torch.cuda.max_memory_allocated() / mega_bytes)
-    string += ' | cached: {}'.format(torch.cuda.memory_reserved() / mega_bytes)
-    string += ' | max cached: {}'.format(
-        torch.cuda.max_memory_reserved()/ mega_bytes)
-    print(string, end='\r')
+    if torch.cuda.is_available():
+        preds = preds.cpu().numpy()
+        labels = labels.cpu().numpy()
 
-def checkpoint_model(args, model, optimizer, scheduler):
-    run_dir = os.path.join(RUN_BASE_DIR, "hate-maml", args.dataset_name)
-    os.makedirs(run_dir, exist_ok=True)
-    output_dir = os.path.join(run_dir, args.model_name_or_path)
-    logger.info(f"Saving model checkpoint to {output_dir}")
-
-    model_to_save = model.module if hasattr(model, "module") else model
-    model_to_save.save_pretrained(output_dir) 
-
-    torch.save(optimizer.state_dict(), os.path.join(output_dir, "optimizer.pt"))
-    torch.save(scheduler.state_dict(), os.path.join(output_dir, "scheduler.pt"))
-    logger.info(f"Saving optimizer and scheduler states to {output_dir}")
+    acc = (preds == labels).sum() / preds.shape[0]
+    return loss, acc
 
 
 def checkpoint_ft_model(args, model):
@@ -178,6 +164,8 @@ def checkpoint_ft_model(args, model):
     model_to_save.save_pretrained(output_dir) 
 
 def evaluate(args, model, validation_dataloader, device, type="test"):
+    loss_fn = torch.nn.CrossEntropyLoss()
+
     model.eval()
 
     total_eval_loss = 0
@@ -189,11 +177,11 @@ def evaluate(args, model, validation_dataloader, device, type="test"):
         batch["labels"] = batch.pop("label")
         with torch.no_grad():
             batch = move_to(batch ,device)
-            outputs = model(**batch)
-            loss = outputs[0]
+            outputs = model(batch)
+            loss, _ = compute_loss_acc(outputs["logits"], batch["labels"], loss_fn)
             if args.n_gpu > 1:
                 loss = loss.mean()
-            logits = outputs[1]
+            logits = outputs["logits"]
 
             if pred_label is not None and target_label is not None:
                 pred_label = torch.cat((pred_label, logits), 0)
@@ -207,7 +195,7 @@ def evaluate(args, model, validation_dataloader, device, type="test"):
         nb_eval_steps += 1
 
     val_loss = total_eval_loss / len(validation_dataloader)
-    acc, p, r, f1 = assess(pred_label, target_label)
+    _, p, r, f1 = assess(pred_label, target_label)
 
     log_str = type.capitalize() + "iction" if type == "pred" else type.capitalize() + "uation"
 
@@ -218,88 +206,6 @@ def evaluate(args, model, validation_dataloader, device, type="test"):
         logger.info(f"  F1 = {f1:.3f}")
 
     return f1, val_loss
-
-def train_from_scratch(args, model, opt, scheduler, train_dataloader, eval_dataloader, test_dataloader, device):
-    """
-    Returns the fine-tuned model which has similar behavior of the pre-trained model e.g. BERT, XLM-R.
-
-    Use this method to fine-tune using high-resouce training samples on a hate detection task. 
-
-    Args:
-        model (BERTModelClass):
-            The model for task-specific fine-tuning from scratch.
-
-        train_dataloader (:obj:`torch.utils.data.DataLoader`, `optional`):
-            The train dataloader to use.
-        
-        eval_dataloader (:obj:`torch.utils.data.DataLoader`, `optional`):
-            The test dataloader to use.
-
-        test_dataloader (:obj:`torch.utils.data.DataLoader`, `optional`):
-            The test dataloader to use.
-
-        opt (torch.optim): An optimizer object to use for gradient update.
-
-        scheduler (`get_linear_schedule_with_warmup`): 
-            An scheduler to tune the learning rate for BERT training.
-            Used in HF transformer codebase.
-    
-    Returns:
-            :class:`~transformers.BertModel`: Returns fine-tuned model e.g. BERT.
-    """
-    
-    logger.info("***** Running training *****")
-    logger.info(f"  Num examples = {len(train_dataloader)*args.batch_size}")
-    logger.info(f"  Num Epochs = {args.num_train_epochs}")
-    logger.info(f"  Gradient Accumulation steps = {args.gradient_accumulation_steps}")
-    logger.info(f"  Total optimization steps = {args.num_train_epochs * len(train_dataloader)}")
-
-
-    nb_train_steps = 0
-    max_val_loss = 1000000
-    val_loss = None
-    for epoch in range(args.num_train_epochs):
-        model.train()
-        total_train_loss = 0
-        total_train_acc = 0
-        for batch in tqdm(train_dataloader, total=len(train_dataloader)):
-            model.zero_grad()
-            batch["labels"] = batch.pop("label")
-            batch  = move_to(batch, device)
-            outputs = model(**batch)
-            loss = outputs[0]
-            if args.n_gpu > 1:
-                loss = loss.mean()
-            logits = outputs[1]
-
-            logits = logits.detach().cpu().numpy()
-            label_ids = batch["labels"].to('cpu').numpy()
-            acc = accuracy(logits, label_ids)
-            loss.backward()
-            opt.step()
-            scheduler.step()
-            total_train_loss += loss.item()
-            total_train_acc += acc
-            if (nb_train_steps + 1) % 50 == 0:
-                avg_train_loss = total_train_loss / nb_train_steps
-                logger.info(f"  Epoch {epoch+1}, step {nb_train_steps+1}, training loss: {avg_train_loss:.3f} \n")
-                _, val_loss = evaluate(args, model, eval_dataloader, device, type="eval")
-                if max_val_loss > val_loss:
-                    max_val_loss = val_loss
-                    if args.overwrite_base_model:
-                        checkpoint_model(args, model, opt, scheduler)
-
-                report_memory(name = "fine-tune-base")
-
-            nb_train_steps += 1
-
-    logger.info(f"\nEvaluating base model performance on test set. Training lang = {args.source_lang}")
-    evaluate(args, model, test_dataloader, device, type="pred")
-
-    if args.overwrite_base_model:
-        checkpoint_model(args, model, opt, scheduler)
-    return model
-
 
 def finetune(args, model, train_dataloader, eval_dataloader, test_dataloader, device):
     logger.info("***** Running training *****")
@@ -318,6 +224,8 @@ def finetune(args, model, train_dataloader, eval_dataloader, test_dataloader, de
         {"params": [p for n, p in model.named_parameters() if any(nd in n for nd in no_decay)], "weight_decay": 0.0},
     ]
     opt = optim.AdamW(optimizer_grouped_parameters, lr=args.meta_lr, eps=args.adam_epsilon)
+    
+    loss_fn = torch.nn.CrossEntropyLoss()
 
     nb_train_steps = 0
     min_macro_f1 = 0
@@ -329,15 +237,11 @@ def finetune(args, model, train_dataloader, eval_dataloader, test_dataloader, de
             model.zero_grad()
             batch["labels"] = batch.pop("label")
             batch  = move_to(batch, device)
-            outputs = model(**batch)
-            loss = outputs[0]
+            outputs = model(batch)
+            loss, acc = compute_loss_acc(outputs["logits"], batch["labels"], loss_fn)
             if args.n_gpu > 1:
                 loss = loss.mean()
-            logits = outputs[1]
 
-            logits = logits.detach().cpu().numpy()
-            label_ids = batch["labels"].to('cpu').numpy()
-            acc = accuracy(logits, label_ids)
             loss.backward()
             opt.step()
             total_train_loss += loss.item()
@@ -356,14 +260,15 @@ def finetune(args, model, train_dataloader, eval_dataloader, test_dataloader, de
     logger.info(f"Evaluating fine-tuned model performance on test set. Training lang = {args.target_lang}")
     logger.info("============================================================")
 
-    config = AutoConfig.from_pretrained(args.model_name_or_path, num_labels=2)
-    model = AutoModelForSequenceClassification.from_config(config)
-    path_to_model = os.path.join(RUN_BASE_DIR, "ft", f"{args.dataset_name}{args.target_lang}", args.model_name_or_path)
     logger.info(f"Loading fine-tuned model from the checkpoint {path_to_model}")
-    model_dict = torch.load(os.path.join(path_to_model, "pytorch_model.bin"))
-    model.load_state_dict(model_dict)
-    model.to(device)
-    
+
+    model = MBERTClassifier()
+    lit_model = LitClassifier(model)
+    path_to_model = os.path.join(RUN_BASE_DIR, "ft", f"{args.dataset_name}{args.target_lang}", args.model_name_or_path)
+    ckpt = torch.load(os.path.normpath(path_to_model))
+    lit_model.load_state_dict(ckpt['state_dict'])
+    model = lit_model.model
+    model.to(device)    
     evaluate(args, model, test_dataloader, device, type="pred")
 
     return model
@@ -394,20 +299,14 @@ def main(args,
         args.n_gpu = 1
     logger.debug(f"device : {device}")
     logger.debug(f"gpu : {args.n_gpu}")
-
-    # Download configuration from huggingface.co and cache.
-    config = AutoConfig.from_pretrained(args.model_name_or_path, num_labels=2)
-    model = AutoModelForSequenceClassification.from_config(config)
-
-    no_decay = ["bias", "LayerNorm.weight"]
-    optimizer_grouped_parameters = [
-        {
-            "params": [p for n, p in model.named_parameters() if not any(nd in n for nd in no_decay)],
-            "weight_decay": 0.01,
-        },
-        {"params": [p for n, p in model.named_parameters() if any(nd in n for nd in no_decay)], "weight_decay": 0.0},
-    ]
-    optimizer = optim.AdamW(optimizer_grouped_parameters, lr=args.meta_lr, eps=args.adam_epsilon)
+    
+    model = MBERTClassifier()
+    lit_model = LitClassifier(model)
+    path_to_model = "runs/tanmoy/Mbert5.ckpt"
+    ckpt = torch.load(os.path.normpath(path_to_model))
+    lit_model.load_state_dict(ckpt['state_dict'])
+    model = lit_model.model
+    model.to(device)
 
     # Load English samples
     if args.dataset_name == "semeval2020":
@@ -418,37 +317,8 @@ def main(args,
     source_lang_dataloaders = get_split_dataloaders(args, dataset_name=dsn, lang=args.source_lang)
     train_dataloader, eval_dataloader, test_dataloader = source_lang_dataloaders['train'], source_lang_dataloaders['val'], \
                                                     source_lang_dataloaders['test']
-
     
-    total_training_steps = len(train_dataloader) // args.gradient_accumulation_steps * args.num_train_epochs
-    scheduler = get_linear_schedule_with_warmup(
-        optimizer, num_warmup_steps=1, num_training_steps=total_training_steps
-    )
-    if args.load_saved_base_model:
-        run_name = args.dataset_name
-        path_to_model = os.path.join(RUN_BASE_DIR, "hate-maml", run_name, args.model_name_or_path)
-        logger.debug(f"Loading base model from the checkpoint {path_to_model}")
-        model_dict = torch.load(os.path.join(path_to_model, "pytorch_model.bin"))
-        model.load_state_dict(model_dict)
-        # optimizer.load_state_dict(torch.load(os.path.join(path_to_model, "optimizer.pt")))
-        # scheduler.load_state_dict(torch.load(os.path.join(path_to_model, "scheduler.pt")))
 
-        # # moving optimizer to gpu
-        # for state in optimizer.state.values():
-        #     for k, v in state.items():
-        #         if isinstance(v, torch.Tensor):
-        #             state[k] = v.cuda()
-
-
-    if torch.cuda.device_count() > 0:
-        device_ids = list(range(torch.cuda.device_count()))
-        model = nn.DataParallel(model, device_ids=[args.device_id])
-
-    model.to(device)
-
-    if not args.load_saved_base_model and args.overwrite_base_model:
-        model = train_from_scratch(args, model, optimizer, scheduler, train_dataloader, eval_dataloader, test_dataloader, device)
-    
     target_lang_dataloaders = get_split_dataloaders(args, dataset_name=args.dataset_name, lang=args.target_lang)
 
     if args.exp_setting == "x-maml":
@@ -505,6 +375,8 @@ def main(args,
     logger.info("*********************************")
     logger.info("*** MAML training starts now ***")
     logger.info("*********************************")
+    
+    loss_fn = torch.nn.CrossEntropyLoss()
 
     for iteration in tqdm(range(args.num_meta_iterations)): #outer loop
         opt.zero_grad()
@@ -537,27 +409,20 @@ def main(args,
 
             for _ in range(adaptation_steps):
                 outputs = learner(**train_support_inp)
-                loss = outputs[0]
-                logits = outputs[1]
-                
-                logits = logits.detach().cpu().numpy()
-                label_ids = train_support_inp["labels"].to('cpu').numpy()
-
+                loss, acc = compute_loss_acc(outputs["logits"], train_support_inp["labels"], loss_fn)
+          
                 if args.n_gpu > 1:
                     loss = loss.mean()
                 learner.adapt(loss, allow_nograd=True, allow_unused=True)
                 meta_train_error += loss.item()
-                meta_train_accuracy += accuracy(logits, label_ids) 
+                meta_train_accuracy += acc
             outputs = learner(**train_query_inp)
-            eval_loss = outputs[0]
-            eval_logits = outputs[1]
-            eval_logits = eval_logits.detach().cpu().numpy()
-            eval_label_ids = train_query_inp["labels"].to('cpu').numpy()
-            
+            eval_loss, eval_acc = compute_loss_acc(outputs["logits"], train_query_inp["labels"], loss_fn)
+  
             if args.n_gpu > 1:
                 eval_loss = eval_loss.mean()
             meta_valid_error += eval_loss.item()
-            meta_valid_accuracy += accuracy(eval_logits, eval_label_ids) 
+            meta_valid_accuracy += eval_acc
             
             if args.exp_setting in ["hmaml-zeroshot", "hmaml-fewshot"]:
                 choice_idx = random.randint(0, len(meta_domain_tasks)-1)
@@ -568,7 +433,7 @@ def main(args,
                     'attention_mask': d_task['attention_mask'],
                     'labels': d_task['label']}
                 outputs = learner(**domain_query_inp)
-                d_loss = outputs[0]
+                d_loss, _ = compute_loss_acc(outputs["logits"], domain_query_inp["labels"], loss_fn)
                 if args.n_gpu > 1:
                     d_loss = d_loss.mean()
 
@@ -641,7 +506,7 @@ def get_silver_dataset_for_meta_refine(args, model, dataloader, device):
         batch["labels"] = batch.pop("label")
         with torch.no_grad():
             batch = move_to(batch, device)
-            outputs = model(**batch)
+            outputs = model(batch)
      
             pred_label = outputs[1]
 
