@@ -5,10 +5,10 @@ import argparse
 import random
 import datetime
 import os
+import json
 from typing_extensions import runtime
 import numpy as np
 import pandas as pd
-from sklearn.utils.sparsefuncs import inplace_csr_column_scale
 from baselines.STCKA.utils.metrics import assess
 from src.data.consts import DEST_DATA_PKL_DIR, RUN_BASE_DIR, SRC_DATA_PKL_DIR
 from src.model.classifiers import MBERTClassifier
@@ -60,10 +60,12 @@ def parse_helper():
     parser = argparse.ArgumentParser()
 
     # Required parameters
-    parser.add_argument("--data_dir", default="../../data/processed/", type=str,
+    parser.add_argument("--data_dir", default="data/processed/", type=str,
                         help="The input data dir. Should contain the .tsv files (or other data files) for the task.")
     parser.add_argument("--model_name_or_path", default='bert-base-multilingual-uncased', type=str,
-                        help="Path to pre-trained model or shortcut name selected in the list: ")
+                        help="Path to pre-trained model or shortcut name selected in the list: `mbert`, `xlm-r`")
+    parser.add_argument("--base_model_path", default="runs/tanmoy/Mbert2.ckpt", type=str,
+                        help="Path to fine-tunes base-model, load from checkpoint!")
     parser.add_argument("--dataset_type", default="bert", type=str,
                         help="The input data type. It could take bert, lstm, gpt2 as input.")
     parser.add_argument("--dataset_name", default="semeval2020", type=str,
@@ -212,6 +214,7 @@ def finetune(args, model, train_dataloader, eval_dataloader, test_dataloader, de
     logger.debug(f"  Gradient Accumulation steps = {args.gradient_accumulation_steps}")
     logger.debug(f"  Total optimization steps = {args.num_train_epochs * len(train_dataloader)}")
 
+
     no_decay = ["bias", "LayerNorm.weight"]
     optimizer_grouped_parameters = [
         {
@@ -266,9 +269,10 @@ def finetune(args, model, train_dataloader, eval_dataloader, test_dataloader, de
     ckpt = torch.load(os.path.normpath(path_to_model))
     model.load_state_dict(ckpt)
     model.to(device)    
-    evaluate(args, model, test_dataloader, device, type="pred")
+    f1, loss = evaluate(args, model, test_dataloader, device, type="pred")
 
-    return model
+    result = {"examples": len(train_dataloader)*args.batch_size,  "f1": f1, "loss": loss}
+    return result
 
 
 def main(args,
@@ -299,8 +303,7 @@ def main(args,
     
     model = MBERTClassifier()
     lit_model = LitClassifier(model)
-    path_to_model = "runs/tanmoy/Mbert1.ckpt"
-    ckpt = torch.load(os.path.normpath(path_to_model))
+    ckpt = torch.load(os.path.normpath(args.base_model_path))
     lit_model.load_state_dict(ckpt['state_dict'])
     model = lit_model.model
     model.to(device)
@@ -318,33 +321,33 @@ def main(args,
 
     target_lang_dataloaders = get_split_dataloaders(args, dataset_name=args.dataset_name, lang=args.target_lang)
 
-    if args.exp_setting == "x-maml":
-        aux_lang_dataloaders = get_split_dataloaders(args, dataset_name=args.dataset_name, lang=args.aux_lang)
-
-        meta_tasks = aux_lang_dataloaders['val']
-        meta_batch_size = len(meta_tasks)
-
-    elif args.exp_setting == "maml":
-        meta_tasks = get_dataloader(
-            split_name="train", config=args, train_few_dataset_name= f"{args.dataset_name}{args.target_lang}"
-        )
-        meta_batch_size = len(meta_tasks)
-
-    elif args.exp_setting == "hmaml-zeroshot":
-        meta_tasks = get_dataloader(
+    if args.exp_setting == "hmaml-zeroshot":
+        meta_tasks_list = [get_dataloader(
             split_name="train", config=args, train_few_dataset_name= f"founta{args.source_lang}", lang=args.source_lang
-        )
-        meta_batch_size = len(meta_tasks)
+        ),
+        get_dataloader(
+            split_name="train", config=args, train_few_dataset_name= f"{args.dataset_name}{args.aux_lang}", lang=args.aux_lang
+        )]
+        meta_batch_size_list = []
+        for l in meta_tasks_list:
+            meta_batch_size_list.append(len(l))
+        meta_batch_size = sum(meta_batch_size_list)
         logger.info(f"Number of meta tasks {meta_batch_size}")
 
         meta_domain_tasks = get_dataloader(
             split_name="train", config=args, train_few_dataset_name= f"{args.dataset_name}{args.aux_lang}", lang=args.aux_lang
         )
     elif args.exp_setting == "hmaml-fewshot":
-        meta_tasks = get_dataloader(
+        meta_tasks_list = [get_dataloader(
+            split_name="train", config=args, train_few_dataset_name= f"founta{args.source_lang}", lang=args.source_lang
+        ),
+        get_dataloader(
             split_name="train", config=args, train_few_dataset_name= f"{args.dataset_name}{args.target_lang}", lang=args.target_lang
-        )
-        meta_batch_size = len(meta_tasks)
+        )]
+        meta_batch_size_list = []
+        for l in meta_tasks_list:
+            meta_batch_size_list.append(len(l))
+        meta_batch_size = sum(meta_batch_size_list)
         logger.info(f"Number of meta tasks {meta_batch_size}")
 
         meta_domain_tasks = get_dataloader(
@@ -383,10 +386,17 @@ def main(args,
         meta_valid_error = 0.0
         meta_valid_accuracy = 0.0
 
-        if len(meta_tasks) < 2: # handle zeroshot refine worst case
-            continue
+        tmp_cntr = meta_batch_size_list[:]
 
-        for idx, task in enumerate(meta_tasks):
+        for idx in range(meta_batch_size):
+            task = None
+            for k in range(10):
+                choice_idx = random.randint(0, len(meta_tasks_list)-1)
+                if tmp_cntr[choice_idx] > 0:
+                    task = next(iter(meta_tasks_list[choice_idx]))
+                    tmp_cntr[choice_idx] -= 1
+                    break
+
             n_meta_lr = args.shots // 2
 
             train_query_inp = {'input_ids': task['input_ids'][:n_meta_lr],
@@ -470,12 +480,18 @@ def main(args,
     # Zero-shot, Few-shot or Full-tuned evaluation? You can now take the meta-adapted model and fine-tune it on 
     # all the available low-resource training samples. If we don't fine-tune that it can be considered as few-shot model. 
     # If we don't apply step 2, it becomes a zero-shot model.
-    
+    summary = {"aux_lang": args.aux_lang, 
+        "target_lang": args.target_lang, 
+        "num_meta_iterations": args.num_meta_iterations,
+        "base_model_path": args.base_model_path,
+        "script_name": os.path.basename(__file__),
+        "exp_setting": args.exp_setting
+    }
+
     ltxt =  "Zero-shot" if "zero" in str(args.exp_setting) else "Few-shot"
-    logger.debug(f"**** {ltxt} evaluation on {args.dataset_name} meta {args.exp_setting} tuned model >>> Language = {args.target_lang} ****")
-
-    # evaluate(args, model, target_lang_dataloaders['test'], device, type="pred")
-
+    logger.info(f"**** {ltxt} evaluation on {args.dataset_name} meta {args.exp_setting} tuned model >>> Language = {args.target_lang} ****")
+    zfew_result = evaluate(args, model, target_lang_dataloaders['test'], device, type="pred")
+    summary[str(args.exp_setting)] = {"f1": zfew_result[0], "loss": zfew_result[1]}
     # **** THE FEW-SHOT ADAPTATION STEP ****
     # Step 2. This section will be updated with Meta-adaption codes. It will only train on 
     # low-resource langauges that we want to adapt to e.g. Spanish. It will follow similar code as
@@ -490,9 +506,14 @@ def main(args,
                 split_name="val", config=args, train_few_dataset_name= f"{args.dataset_name}{args.target_lang}", lang=args.target_lang, train = "standard",
             )
             test_dataloader = target_lang_dataloaders['test']
-            finetune(args, model, train_dataloader, eval_dataloader, test_dataloader, device)
+            ft_result = finetune(args, model, train_dataloader, eval_dataloader, test_dataloader, device)
+            summary[str(args.finetune_fewshot)] = ft_result
         elif args.finetune_fewshot == "full":
-            finetune(args, model, target_lang_dataloaders['train'], target_lang_dataloaders['val'], target_lang_dataloaders['test'], device)
+            ft_result = finetune(args, model, target_lang_dataloaders['train'], target_lang_dataloaders['val'], target_lang_dataloaders['test'], device)
+            summary[str(args.finetune_fewshot)] = ft_result
+    summary_fname = f"runs/summary/{os.path.basename(__file__)}_{str(args.base_model_path)[-11:-5]}_{args.exp_setting}_{args.num_meta_iterations}_{args.aux_lang}_{args.target_lang}.json"
+    json.dump(summary, open(summary_fname, 'w'))
+
 
 def get_silver_dataset_for_meta_refine(args, model, dataloader, device):
     logger.info(f"Generating silver labels for target language {args.target_lang}")
