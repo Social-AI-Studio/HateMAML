@@ -1,12 +1,12 @@
 """
 A prototype of two step meta learning algorithm for multilingual hate detection.
 """
+import sys
+import os
 import argparse
 import random
 import datetime
-import os
 import json
-from typing_extensions import runtime
 import numpy as np
 import pandas as pd
 from baselines.STCKA.utils.metrics import assess
@@ -19,9 +19,9 @@ import learn2learn as l2l
 
 from torch import nn, optim
 from torch.utils.data import DataLoader
+from sklearn.metrics import f1_score
 from tqdm import tqdm
 import logging
-import sys
 from transformers import AutoConfig, AutoModel, get_linear_schedule_with_warmup, AutoModelForSequenceClassification, \
     AutoTokenizer
 from src.data.datasets import HFDataset
@@ -110,8 +110,8 @@ def parse_helper():
                         help="The inner loop fast adaptation learning rate.")
     parser.add_argument("--load_saved_base_model", default=False, action='store_true',
                         help="Fine-tune base-model loading from a given checkpoint.")  
-    parser.add_argument("--overwrite_base_model", default=False, action='store_true',
-                        help="Fine-tune base-model loading from a given checkpoint.")  
+    parser.add_argument("--overwrite_cache", default=False, action='store_true',
+                        help="Overwrite cached results for a run.")  
 
     parser.add_argument("--exp_setting", type=str, default='maml-step1',
                         help="Provide a MAML training setup. Valid values are 'xmaml', 'maml-step1', 'maml-step1_2', 'maml-refine'.")             
@@ -150,8 +150,8 @@ def compute_loss_acc(logits, labels, criterion):
         preds = preds.cpu().numpy()
         labels = labels.cpu().numpy()
 
-    acc = (preds == labels).sum() / preds.shape[0]
-    return loss, acc
+    f1 = f1_score(preds, labels, average='macro')
+    return loss, f1
 
 def checkpoint_ft_model(args, model):
     run_dir = os.path.join(RUN_BASE_DIR, "ft", f"{args.dataset_name}{args.target_lang}")
@@ -226,6 +226,7 @@ def finetune(args, model, train_dataloader, eval_dataloader, test_dataloader, de
 
     nb_train_steps = 0
     min_macro_f1 = 0
+
     for epoch in range(args.num_train_epochs):
         model.train()
         total_train_loss = 0
@@ -287,6 +288,13 @@ def main(args,
         adaptation_steps (int); The number of inner loop steps.
         num_iterations (int): The total number of iteration MAML will run (outer loop update).
     """
+
+    summary_output_dir= os.path.join("runs/summary", os.path.basename(__file__)[:-3])
+    aux_la = "_" + args.aux_lang if args.aux_lang else ""
+    summary_fname = os.path.join(summary_output_dir, f"{args.base_model_path[-11:-5]}_{args.exp_setting}_{args.num_meta_iterations}_{args.shots//2}{aux_la}_{args.target_lang}.json")
+    if os.path.exists(summary_fname) and not args.overwrite_cache:
+        return
+
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
@@ -304,17 +312,6 @@ def main(args,
     lit_model.load_state_dict(ckpt['state_dict'])
     model = lit_model.model
     model.to(device)
-
-    # Load English samples
-    if args.dataset_name == "semeval2020":
-        dsn = "founta"
-    else:
-        dsn = args.dataset_name
-
-    source_lang_dataloaders = get_split_dataloaders(args, dataset_name=dsn, lang=args.source_lang)
-    train_dataloader, eval_dataloader, test_dataloader = source_lang_dataloaders['train'], source_lang_dataloaders['val'], \
-                                                    source_lang_dataloaders['test']
-    
 
     target_lang_dataloaders = get_split_dataloaders(args, dataset_name=args.dataset_name, lang=args.target_lang)
 
@@ -334,6 +331,15 @@ def main(args,
         meta_domain_tasks = get_dataloader(
             split_name="train", config=args, train_few_dataset_name= f"{args.dataset_name}{args.aux_lang}", lang=args.aux_lang
         )
+
+        if args.finetune_fewshot == "few":
+            train_target_ft_dataloader = get_dataloader(
+                split_name="train", config=args, train_few_dataset_name= f"{args.dataset_name}{args.target_lang}", lang=args.target_lang, train = "standard",
+            )
+            eval_target_ftdataloader = get_dataloader(
+                split_name="val", config=args, train_few_dataset_name= f"{args.dataset_name}{args.target_lang}", lang=args.target_lang, train = "standard",
+            )
+
     elif args.exp_setting == "hmaml-fewshot":
         meta_tasks_list = [get_dataloader(
             split_name="train", config=args, train_few_dataset_name= f"founta{args.source_lang}", lang=args.source_lang
@@ -352,19 +358,26 @@ def main(args,
         )
     elif args.exp_setting == "hmaml-zero-refine":
         silver_dataset = get_silver_dataset_for_meta_refine(args, model, target_lang_dataloaders['train'], device)
-        meta_tasks = torch.utils.data.DataLoader(
+        meta_tasks_list = [get_dataloader(
+            split_name="train", config=args, train_few_dataset_name= f"founta{args.source_lang}", lang=args.source_lang
+        ),
+        torch.utils.data.DataLoader(
             silver_dataset, batch_size=args.shots, num_workers=args.num_workers, shuffle=True, drop_last = True,
-        )
-        meta_batch_size = len(meta_tasks)
+        )]
+
+        meta_batch_size_list = []
+        for l in meta_tasks_list:
+            meta_batch_size_list.append(len(l))
+        meta_batch_size = sum(meta_batch_size_list)
+        logger.info(f"Number of meta tasks {meta_batch_size}")
     else:
        raise ValueError(f"{args.exp_setting} is unknown!")
     
     logger.info(f"**** Zero-shot evaluation on {args.dataset_name} before MAML >>> Language = {args.target_lang} ****")
     evaluate(args, model, target_lang_dataloaders['test'], device, type="pred")
-    # Step 1 starts from here. This step assumes we have a pretrained base model from `train_from_scratch`, 
-    # possibly trained on English. We will now meta-train the base model with MAML algorithm. `Meta-training`
-    # support set only contains input from `English` training set. `Meta-training` query set can both contain
-    # samples from English and other languages (validation set).
+
+    # MAML training starts here. This step assumes we have a pretrained base model, fine-tuned on English. 
+    # We will now meta-train the base model with MAML algorithm.
 
     maml = l2l.algorithms.MAML(model, lr=args.fast_lr, first_order=True)
     opt = optim.AdamW(maml.parameters(), args.meta_lr)
@@ -382,6 +395,7 @@ def main(args,
         meta_train_accuracy = 0.0
         meta_valid_error = 0.0
         meta_valid_accuracy = 0.0
+        meta_domain_accuracy = 0.0
 
         tmp_cntr = meta_batch_size_list[:]
 
@@ -406,8 +420,6 @@ def main(args,
             train_query_inp = move_to(train_query_inp, device)
             train_support_inp = move_to(train_support_inp, device)
 
-            # train support inp should also contain other languages that we want to meta-adapt in `step two` 
-            # Compute meta-training loss
             learner = maml.clone()
             # report_memory(name = f"maml{idx}")
 
@@ -438,30 +450,30 @@ def main(args,
                     'labels': d_task['label']}
                 domain_query_inp = move_to(domain_query_inp, device)
                 outputs = learner(domain_query_inp)
-                d_loss, _ = compute_loss_acc(outputs["logits"], domain_query_inp["labels"], loss_fn)
+                d_loss, d_f1 = compute_loss_acc(outputs["logits"], domain_query_inp["labels"], loss_fn)
                 if args.n_gpu > 1:
                     d_loss = d_loss.mean()
 
                 total_loss = eval_loss + d_loss
+                meta_domain_accuracy += d_f1
 
             else:
                 total_loss = eval_loss
 
             total_loss.backward()
-        meta_train_error = meta_train_error / meta_batch_size
-        meta_valid_error = meta_valid_error / meta_batch_size
 
-        # meta_valid_error.backward()
         # Print some metrics
         print('\n')
         mt_error = meta_train_error / meta_batch_size
         mt_acc = meta_train_accuracy / meta_batch_size
         mv_error = meta_valid_error / meta_batch_size
         mv_acc =  meta_valid_accuracy / meta_batch_size
+        md_acc = meta_domain_accuracy / meta_batch_size
+        # mv_error.backward()
 
-        logger.debug('   Iteration {} >> Meta Train Error {:.3f}, Accuracy {:.3f} # Valid Error {:.3f}, Accuracy {:.3f}'.format(iteration, mt_error, mt_acc, mv_error, mv_acc))
+        logger.debug('  Iteration {} >> Meta Train Error {:.3f}, F1 {:.3f} # Valid Error {:.3f}, F1 {:.3f}, Domain F1 {:.3f}'.format(iteration, mt_error, mt_acc, mv_error, mv_acc, md_acc))
 
-        # Average the accumulated gradients and optimize
+        #Average the accumulated gradients and optimize
         # for p in maml.parameters():
         #     if p.grad is not None:
         #         p.grad.data.mul_(1.0 / meta_batch_size)
@@ -469,14 +481,23 @@ def main(args,
 
         if args.exp_setting == "hmaml-zero-refine":
             silver_dataset = get_silver_dataset_for_meta_refine(args, model, target_lang_dataloaders['train'], device)
-            meta_tasks = torch.utils.data.DataLoader(
-                silver_dataset, batch_size=args.batch_size, num_workers=args.num_workers, shuffle = True, drop_last = True,
-            )
-            meta_batch_size = len(meta_tasks)
+            meta_tasks_list = [get_dataloader(
+                split_name="train", config=args, train_few_dataset_name= f"founta{args.source_lang}", lang=args.source_lang
+            ),
+            torch.utils.data.DataLoader(
+                silver_dataset, batch_size=args.shots, num_workers=args.num_workers, shuffle=True, drop_last = True,
+            )]
 
-    # Zero-shot, Few-shot or Full-tuned evaluation? You can now take the meta-adapted model and fine-tune it on 
-    # all the available low-resource training samples. If we don't fine-tune that it can be considered as few-shot model. 
-    # If we don't apply step 2, it becomes a zero-shot model.
+            meta_batch_size_list = []
+            for l in meta_tasks_list:
+                meta_batch_size_list.append(len(l))
+            meta_batch_size = sum(meta_batch_size_list)
+            logger.info(f"Number of meta tasks {meta_batch_size}")
+
+
+    # Zero-shot, Few-shot or Full-tuned evaluation? You can now take the zero-shot meta-trained model and fine-tune it on 
+    # available low-resource few-shot training samples. If we don't fine-tune further, it can be considered as zero-shot model.
+    #  
     summary = {"aux_lang": args.aux_lang, 
         "target_lang": args.target_lang, 
         "num_meta_iterations": args.num_meta_iterations,
@@ -485,30 +506,22 @@ def main(args,
         "exp_setting": args.exp_setting
     }
 
-    ltxt =  "Zero-shot" if "zero" in str(args.exp_setting) else "Few-shot"
+    ltxt = "Zero-shot" if "zero" in str(args.exp_setting) else "Few-shot"
     logger.info(f"**** {ltxt} evaluation on {args.dataset_name} meta {args.exp_setting} tuned model >>> Language = {args.target_lang} ****")
     zfew_result = evaluate(args, model, target_lang_dataloaders['test'], device, type="pred")
     summary[str(args.exp_setting)] = {"f1": zfew_result[0], "loss": zfew_result[1]}
-    # **** THE FEW-SHOT ADAPTATION STEP ****
-    # Step 2. This section will be updated with Meta-adaption codes. It will only train on 
-    # low-resource langauges that we want to adapt to e.g. Spanish. It will follow similar code as
-    # above but a little modification on `query` and `support` set preparation (no English samples!). 
+    
+    # **** THE FEW-SHOT FINE-TUNING STEP ****
 
     if args.exp_setting == "hmaml-zeroshot":
         if args.finetune_fewshot == "few":
-            train_dataloader = get_dataloader(
-                split_name="train", config=args, train_few_dataset_name= f"{args.dataset_name}{args.target_lang}", lang=args.target_lang, train = "standard",
-            )
-            eval_dataloader = get_dataloader(
-                split_name="val", config=args, train_few_dataset_name= f"{args.dataset_name}{args.target_lang}", lang=args.target_lang, train = "standard",
-            )
-            test_dataloader = target_lang_dataloaders['test']
-            ft_result = finetune(args, model, train_dataloader, eval_dataloader, test_dataloader, device)
+            ft_result = finetune(args, model, train_target_ft_dataloader, eval_target_ftdataloader, target_lang_dataloaders['test'], device)
             summary[str(args.finetune_fewshot)] = ft_result
         elif args.finetune_fewshot == "full":
             ft_result = finetune(args, model, target_lang_dataloaders['train'], target_lang_dataloaders['val'], target_lang_dataloaders['test'], device)
             summary[str(args.finetune_fewshot)] = ft_result
-    summary_fname = f"runs/summary/{os.path.basename(__file__)}_{str(args.base_model_path)[-11:-5]}_{args.exp_setting}_{args.num_meta_iterations}_{args.aux_lang}_{args.target_lang}.json"
+    
+    os.makedirs(summary_output_dir, exist_ok=True)
     json.dump(summary, open(summary_fname, 'w'))
 
 
@@ -526,7 +539,7 @@ def get_silver_dataset_for_meta_refine(args, model, dataloader, device):
             batch = move_to(batch, device)
             outputs = model(batch)
      
-            pred_label = outputs[1]
+            pred_label = outputs["logits"]
 
             probabilities = F.softmax(pred_label, dim=-1)
 
@@ -548,7 +561,7 @@ def get_silver_dataset_for_meta_refine(args, model, dataloader, device):
                     silver_dataset[key] = np.concatenate((silver_dataset[key], value), axis=0)
 
     unique, counts = np.unique(silver_dataset["labels"], return_counts=True)
-    lower_bnd = min(min(counts), 250)
+    lower_bnd = min(min(counts), 200)
 
     all_items = []
     for idx in range(len(silver_dataset["labels"])):
