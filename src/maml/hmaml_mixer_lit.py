@@ -1,6 +1,7 @@
 """
 A prototype of two step meta learning algorithm for multilingual hate detection.
 """
+from statistics import mode
 import sys
 import os
 import argparse
@@ -11,7 +12,7 @@ import numpy as np
 import pandas as pd
 from baselines.STCKA.utils.metrics import assess
 from src.data.consts import DEST_DATA_PKL_DIR, RUN_BASE_DIR, SRC_DATA_PKL_DIR
-from src.model.classifiers import MBERTClassifier
+from src.model.classifiers import MBERTClassifier, XLMRClassifier
 from src.model.lightning import LitClassifier
 import torch
 import torch.nn.functional as F
@@ -100,7 +101,7 @@ def parse_helper():
                         help="Number of updates steps to accumulate the gradients for, before performing a backward/update pass.")
     parser.add_argument("--n_gpu", type=int, default=1,
                         help="Number of gpus to use.")
-    parser.add_argument("--device_id", type=int, default=3,
+    parser.add_argument("--device_id", type=str, default="0",
                         help="Gpu id to use.")    
     parser.add_argument("--num_meta_iterations", type=int, default=10,
                         help="Number of outer loop iteratins.")
@@ -112,7 +113,6 @@ def parse_helper():
                         help="Fine-tune base-model loading from a given checkpoint.")  
     parser.add_argument("--overwrite_cache", default=False, action='store_true',
                         help="Overwrite cached results for a run.")  
-
     parser.add_argument("--exp_setting", type=str, default='maml-step1',
                         help="Provide a MAML training setup. Valid values are 'xmaml', 'maml-step1', 'maml-step1_2', 'maml-refine'.")             
     parser.add_argument("--finetune_fewshot", type=str, default=None,
@@ -224,9 +224,12 @@ def finetune(args, model, train_dataloader, eval_dataloader, test_dataloader, de
     
     loss_fn = torch.nn.CrossEntropyLoss()
 
+    eval_steps = 5 if args.finetune_fewshot == "few" else 50
+    patience = 5
+
     nb_train_steps = 0
     min_macro_f1 = 0
-
+    
     for epoch in range(args.num_train_epochs):
         model.train()
         total_train_loss = 0
@@ -244,15 +247,21 @@ def finetune(args, model, train_dataloader, eval_dataloader, test_dataloader, de
             opt.step()
             total_train_loss += loss.item()
             total_train_acc += acc
-            if (nb_train_steps + 1) % 5 == 0:
+            if (nb_train_steps + 1) % eval_steps == 0:
                 avg_train_loss = total_train_loss / nb_train_steps
                 logger.debug(f"  Epoch {epoch+1}, step {nb_train_steps+1}, training loss: {avg_train_loss:.3f} \n")
-                f1, _ = evaluate(args, model, eval_dataloader, device, type="eval")
-                if min_macro_f1 < f1:
-                    min_macro_f1 = f1
-                    checkpoint_ft_model(args, model)
+                nb_train_steps += 1
 
-            nb_train_steps += 1
+        f1, _ = evaluate(args, model, eval_dataloader, device, type="eval")
+        if min_macro_f1 < f1:
+            min_macro_f1 = f1
+            checkpoint_ft_model(args, model)
+            patience = 5
+        else:
+            patience -= 1
+
+        if patience == 0:
+            break
 
     logger.info("============================================================")
     logger.info(f"Evaluating fine-tuned model performance on test set. Training lang = {args.target_lang}")
@@ -263,8 +272,14 @@ def finetune(args, model, train_dataloader, eval_dataloader, test_dataloader, de
     path_to_model = os.path.join(RUN_BASE_DIR, "ft", f"{args.dataset_name}{args.target_lang}", args.model_name_or_path)
     logger.info(f"Loading fine-tuned model from the checkpoint {path_to_model}")
     
-    model = MBERTClassifier()
-    ckpt = torch.load(os.path.normpath(path_to_model))
+    if "xlm-r" in args.model_name_or_path:
+        model = XLMRClassifier()
+    elif "bert" in args.model_name_or_path:
+        model = MBERTClassifier()
+    else:
+        raise ValueError(f"Model type {args.model_name_or_path} is unknown.")
+        
+    ckpt = torch.load(os.path.normpath(path_to_model), map_location=device)
     model.load_state_dict(ckpt)
     model.to(device)    
     f1, loss = evaluate(args, model, test_dataloader, device, type="pred")
@@ -291,7 +306,8 @@ def main(args,
 
     summary_output_dir= os.path.join("runs/summary", os.path.basename(__file__)[:-3])
     aux_la = "_" + args.aux_lang if args.aux_lang else ""
-    summary_fname = os.path.join(summary_output_dir, f"{args.base_model_path[-11:-5]}_{args.exp_setting}_{args.num_meta_iterations}_{args.shots//2}{aux_la}_{args.target_lang}.json")
+    few_ft = "_" + args.finetune_fewshot if args.finetune_fewshot else ""
+    summary_fname = os.path.join(summary_output_dir, f"{args.base_model_path[-11:-5]}_{args.exp_setting}_{args.num_meta_iterations}_{args.shots//2}{few_ft}{aux_la}_{args.target_lang}.json")
     if os.path.exists(summary_fname) and not args.overwrite_cache:
         return
 
@@ -306,9 +322,15 @@ def main(args,
     logger.debug(f"device : {device}")
     logger.debug(f"gpu : {args.n_gpu}")
     
-    model = MBERTClassifier()
+    if "xlm-r" in args.model_name_or_path:
+        model = XLMRClassifier()
+    elif "bert" in args.model_name_or_path:
+        model = MBERTClassifier()
+    else:
+        raise ValueError(f"Model type {args.model_name_or_path} is unknown.")
+
     lit_model = LitClassifier(model)
-    ckpt = torch.load(os.path.normpath(args.base_model_path))
+    ckpt = torch.load(os.path.normpath(args.base_model_path), map_location=device)
     lit_model.load_state_dict(ckpt['state_dict'])
     model = lit_model.model
     model.to(device)
@@ -561,7 +583,7 @@ def get_silver_dataset_for_meta_refine(args, model, dataloader, device):
                     silver_dataset[key] = np.concatenate((silver_dataset[key], value), axis=0)
 
     unique, counts = np.unique(silver_dataset["labels"], return_counts=True)
-    lower_bnd = min(min(counts), 200)
+    lower_bnd = min(min(counts), 150)
 
     all_items = []
     for idx in range(len(silver_dataset["labels"])):

@@ -2,16 +2,17 @@
 A prototype of two step meta learning algorithm for multilingual hate detection.
 """
 import argparse
+import os
 import random
 import datetime
-import os
+import json
 from typing_extensions import runtime
 import numpy as np
 import pandas as pd
 from sklearn.utils.sparsefuncs import inplace_csr_column_scale
 from baselines.STCKA.utils.metrics import assess
 from src.data.consts import DEST_DATA_PKL_DIR, RUN_BASE_DIR, SRC_DATA_PKL_DIR
-from src.model.classifiers import MBERTClassifier
+from src.model.classifiers import MBERTClassifier, XLMRClassifier
 from src.model.lightning import LitClassifier
 import torch
 import torch.nn.functional as F
@@ -19,6 +20,7 @@ import learn2learn as l2l
 
 from torch import nn, optim
 from torch.utils.data import DataLoader
+from sklearn.metrics import f1_score
 from tqdm import tqdm
 import logging
 import sys
@@ -60,10 +62,12 @@ def parse_helper():
     parser = argparse.ArgumentParser()
 
     # Required parameters
-    parser.add_argument("--data_dir", default="../../data/processed/", type=str,
+    parser.add_argument("--data_dir", default="data/processed/", type=str,
                         help="The input data dir. Should contain the .tsv files (or other data files) for the task.")
     parser.add_argument("--model_name_or_path", default='bert-base-multilingual-uncased', type=str,
                         help="Path to pre-trained model or shortcut name selected in the list: ")
+    parser.add_argument("--base_model_path", default="runs/semeval2020/Mbert2.ckpt", type=str,
+                        help="Path to fine-tunes base-model, load from checkpoint!")
     parser.add_argument("--dataset_type", default="bert", type=str,
                         help="The input data type. It could take bert, lstm, gpt2 as input.")
     parser.add_argument("--dataset_name", default="semeval2020", type=str,
@@ -98,7 +102,7 @@ def parse_helper():
                         help="Number of updates steps to accumulate the gradients for, before performing a backward/update pass.")
     parser.add_argument("--n_gpu", type=int, default=1,
                         help="Number of gpus to use.")
-    parser.add_argument("--device_id", type=int, default=3,
+    parser.add_argument("--device_id", type=str, default="0",
                         help="Gpu id to use.")    
     parser.add_argument("--num_meta_iterations", type=int, default=10,
                         help="Number of outer loop iteratins.")
@@ -108,9 +112,8 @@ def parse_helper():
                         help="The inner loop fast adaptation learning rate.")
     parser.add_argument("--load_saved_base_model", default=False, action='store_true',
                         help="Fine-tune base-model loading from a given checkpoint.")  
-    parser.add_argument("--overwrite_base_model", default=False, action='store_true',
-                        help="Fine-tune base-model loading from a given checkpoint.")  
-
+    parser.add_argument("--overwrite_cache", default=False, action='store_true',
+                        help="Overwrite cached results for a run.")
     parser.add_argument("--exp_setting", type=str, default='maml-step1',
                         help="Provide a MAML training setup. Valid values are 'xmaml', 'maml-step1', 'maml-step1_2', 'maml-refine'.")             
     parser.add_argument("--finetune_fewshot", type=str, default=None,
@@ -147,8 +150,8 @@ def compute_loss_acc(logits, labels, criterion):
         preds = preds.cpu().numpy()
         labels = labels.cpu().numpy()
 
-    acc = (preds == labels).sum() / preds.shape[0]
-    return loss, acc
+    f1 = f1_score(preds, labels, average='macro')
+    return loss, f1
 
 def checkpoint_ft_model(args, model):
     run_dir = os.path.join(RUN_BASE_DIR, "ft", f"{args.dataset_name}{args.target_lang}")
@@ -219,9 +222,13 @@ def finetune(args, model, train_dataloader, eval_dataloader, test_dataloader, de
     opt = optim.AdamW(optimizer_grouped_parameters, lr=args.meta_lr, eps=args.adam_epsilon)
     
     loss_fn = torch.nn.CrossEntropyLoss()
+    
+    eval_steps = 5 if args.finetune_fewshot == "few" else 50
+    patience = 5
 
     nb_train_steps = 0
     min_macro_f1 = 0
+    
     for epoch in range(args.num_train_epochs):
         model.train()
         total_train_loss = 0
@@ -239,15 +246,21 @@ def finetune(args, model, train_dataloader, eval_dataloader, test_dataloader, de
             opt.step()
             total_train_loss += loss.item()
             total_train_acc += acc
-            if (nb_train_steps + 1) % 5 == 0:
+            if (nb_train_steps + 1) % eval_steps == 0:
                 avg_train_loss = total_train_loss / nb_train_steps
                 logger.debug(f"  Epoch {epoch+1}, step {nb_train_steps+1}, training loss: {avg_train_loss:.3f} \n")
-                f1, _ = evaluate(args, model, eval_dataloader, device, type="eval")
-                if min_macro_f1 < f1:
-                    min_macro_f1 = f1
-                    checkpoint_ft_model(args, model)
+                nb_train_steps += 1
 
-            nb_train_steps += 1
+        f1, _ = evaluate(args, model, eval_dataloader, device, type="eval")
+        if min_macro_f1 < f1:
+            min_macro_f1 = f1
+            checkpoint_ft_model(args, model)
+            patience = 5
+        else:
+            patience -= 1
+
+        if patience == 0:
+            break
 
     logger.info("============================================================")
     logger.info(f"Evaluating fine-tuned model performance on test set. Training lang = {args.target_lang}")
@@ -258,13 +271,22 @@ def finetune(args, model, train_dataloader, eval_dataloader, test_dataloader, de
     path_to_model = os.path.join(RUN_BASE_DIR, "ft", f"{args.dataset_name}{args.target_lang}", args.model_name_or_path)
     logger.info(f"Loading fine-tuned model from the checkpoint {path_to_model}")
     
-    model = MBERTClassifier()
-    ckpt = torch.load(os.path.normpath(path_to_model))
+    if "xlm-r" in args.model_name_or_path:
+        model = XLMRClassifier()
+    elif "bert" in args.model_name_or_path:
+        model = MBERTClassifier()
+    else:
+        raise ValueError(f"Model type {args.model_name_or_path} is unknown.")
+    
+    ckpt = torch.load(os.path.normpath(path_to_model), map_location=device)
     model.load_state_dict(ckpt)
+    if torch.cuda.device_count() > 1:
+        model= nn.DataParallel(model)
     model.to(device)    
-    evaluate(args, model, test_dataloader, device, type="pred")
+    f1, loss = evaluate(args, model, test_dataloader, device, type="pred")
 
-    return model
+    result = {"examples": len(train_dataloader)*args.batch_size,  "f1": f1, "loss": loss}
+    return result
 
 
 def main(args,
@@ -282,23 +304,39 @@ def main(args,
         adaptation_steps (int); The number of inner loop steps.
         num_iterations (int): The total number of iteration MAML will run (outer loop update).
     """
+
+    summary_output_dir= os.path.join("runs/summary", os.path.basename(__file__)[:-3])
+    aux_la = "_" + args.aux_lang if args.aux_lang else ""
+    few_ft = "_" + args.finetune_fewshot if args.finetune_fewshot else ""
+    summary_fname = os.path.join(summary_output_dir, f"{args.base_model_path[-11:-5]}_{args.exp_setting}_{args.num_meta_iterations}_{args.shots//2}{few_ft}{aux_la}_{args.target_lang}.json")
+    logger.info(f"Output fname = {summary_fname}")
+    if os.path.exists(summary_fname) and not args.overwrite_cache:
+        return
+
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
     device = torch.device('cpu')
     if cuda and torch.cuda.device_count():
         torch.cuda.manual_seed(seed)
-        device = torch.device(f'cuda:{args.device_id}')
-        args.n_gpu = 1
-    logger.debug(f"device : {device}")
-    logger.debug(f"gpu : {args.n_gpu}")
+        device = torch.device('cuda')
+        args.n_gpu = torch.cuda.device_count()
+    logger.info(f"device : {device}")
+    logger.info(f"gpu : {args.n_gpu}")
     
-    model = MBERTClassifier()
+    if "xlm-r" in args.model_name_or_path:
+        model = XLMRClassifier()
+    elif "bert" in args.model_name_or_path:
+        model = MBERTClassifier()
+    else:
+        raise ValueError(f"Model type {args.model_name_or_path} is unknown.")
+        
     lit_model = LitClassifier(model)
-    path_to_model = "runs/tanmoy/Mbert1.ckpt"
-    ckpt = torch.load(os.path.normpath(path_to_model))
+    ckpt = torch.load(os.path.normpath(args.base_model_path), map_location=device)
     lit_model.load_state_dict(ckpt['state_dict'])
     model = lit_model.model
+    if torch.cuda.device_count() > 1:
+        model= nn.DataParallel(model)
     model.to(device)
 
     # Load English samples
@@ -463,19 +501,24 @@ def main(args,
             )
             meta_batch_size = len(meta_tasks)
 
-    # Zero-shot, Few-shot or Full-tuned evaluation? You can now take the meta-adapted model and fine-tune it on 
-    # all the available low-resource training samples. If we don't fine-tune that it can be considered as few-shot model. 
-    # If we don't apply step 2, it becomes a zero-shot model.
+    # Zero-shot, Few-shot or Full-tuned evaluation? You can now take the zero-shot meta-trained model and fine-tune it on 
+    # available low-resource few-shot training samples. If we don't fine-tune further, it can be considered as zero-shot model.
+    #  
+    summary = {"aux_lang": args.aux_lang, 
+        "target_lang": args.target_lang, 
+        "num_meta_iterations": args.num_meta_iterations,
+        "base_model_path": args.base_model_path,
+        "script_name": os.path.basename(__file__),
+        "exp_setting": args.exp_setting
+    }
+
+    ltxt = "Zero-shot" if "zero" in str(args.exp_setting) else "Few-shot"
+    logger.info(f"**** {ltxt} evaluation on {args.dataset_name} meta {args.exp_setting} tuned model >>> Language = {args.target_lang} ****")
+    zfew_result = evaluate(args, model, target_lang_dataloaders['test'], device, type="pred")
+    summary[str(args.exp_setting)] = {"f1": zfew_result[0], "loss": zfew_result[1]}
     
-    ltxt =  "Zero-shot" if "zero" in str(args.exp_setting) else "Few-shot"
-    logger.debug(f"**** {ltxt} evaluation on {args.dataset_name} meta {args.exp_setting} tuned model >>> Language = {args.target_lang} ****")
 
-    # evaluate(args, model, target_lang_dataloaders['test'], device, type="pred")
-
-    # **** THE FEW-SHOT ADAPTATION STEP ****
-    # Step 2. This section will be updated with Meta-adaption codes. It will only train on 
-    # low-resource langauges that we want to adapt to e.g. Spanish. It will follow similar code as
-    # above but a little modification on `query` and `support` set preparation (no English samples!). 
+    # **** THE FEW-SHOT FINE-TUNING STEP ****
 
     if args.exp_setting == "hmaml-zeroshot":
         if args.finetune_fewshot == "few":
@@ -486,9 +529,15 @@ def main(args,
                 split_name="val", config=args, train_few_dataset_name= f"{args.dataset_name}{args.target_lang}", lang=args.target_lang, train = "standard",
             )
             test_dataloader = target_lang_dataloaders['test']
-            finetune(args, model, train_dataloader, eval_dataloader, test_dataloader, device)
+            ft_result = finetune(args, model, train_dataloader, eval_dataloader, test_dataloader, device)
+            summary[str(args.finetune_fewshot)] = ft_result
+
         elif args.finetune_fewshot == "full":
-            finetune(args, model, target_lang_dataloaders['train'], target_lang_dataloaders['val'], target_lang_dataloaders['test'], device)
+            ft_result = finetune(args, model, target_lang_dataloaders['train'], target_lang_dataloaders['val'], target_lang_dataloaders['test'], device)
+            summary[str(args.finetune_fewshot)] = ft_result
+    
+    os.makedirs(summary_output_dir, exist_ok=True)
+    json.dump(summary, open(summary_fname, 'w'))
 
 def get_silver_dataset_for_meta_refine(args, model, dataloader, device):
     logger.info(f"Generating silver labels for target language {args.target_lang}")
@@ -504,7 +553,7 @@ def get_silver_dataset_for_meta_refine(args, model, dataloader, device):
             batch = move_to(batch, device)
             outputs = model(batch)
      
-            pred_label = outputs[1]
+            pred_label = outputs["logits"]
 
             probabilities = F.softmax(pred_label, dim=-1)
 
@@ -526,7 +575,7 @@ def get_silver_dataset_for_meta_refine(args, model, dataloader, device):
                     silver_dataset[key] = np.concatenate((silver_dataset[key], value), axis=0)
 
     unique, counts = np.unique(silver_dataset["labels"], return_counts=True)
-    lower_bnd = min(min(counts), 250)
+    lower_bnd = min(min(counts), 150)
 
     all_items = []
     for idx in range(len(silver_dataset["labels"])):
