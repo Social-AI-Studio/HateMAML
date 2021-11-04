@@ -304,7 +304,7 @@ def main(args,
         num_iterations (int): The total number of iteration MAML will run (outer loop update).
     """
 
-    summary_output_dir= os.path.join("runs/summary", os.path.basename(__file__)[:-3])
+    summary_output_dir= os.path.join("runs/summary", args.dataset_name, os.path.basename(__file__)[:-3])
     aux_la = "_" + args.aux_lang if args.aux_lang else ""
     few_ft = "_" + args.finetune_fewshot if args.finetune_fewshot else ""
     summary_fname = os.path.join(summary_output_dir, f"{args.base_model_path[-11:-5]}_{args.exp_setting}_{args.num_meta_iterations}_{args.shots//2}{few_ft}{aux_la}_{args.target_lang}.json")
@@ -317,8 +317,8 @@ def main(args,
     device = torch.device('cpu')
     if cuda and torch.cuda.device_count():
         torch.cuda.manual_seed(seed)
-        device = torch.device(f'cuda:{args.device_id}')
-        args.n_gpu = 1
+        device = torch.device('cuda')
+        args.n_gpu = torch.cuda.device_count()
     logger.debug(f"device : {device}")
     logger.debug(f"gpu : {args.n_gpu}")
     
@@ -337,9 +337,11 @@ def main(args,
 
     target_lang_dataloaders = get_split_dataloaders(args, dataset_name=args.dataset_name, lang=args.target_lang)
 
+    src_dsn = "founta" if args.dataset_name == "semeval2020" else args.dataset_name
+
     if args.exp_setting == "hmaml-zeroshot":
         meta_tasks_list = [get_dataloader(
-            split_name="train", config=args, train_few_dataset_name= f"founta{args.source_lang}", lang=args.source_lang
+            split_name="train", config=args, train_few_dataset_name= f"{src_dsn}{args.source_lang}", lang=args.source_lang
         ),
         get_dataloader(
             split_name="train", config=args, train_few_dataset_name= f"{args.dataset_name}{args.aux_lang}", lang=args.aux_lang
@@ -364,7 +366,7 @@ def main(args,
 
     elif args.exp_setting == "hmaml-fewshot":
         meta_tasks_list = [get_dataloader(
-            split_name="train", config=args, train_few_dataset_name= f"founta{args.source_lang}", lang=args.source_lang
+            split_name="train", config=args, train_few_dataset_name= f"{src_dsn}{args.source_lang}", lang=args.source_lang
         ),
         get_dataloader(
             split_name="train", config=args, train_few_dataset_name= f"{args.dataset_name}{args.target_lang}", lang=args.target_lang
@@ -381,7 +383,7 @@ def main(args,
     elif args.exp_setting == "hmaml-zero-refine":
         silver_dataset = get_silver_dataset_for_meta_refine(args, model, target_lang_dataloaders['train'], device)
         meta_tasks_list = [get_dataloader(
-            split_name="train", config=args, train_few_dataset_name= f"founta{args.source_lang}", lang=args.source_lang
+            split_name="train", config=args, train_few_dataset_name= f"{src_dsn}{args.source_lang}", lang=args.source_lang
         ),
         torch.utils.data.DataLoader(
             silver_dataset, batch_size=args.shots, num_workers=args.num_workers, shuffle=True, drop_last = True,
@@ -504,7 +506,7 @@ def main(args,
         if args.exp_setting == "hmaml-zero-refine":
             silver_dataset = get_silver_dataset_for_meta_refine(args, model, target_lang_dataloaders['train'], device)
             meta_tasks_list = [get_dataloader(
-                split_name="train", config=args, train_few_dataset_name= f"founta{args.source_lang}", lang=args.source_lang
+                split_name="train", config=args, train_few_dataset_name= f"{src_dsn}{args.source_lang}", lang=args.source_lang
             ),
             torch.utils.data.DataLoader(
                 silver_dataset, batch_size=args.shots, num_workers=args.num_workers, shuffle=True, drop_last = True,

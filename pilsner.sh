@@ -10,9 +10,10 @@ export CUDA_VISIBLE_DEVICES=0,1
 BATCH=32
 SHOTS=32
 LR=2e-6
-M_EPOCHS=4
+M_EPOCHS=5
 MODEL_TYPE=Xlmr
 MODEL_PATH=xlm-roberta-base
+DATASET=hateval2019
 
 # use this script for HateMAML zeroshot refinement
 # for T_LANG in ar tr da gr
@@ -26,22 +27,25 @@ MODEL_PATH=xlm-roberta-base
 # done
 
 # use this script for HateMAML zeroshot mixed refinement
-# for T_LANG in ar tr da gr
-# do
-#     for ID in 1 2 3 4
-#     do 
-#         python3 src/maml/hmaml_mixer_lit.py --source_lang en --target_lang $T_LANG --num_train_epochs 6 \
-#         --num_meta_iterations $M_EPOCHS --meta_lr 4e-6 --fast_lr $LR --load_saved_base_model --base_model_path runs/tanmoy/Mbert${ID}.ckpt \
-#         --shots $SHOTS --batch_size $BATCH --exp_setting hmaml-zero-refine --device_id 0 --overwrite_cache --refine_threshold 0.85
-#     done
-# done
+for T_LANG in es
+do
+    for ID in 1 2 3 4 5
+    do
+        for EPOCHS in 3 4 5 6 7 8 9
+        do 
+            python3 src/maml/hmaml_vanilla_lit.py --source_lang en --target_lang $T_LANG --num_train_epochs 6 \
+            --num_meta_iterations $EPOCHS --meta_lr 4e-6 --fast_lr $LR --load_saved_base_model --base_model_path runs/${DATASET}/Mbert${ID}.ckpt \
+            --shots $SHOTS --batch_size $BATCH --exp_setting hmaml-fewshot --device_id 0,1 --refine_threshold 0.85 --dataset_name $DATASET
+        done
+    done
+done
 
 # train step 1+2 Hate_MAML using this script
 # for T_LANG in tr ar gr da
 # do
 #     for A_LANG in ar tr gr da 
 #     do
-#         for TYPE in few 
+#         for TYPE in full 
 #         do 
 #             for ID in 1 2 3 4 5 
 #             do 
@@ -69,22 +73,22 @@ MODEL_PATH=xlm-roberta-base
 # done
 
 # work on hmaml-fewshot
-for T_LANG in ar gr da tr
-do
-    for ID in 1 2 3 4 5 
-    do 
-        python3 src/maml/hmaml_vanilla_lit.py --source_lang en --target_lang $T_LANG --num_train_epochs 6 \
-        --num_meta_iterations $M_EPOCHS --meta_lr 4e-6 --fast_lr $LR --load_saved_base_model --base_model_path runs/semeval2020/${MODEL_TYPE}${ID}.ckpt \
-        --model_name_or_path $MODEL_PATH --shots $SHOTS --batch_size $BATCH --exp_setting hmaml-fewshot --device_id 0,1
-    done 
-done
+# for T_LANG in ar gr da tr
+# do
+#     for ID in 1
+#     do 
+#         python3 -m torch.distributed.launch --nproc_per_node=2 src/maml/hmaml_mixer_lit.py --source_lang en --target_lang $T_LANG --num_train_epochs 6 \
+#         --num_meta_iterations $M_EPOCHS --meta_lr 4e-6 --fast_lr $LR --load_saved_base_model --base_model_path runs/semeval2020/${MODEL_TYPE}${ID}.ckpt \
+#         --model_name_or_path $MODEL_PATH --shots $SHOTS --batch_size $BATCH --exp_setting hmaml-fewshot --device_id 0,1
+#     done 
+# done
 
 
-# LANG=ar
-# DATASET=semeval2020
+# LANG=es
+# DATASET=hateval2019
 # process raw data files
 # python3 process_data.py --src_pkl ${DATASET}${LANG}val.pkl --lang ${LANG} --force
 
 # process few-shot samples for MAML training
-# python3 pick_few_shots.py --src_pkl ${DATASET}${LANG}_val.pkl --dest_pkl ${DATASET}${LANG}_few_val.pkl --lang ${LANG}  --shots 50 --rng_seed 42 --sampling equal --force
+# python3 pick_few_shots.py --src_pkl ${DATASET}${LANG}_train.pkl --dest_pkl ${DATASET}${LANG}_few_train.pkl --lang ${LANG}  --shots 200 --rng_seed 42 --sampling equal --force
 
