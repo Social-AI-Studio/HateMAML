@@ -7,6 +7,8 @@ import sys
 sys.path.append(".")
 
 import argparse
+import numpy as np
+
 from pytorch_lightning import loggers as pl_loggers
 import pytorch_lightning as pl
 
@@ -73,6 +75,8 @@ def main(args):
     trainer = pl.Trainer(gpus=1)
 
     test_run_dirs = glob.glob(os.path.join(args["test_run_dirs_parent"], "*"))
+    macro_f1_lists = {}
+    acc_lists = {}
     for test_run_dir in test_run_dirs:
         if not os.path.isdir(test_run_dir):
             continue
@@ -102,6 +106,26 @@ def main(args):
             print(
                 f">>>>test_macro_f1 = {test_results['test_macro_f1']}, test_acc = {test_results['test_acc']}"
             )
+            if test_dataset_name not in macro_f1_lists:
+                macro_f1_lists[test_dataset_name] = []
+            macro_f1_lists[test_dataset_name].append(test_results['test_macro_f1'])
+
+            if test_dataset_name not in acc_lists:
+                acc_lists[test_dataset_name] = []
+            acc_lists[test_dataset_name].append(test_results['test_acc'])
+
+    for test_dataset_name in args["test_dataset_names"].split(","):
+        print(f">>>>>statistics for test dataset: {test_dataset_name}")
+        mean_macro_f1 = np.mean(macro_f1_lists[test_dataset_name])
+        std_macro_f1 = np.std(macro_f1_lists[test_dataset_name])
+        print(f"{macro_f1_lists[test_dataset_name]}")
+        print(f"mean macro f1: {mean_macro_f1}")
+        print(f"std macro f1: {std_macro_f1}")
+        mean_acc = np.mean(acc_lists[test_dataset_name])
+        std_acc = np.std(acc_lists[test_dataset_name])
+        print(f"{acc_lists[test_dataset_name]}")
+        print(f"mean acc: {mean_acc}")
+        print(f"std acc: {std_acc}")
 
 
 if __name__ == "__main__":
