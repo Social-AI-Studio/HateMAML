@@ -331,8 +331,10 @@ def main(args,
         "runs/summary", args.dataset_name, os.path.basename(__file__)[:-3])
     aux_la = "_" + args.aux_lang if args.aux_lang else ""
     few_ft = "_" + args.finetune_fewshot if args.finetune_fewshot else ""
+    f_base_model =  args.base_model_path[-11:-5] if "bert" in args.base_model_path else args.base_model_path[-10:-5] 
+
     summary_fname = os.path.join(
-        summary_output_dir, f"{args.base_model_path[-11:-5]}_{args.exp_setting}_{args.num_meta_iterations}_{args.shots//2}{few_ft}{aux_la}_{args.target_lang}.json")
+        summary_output_dir, f"{f_base_model}_{args.exp_setting}_{args.num_meta_iterations}_{args.shots//2}{few_ft}{aux_la}_{args.target_lang}.json")
     logger.info(f"Output fname = {summary_fname}")
     if os.path.exists(summary_fname) and not args.overwrite_cache:
         return
@@ -483,9 +485,9 @@ def main(args,
                 for indx, d_batch in enumerate(meta_domain_tasks):
                     if indx == choice_idx:
                         d_task = d_batch
-                domain_query_inp = {'input_ids': d_task['input_ids'],
-                                    'attention_mask': d_task['attention_mask'],
-                                    'labels': d_task['label']}
+                domain_query_inp = {'input_ids': d_task['input_ids'][:n_meta_lr],
+                                    'attention_mask': d_task['attention_mask'][:n_meta_lr],
+                                    'labels': d_task['label'][:n_meta_lr]}
                 domain_query_inp = move_to(domain_query_inp, device)
                 outputs = learner(domain_query_inp)
                 d_loss, _ = compute_loss_acc(
