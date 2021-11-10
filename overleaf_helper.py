@@ -12,12 +12,15 @@ def get_mean_stdv(data: list):
 def read_files(dir_path: str):
     files = os.listdir(dir_path)
     bdict = {}
-    identifier = "fewshot"
+    identifier = "zeroshot"
     model_type = "bert"
     few_flag = False
+    TYPE="full"
 
     if "semeval" in dir_path:
         langs = ["ar", "tr", "gr", "da"]
+    elif "hasoc" in dir_path:
+        langs = ["hi", "de"]
     else:
         langs = ["es"]
 
@@ -32,7 +35,7 @@ def read_files(dir_path: str):
         if identifier == "zeroshot" and identifier in str(fname):
             aux_lang = fname.split("_")[-2]
             target_lang = fname.split("_")[-1].strip(".json")
-            if few_flag and "full" not in fname:
+            if few_flag and TYPE not in fname:
                 continue
 
             if few_flag:
@@ -40,11 +43,11 @@ def read_files(dir_path: str):
             else:
                 epoch = int(fname.split("_")[-4])
 
-            if epoch == 5:
+            if epoch == 6:
                 print(f"Filtering on epoch {epoch}, fname = {fname}")
                 type = "hmaml-zeroshot"
                 if few_flag:
-                    type = "full"
+                    type = TYPE
 
                 f1 = data[type].get("f1")
 
@@ -56,7 +59,7 @@ def read_files(dir_path: str):
         elif identifier == "zero-refine" and identifier in str(fname):
             target_lang = fname.split("_")[-1][:2]
             epoch = int(fname.split("_")[-3])
-            if epoch == 9:
+            if epoch == 5:
                 print(f"Filtering on epoch {epoch}, fname = {fname}")
 
                 f1 = data["hmaml-zero-refine"].get("f1")
@@ -82,7 +85,7 @@ def read_files(dir_path: str):
         elif identifier == "fewshot" and identifier in str(fname):
             target_lang = fname.split("_")[-1][:2]
             epoch = int(fname.split("_")[-3])
-            if epoch == 9:
+            if epoch == 20:
                 print(f"Filtering on epoch {epoch}, fname = {fname}")
 
                 f1 = data["hmaml-fewshot"].get("f1")
@@ -93,7 +96,7 @@ def read_files(dir_path: str):
                 bdict[model_name][target_lang] = f1
 
     print(json.dumps(bdict, indent=2))
-
+    print(dir_path)
     if identifier == "zeroshot":
         for tgt in langs:
             for aux in langs:
@@ -123,7 +126,7 @@ def read_files(dir_path: str):
 
 
 def main():
-    dir_path = "runs/summary/hateval2019/hmaml_vanilla_lit"
+    dir_path = "runs/summary/semeval2020/hmaml_mixer_lit"
     read_files(dir_path)
 
 
