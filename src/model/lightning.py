@@ -24,7 +24,7 @@ class LitClassifier(pl.LightningModule):
     def set_freeze_layers(self,freezing_mode):
         return self.model.set_freeze_layers(freezing_mode)
 
-    def shared_step(self, batch, batch_idx, return_pred_labels=False):
+    def shared_step(self, batch, batch_idx, return_pred_labels=False, return_actual_labels=False):
         """
         this step will be shared by the train/val/test logic
         """
@@ -56,6 +56,8 @@ class LitClassifier(pl.LightningModule):
         return_dict = {"loss": loss, "metrics": metrics}
         if return_pred_labels:
             return_dict["pred_labels"] = pred_labels
+        if return_actual_labels:
+            return_dict["actual_labels"] = actual_labels
         return return_dict
 
     def training_step(self, batch, batch_idx):
