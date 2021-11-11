@@ -111,7 +111,13 @@ class LSTMClassifier(torch.nn.Module):
         )
 
     def set_freeze_layers(self,freezing_mode):
-        raise NotImplementedError("set_freezing_layers functionality not implemented for LSTMClassifier yet")
+        if freezing_mode is None:
+            return
+        if freezing_mode == "embeddings":
+            for param in self.embeddings.parameters():
+                param.requires_grad = False
+        else:
+            raise ValueError(f"unexpected value for freezing_mode received: {freezing_mode}")
 
     def reinitialise_head(self):
         self.classification_head.reinitialise()
