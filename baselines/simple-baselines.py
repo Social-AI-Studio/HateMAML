@@ -25,6 +25,12 @@ def main(args):
         args["test_ckpt"] is None
     ), "Either set `--train` flag or provide `--test_ckpt` string argument, not both or none"
 
+    assert (args["train"]) == (
+        args["freeze_layers"] is not None
+    ), "`--freeze_layers` can be provided only with `--train` flag set"
+
+    assert args["freeze_layers"] in ["embeddings","top3","top6"],"`--freeze_layers` can only be in [\"embeddings\",\"top3\",\"top6\"]"
+
     assert (args["train_ckpt"] is None) or (
         args["test_ckpt"] is None
     ), "Can not provide both `--train_ckpt` and `--test_ckpt`"
@@ -122,6 +128,7 @@ def main(args):
         print("starting train")
 
         lit_model.set_trainable(True)
+        lit_model.set_freeze_layers(args["freeze_layers"])
 
         run_name = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
         run_dir = os.path.join(RUN_BASE_DIR, "baselines", args["model_type"], run_name)
@@ -288,6 +295,12 @@ if __name__ == "__main__":
         type=str,
         default=None,
         help="`train`,`val`,`test`,`all`, or a comma seperated combination of these values.",
+    )
+    parser.add_argument(
+        "--freeze_layers",
+        type=str,
+        default=None,
+        help="",
     )
     args = parser.parse_args()
     args = vars(args)
