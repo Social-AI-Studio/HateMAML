@@ -122,7 +122,8 @@ def parse_helper():
                         help="Meta-adaptation (step 2) flag. Used in target language MAML training on only n samples where `n` = 200.")
     parser.add_argument("--refine_threshold", type=float, default=0.95,
                         help="The threshold value for filtering silver labels.")
-
+    parser.add_argument("--num_meta_samples", type=int, default=200,
+                        help="Number of available samples for meta-training.")
     args = parser.parse_args()
     logger.info(args)
     return args
@@ -389,23 +390,23 @@ def main(args,
 
     elif args.exp_setting == "hmaml-zeroshot":
         meta_tasks = get_dataloader(
-            split_name="train", config=args, train_few_dataset_name=f"founta{args.source_lang}", lang=args.source_lang
+            split_name="val", config=args, train_few_dataset_name=f"founta{args.source_lang}", lang=args.source_lang
         )
         meta_batch_size = len(meta_tasks)
         logger.info(f"Number of meta tasks {meta_batch_size}")
 
         meta_domain_tasks = get_dataloader(
-            split_name="train", config=args, train_few_dataset_name=f"{args.dataset_name}{args.aux_lang}", lang=args.aux_lang
+            split_name="val", config=args, train_few_dataset_name=f"{args.dataset_name}{args.aux_lang}", lang=args.aux_lang
         )
     elif args.exp_setting == "hmaml-fewshot":
         meta_tasks = get_dataloader(
-            split_name="train", config=args, train_few_dataset_name=f"{args.dataset_name}{args.target_lang}", lang=args.target_lang
+            split_name="val", config=args, train_few_dataset_name=f"{args.dataset_name}{args.target_lang}", lang=args.target_lang
         )
         meta_batch_size = len(meta_tasks)
         logger.info(f"Number of meta tasks {meta_batch_size}")
 
         meta_domain_tasks = get_dataloader(
-            split_name="train", config=args, train_few_dataset_name=f"{args.dataset_name}{args.target_lang}", lang=args.target_lang
+            split_name="val", config=args, train_few_dataset_name=f"{args.dataset_name}{args.target_lang}", lang=args.target_lang
         )
     elif args.exp_setting == "hmaml-zero-refine":
         silver_dataset = get_silver_dataset_for_meta_refine(
@@ -680,15 +681,13 @@ def get_split_dataloaders(config, dataset_name, lang):
 
 def get_dataloader(split_name, config, train_few_dataset_name=None, lang=None, train="meta"):
     few_pkl_path = os.path.join(
-        DEST_DATA_PKL_DIR, f"{train_few_dataset_name}_few_{split_name}.pkl"
+        DEST_DATA_PKL_DIR, f"{train_few_dataset_name}_{config.num_meta_samples}_{split_name}.pkl"
     )
     data_df = pd.read_pickle(few_pkl_path, compression=None)
-    logger.debug(
-        f"picking {data_df.shape[0]} rows from `{few_pkl_path}` as few samples")
+    logger.debug(f"picking {data_df.shape[0]} rows from `{few_pkl_path}` as few samples")
 
     if lang is not None:
-        logger.debug(
-            f"filtering only '{lang}' samples from {split_name} pickle")
+        logger.debug(f"filtering only '{lang}' samples from {split_name} pickle")
         data_df = data_df.query(f"lang == '{lang}'")
 
     if config.dataset_type == "bert":
@@ -697,21 +696,14 @@ def get_dataloader(split_name, config, train_few_dataset_name=None, lang=None, t
         )
     else:
         raise ValueError(f"Unknown dataset_type {config.dataset_type}")
-
-    if args.ddp:
-        sampler = torch.utils.data.distributed.DistributedSampler(dataset)
-
+    
     if train == "meta":
         dataloader = torch.utils.data.DataLoader(
             dataset, batch_size=config.shots, num_workers=config.num_workers, drop_last=True,
-            sampler=sampler if args.ddp else None, pin_memory=True,
-
         )
     else:
         dataloader = torch.utils.data.DataLoader(
             dataset, batch_size=config.batch_size, num_workers=config.num_workers,
-            sampler=sampler if args.ddp else None, pin_memory=True,
-
         )
 
     return dataloader
