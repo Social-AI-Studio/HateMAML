@@ -26,6 +26,21 @@ class XLMRClassifier(torch.nn.Module):
             self.lm.config.hidden_size, 2, dropout
         )
 
+    def set_freeze_layers(self,freezing_mode):
+        if freezing_mode is None:
+            return
+        if freezing_mode == "embeddings":
+            for param in self.lm.embeddings.parameters():
+                param.requires_grad = False
+        elif freezing_mode == "top3":
+            for param in self.lm.encoder.layer[-3:].parameters():
+                param.requires_grad = False
+        elif freezing_mode == "top6":
+            for param in self.lm.encoder.layer[-6:].parameters():
+                param.requires_grad = False
+        else:
+            raise ValueError(f"unexpected value for freezing_mode received: {freezing_mode}")
+
     def reinitialise_head(self):
         self.classification_head.reinitialise()
 
@@ -47,6 +62,21 @@ class MBERTClassifier(torch.nn.Module):
         self.classification_head = ClassificationHead(
             self.lm.config.hidden_size, 2, dropout
         )
+
+    def set_freeze_layers(self,freezing_mode):
+        if freezing_mode is None:
+            return
+        if freezing_mode == "embeddings":
+            for param in self.lm.embeddings.parameters():
+                param.requires_grad = False
+        elif freezing_mode == "top3":
+            for param in self.lm.encoder.layer[-3:].parameters():
+                param.requires_grad = False
+        elif freezing_mode == "top6":
+            for param in self.lm.encoder.layer[-6:].parameters():
+                param.requires_grad = False
+        else:
+            raise ValueError(f"unexpected value for freezing_mode received: {freezing_mode}")
 
     def reinitialise_head(self):
         self.classification_head.reinitialise()
@@ -79,6 +109,15 @@ class LSTMClassifier(torch.nn.Module):
         self.classification_head = ClassificationHead(
             2 * self.hidden_dim, 2, config.hp.dropout
         )
+
+    def set_freeze_layers(self,freezing_mode):
+        if freezing_mode is None:
+            return
+        if freezing_mode == "embeddings":
+            for param in self.embeddings.parameters():
+                param.requires_grad = False
+        else:
+            raise ValueError(f"unexpected value for freezing_mode received: {freezing_mode}")
 
     def reinitialise_head(self):
         self.classification_head.reinitialise()

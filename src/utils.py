@@ -12,7 +12,7 @@ def dump_hyperparams(dump_dir, hp_dict):
 
 def dump_vocab(dump_dir, vocab):
     with open(os.path.join(dump_dir, "vocab.json"), "wt") as fo:
-        json.dump(vocab, fo, indent=4, sort_keys=True)
+        json.dump(vocab[2:], fo, indent=4, sort_keys=True)
 
 
 def read_dumped_vocab(vocab_dir):

@@ -10,10 +10,10 @@ import pytorch_lightning as pl
 
 from src.config import EmptyConfig
 from src.data.consts import RUN_BASE_DIR, PAD_TOKEN, UNK_TOKEN
-from src.data.load import get_3_splits_dataloaders
+from src.data.load import get_3_splits_dataloaders, build_vocabulary_from_train_split
 from src.model.classifiers import MBERTClassifier, XLMRClassifier
 from src.model.lightning import LitClassifier
-from src.utils import dump_hyperparams, load_glove_format_embs, read_hyperparams
+from src.utils import dump_hyperparams, load_glove_format_embs, read_hyperparams, dump_vocab, read_dumped_vocab
 
 
 import torch
@@ -25,6 +25,12 @@ def main(args):
         args["test_ckpt"] is None
     ), "Either set `--train` flag or provide `--test_ckpt` string argument, not both or none"
 
+    assert (args["train"]) == (
+        args["freeze_layers"] is not None
+    ), "`--freeze_layers` can be provided only with `--train` flag set"
+
+    assert args["freeze_layers"] in ["embeddings","top3","top6"],"`--freeze_layers` can only be in [\"embeddings\",\"top3\",\"top6\"]"
+
     assert (args["train_ckpt"] is None) or (
         args["test_ckpt"] is None
     ), "Can not provide both `--train_ckpt` and `--test_ckpt`"
@@ -34,6 +40,16 @@ def main(args):
         "mbert",
         "lstm",
     ], '`--model_type` argument must be in ["xlmr","mbert","lstm"]'
+
+    if args["test_ckpt"] is not None and args["model_type"] == "lstm":
+        assert args["load_vocab_from_test_ckpt"] is None, "need to provide `--load_vocab_from_test_ckpt` when testing on `--model_type` == \"lstm\""
+        if args["load_vocab_from_test_ckpt"].lower() == "true":
+            args["load_vocab_from_test_ckpt"] = True
+        elif args["load_vocab_from_test_ckpt"].lower() == "false":
+            args["load_vocab_from_test_ckpt"] = False
+        else:
+            raise ValueError(f"unknown value received for `--load_vocab_from_test_ckpt` ({args[\"load_vocab_from_test_ckpt\"]})")
+
 
     assert (args["model_type"] == "lstm") == (
         args["embedding_txt_path"] is not None and args["hidden_dim"] is not None
@@ -80,9 +96,25 @@ def main(args):
 
     if args["model_type"] == "lstm":
         config.pad_token, config.unk_token = PAD_TOKEN, UNK_TOKEN
-        config.vocab, config.embeddings = load_glove_format_embs(
-            config.hp.embedding_txt_path, config.pad_token, config.unk_token
-        )
+        if args["train"]:
+            allowed_vocab_set = build_vocabulary_from_train_split(dataset_name, config, min_df=1)
+            config.vocab, config.embeddings = load_glove_format_embs(
+                config.hp.embedding_txt_path, config.pad_token, config.unk_token, allowed_vocab_set
+            )
+            config.hp.embedding_dim = config.embeddings.shape[1]
+        else:
+            if args["load_vocab_from_test_ckpt"]:
+                load_vocab_dir = os.path.join(
+                    RUN_BASE_DIR, "baselines", args["model_type"], args["test_ckpt"]
+                )
+                print("load_vocab_from_test_ckpt is True, loading vocabulary from ({load_vocab_dir})")
+                allowed_vocab_set = set(read_dumped_vocab(load_vocab_dir))
+            else:
+                allowed_vocab_set = None
+            config.vocab, config.embeddings = load_glove_format_embs(
+                args["embedding_txt_path"], config.pad_token, config.unk_token, allowed_vocab_set
+            )
+            assert config.embeddings.shape[1] == config.hp.embedding_dim, f"embedding dimension loaded for test is not same as the one used for train ({config.embeddings.shape[1]} != {config.hp.embedding_dim})"
 
     dataloaders = get_3_splits_dataloaders(
         dataset_name=args["dataset_name"],
@@ -122,11 +154,15 @@ def main(args):
         print("starting train")
 
         lit_model.set_trainable(True)
+        if args["model_type"] == "lstm" and args["freeze_layers"] != "embeddings":
+            raise AssertionError("For `--train` and `--model_type` == \"lstm\", `--freeze_layers` == \"embeddings\" is required")
+        lit_model.set_freeze_layers(args["freeze_layers"])
 
         run_name = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
         run_dir = os.path.join(RUN_BASE_DIR, "baselines", args["model_type"], run_name)
         os.mkdir(run_dir)
         dump_hyperparams(run_dir, vars(config.hp))
+        dump_vocab(run_dir, config.vocab)
 
         checkpoint_callback = pl.callbacks.ModelCheckpoint(
             dirpath=run_dir,
@@ -284,10 +320,22 @@ if __name__ == "__main__":
         help="if provided, this script will execute in testing mode.",
     )
     parser.add_argument(
+        "--load_vocab_from_test_ckpt",
+        type=str,
+        default=None,
+        help="`True` or `False`",
+    )
+    parser.add_argument(
         "--test_splits",
         type=str,
         default=None,
         help="`train`,`val`,`test`,`all`, or a comma seperated combination of these values.",
+    )
+    parser.add_argument(
+        "--freeze_layers",
+        type=str,
+        default=None,
+        help="",
     )
     args = parser.parse_args()
     args = vars(args)

@@ -21,6 +21,9 @@ class LitClassifier(pl.LightningModule):
         for param in self.parameters():
             param.requires_grad = trainable
 
+    def set_freeze_layers(self,freezing_mode):
+        return self.model.set_freeze_layers(freezing_mode)
+
     def shared_step(self, batch, batch_idx, return_pred_labels=False):
         """
         this step will be shared by the train/val/test logic
