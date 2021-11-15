@@ -9,9 +9,6 @@ sys.path.append(".")
 import argparse
 import numpy as np
 
-from pytorch_lightning import loggers as pl_loggers
-import pytorch_lightning as pl
-
 from sklearn.metrics import f1_score
 
 from src.config import EmptyConfig
@@ -41,20 +38,21 @@ def find_best_checkpoint_from_dir(dir):
     print(f">>>found best checkpoint `{l[-1][1]}` with val_macro_f1_val=`{l[-1][0]}`")
     return l[-1][1]
 
-def get_metrics(model,test_dataloader):
+def get_metrics(model,test_dataloader,device):
     model.eval()
 
     pred_labels_l = list()
     actual_labels_l = list()
 
-    for batch_idx,batch in test_dataloader:
-        batch_ret_dict = model.shared_step(batch,batch_idx,return_pred_labels=True)
+    for batch_idx,batch in enumerate(test_dataloader):
+        batch = {k:v.to(device) for k,v in batch.items()}
+        batch_ret_dict = model.shared_step(batch,batch_idx,return_pred_labels=True,return_actual_labels=True)
         pred_labels_l.append(batch_ret_dict["pred_labels"].reshape(-1))
         actual_labels_l.append(batch_ret_dict["actual_labels"].reshape(-1))
 
-    pred_labels = np.append(pred_labels_l)
-    actual_labels = np.append(actual_labels_l)
-    del pred_labels_l, actual_labels
+    pred_labels = np.concatenate(pred_labels_l)
+    actual_labels = np.concatenate(actual_labels_l)
+    del pred_labels_l, actual_labels_l
 
     ret_metrics = {}
     ret_metrics["test_acc"] = (pred_labels == actual_labels).sum() / pred_labels.shape[0]
@@ -94,8 +92,6 @@ def main(args):
     lit_model.to(device)
     print(">>>moved model to device:", device)
 
-    trainer = pl.Trainer(gpus=1)
-
     test_run_dirs = glob.glob(os.path.join(args["test_run_dirs_parent"], "*"))
     macro_f1_lists = {}
     acc_lists = {}
@@ -122,10 +118,7 @@ def main(args):
         for test_dataset_name in args["test_dataset_names"].split(","):
             print(">>>>testing on dataset:", test_dataset_name)
             test_dataloader = get_dataloader(test_dataset_name, "test", config)
-            #test_results = trainer.test(
-            #    model=lit_model, test_dataloaders=test_dataloader
-            #)[0]
-            test_results = get_metrics(lit_model,test_dataloader)
+            test_results = get_metrics(lit_model,test_dataloader,device)
             print(
                 f">>>>test_macro_f1 = {test_results['test_macro_f1']}, test_acc = {test_results['test_acc']}"
             )

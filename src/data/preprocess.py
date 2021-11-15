@@ -6,6 +6,7 @@ from src.data.preprocess_gr import preprocess_gr_text
 from src.data.preprocess_tr import preprocess_tr_text
 from src.data.preprocess_hi import preprocess_hi_text
 from src.data.preprocess_de import preprocess_de_text
+from src.data.preprocess_it import preprocess_it_text
 
 import html
 
@@ -33,6 +34,8 @@ def preprocess_text(text, lang):
         text = preprocess_de_text(text)
     elif lang == "hi":
         text = preprocess_hi_text(text)
+    elif lang == 'it':
+        text = preprocess_it_text(text)
     else:
         raise ValueError(f"Unknown language {lang}")
     return text

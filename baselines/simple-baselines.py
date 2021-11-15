@@ -25,11 +25,10 @@ def main(args):
         args["test_ckpt"] is None
     ), "Either set `--train` flag or provide `--test_ckpt` string argument, not both or none"
 
-    assert (args["train"]) == (
-        args["freeze_layers"] is not None
-    ), "`--freeze_layers` can be provided only with `--train` flag set"
+    if not args["train"] and args["freeze_layers"] is not None:
+        raise AssertionError("`--freeze_layers` can be provided only with `--train` flag set")
 
-    assert args["freeze_layers"] in ["embeddings","top3","top6"],"`--freeze_layers` can only be in [\"embeddings\",\"top3\",\"top6\"]"
+    assert args["freeze_layers"] in [None,"embeddings","top3","top6"],"`--freeze_layers` can only be in [\"embeddings\",\"top3\",\"top6\"]"
 
     assert (args["train_ckpt"] is None) or (
         args["test_ckpt"] is None
@@ -48,7 +47,7 @@ def main(args):
         elif args["load_vocab_from_test_ckpt"].lower() == "false":
             args["load_vocab_from_test_ckpt"] = False
         else:
-            raise ValueError(f"unknown value received for `--load_vocab_from_test_ckpt` ({args[\"load_vocab_from_test_ckpt\"]})")
+            raise ValueError(f'unknown value received for `--load_vocab_from_test_ckpt` ({args["load_vocab_from_test_ckpt"]})')
 
 
     assert (args["model_type"] == "lstm") == (
@@ -162,7 +161,8 @@ def main(args):
         run_dir = os.path.join(RUN_BASE_DIR, "baselines", args["model_type"], run_name)
         os.mkdir(run_dir)
         dump_hyperparams(run_dir, vars(config.hp))
-        dump_vocab(run_dir, config.vocab)
+        if args["model_type"] == "lstm":
+            dump_vocab(run_dir, config.vocab)
 
         checkpoint_callback = pl.callbacks.ModelCheckpoint(
             dirpath=run_dir,
