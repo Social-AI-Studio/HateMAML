@@ -33,10 +33,10 @@ class XLMRClassifier(torch.nn.Module):
             for param in self.lm.embeddings.parameters():
                 param.requires_grad = False
         elif freezing_mode == "top3":
-            for param in self.lm.encoder.layer[-3:].parameters():
+            for param in self.lm.encoder.layer[:3].parameters():
                 param.requires_grad = False
         elif freezing_mode == "top6":
-            for param in self.lm.encoder.layer[-6:].parameters():
+            for param in self.lm.encoder.layer[:6].parameters():
                 param.requires_grad = False
         else:
             raise ValueError(f"unexpected value for freezing_mode received: {freezing_mode}")
@@ -70,10 +70,10 @@ class MBERTClassifier(torch.nn.Module):
             for param in self.lm.embeddings.parameters():
                 param.requires_grad = False
         elif freezing_mode == "top3":
-            for param in self.lm.encoder.layer[-3:].parameters():
+            for param in self.lm.encoder.layer[:3].parameters():
                 param.requires_grad = False
         elif freezing_mode == "top6":
-            for param in self.lm.encoder.layer[-6:].parameters():
+            for param in self.lm.encoder.layer[:6].parameters():
                 param.requires_grad = False
         else:
             raise ValueError(f"unexpected value for freezing_mode received: {freezing_mode}")
