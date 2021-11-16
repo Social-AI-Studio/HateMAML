@@ -333,9 +333,8 @@ def main(args,
     aux_la = "_" + args.aux_lang if args.aux_lang else ""
     few_ft = "_" + args.finetune_fewshot if args.finetune_fewshot else ""
     f_base_model =  args.base_model_path[-11:-5] if "bert" in args.base_model_path else args.base_model_path[-10:-5] 
-
-    summary_fname = os.path.join(
-        summary_output_dir, f"{f_base_model}_{args.exp_setting}_{args.num_meta_iterations}_{args.shots//2}{few_ft}{aux_la}_{args.target_lang}.json")
+    f_samples = "_" + str(args.num_meta_samples) if args.num_meta_samples != 200 else ""
+    summary_fname = os.path.join(summary_output_dir, f"{f_base_model}_{args.exp_setting}_{args.num_meta_iterations}_{args.shots//2}{few_ft}{f_samples}{aux_la}_{args.target_lang}.json")
     logger.info(f"Output fname = {summary_fname}")
     if os.path.exists(summary_fname) and not args.overwrite_cache:
         return
@@ -680,9 +679,14 @@ def get_split_dataloaders(config, dataset_name, lang):
 
 
 def get_dataloader(split_name, config, train_few_dataset_name=None, lang=None, train="meta"):
-    few_pkl_path = os.path.join(
-        DEST_DATA_PKL_DIR, f"{train_few_dataset_name}_{config.num_meta_samples}_{split_name}.pkl"
-    )
+    if lang == "en":
+        few_pkl_path = os.path.join(
+            DEST_DATA_PKL_DIR, f"{train_few_dataset_name}_200_{split_name}.pkl"
+        )
+    else:
+        few_pkl_path = os.path.join(
+            DEST_DATA_PKL_DIR, f"{train_few_dataset_name}_{config.num_meta_samples}_{split_name}.pkl"
+        )
     data_df = pd.read_pickle(few_pkl_path, compression=None)
     logger.debug(f"picking {data_df.shape[0]} rows from `{few_pkl_path}` as few samples")
 

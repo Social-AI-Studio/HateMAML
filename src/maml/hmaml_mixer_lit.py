@@ -121,6 +121,9 @@ def parse_helper():
                         help="The threshold value for filtering silver labels.")             
     parser.add_argument("--num_meta_samples", type=int, default=200,
                         help="Number of available samples for meta-training.")
+    parser.add_argument("--freeze_layers", type=str, default=None,
+        help="Set freeze layers. `freeze_layers` can only be in [\"embeddings\",\"top3\",\"top6\"]",
+    )
 
     args = parser.parse_args()
     logger.info(args)
@@ -338,8 +341,18 @@ def main(args,
     lit_model = LitClassifier(model)
     ckpt = torch.load(os.path.normpath(args.base_model_path), map_location=device)
     lit_model.load_state_dict(ckpt['state_dict'])
+
+    if args.freeze_layers:
+        lit_model.set_trainable(True)
+        lit_model.set_freeze_layers(args.freeze_layers)
+        for name, param in lit_model.model.named_parameters():
+            logger.debug(
+                "%s - %s", name, ("Unfrozen" if param.requires_grad else "FROZEN")
+            )
+
     model = lit_model.model
     model.to(device)
+
 
     target_lang_dataloaders = get_split_dataloaders(args, dataset_name=args.dataset_name, lang=args.target_lang)
 
@@ -652,9 +665,15 @@ def get_split_dataloaders(config, dataset_name, lang):
 
 
 def get_dataloader(split_name, config, train_few_dataset_name=None, lang=None, train="meta"):
-    few_pkl_path = os.path.join(
-        DEST_DATA_PKL_DIR, f"{train_few_dataset_name}_{config.num_meta_samples}_{split_name}.pkl"
-    )
+    if lang == "en":
+        few_pkl_path = os.path.join(
+            DEST_DATA_PKL_DIR, f"{train_few_dataset_name}_200_{split_name}.pkl"
+        )
+    else:
+        few_pkl_path = os.path.join(
+            DEST_DATA_PKL_DIR, f"{train_few_dataset_name}_{config.num_meta_samples}_{split_name}.pkl"
+        )
+
     data_df = pd.read_pickle(few_pkl_path, compression=None)
     logger.debug(f"picking {data_df.shape[0]} rows from `{few_pkl_path}` as few samples")
 
