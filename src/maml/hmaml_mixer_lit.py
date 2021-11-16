@@ -525,7 +525,7 @@ def main(args,
         if args.exp_setting == "hmaml-zero-refine":
             silver_dataset = get_silver_dataset_for_meta_refine(args, model, target_lang_dataloaders['train'], device)
             meta_tasks_list = [get_dataloader(
-                split_name="train", config=args, train_few_dataset_name= f"{src_dsn}{args.source_lang}", lang=args.source_lang
+                split_name="val", config=args, train_few_dataset_name= f"{src_dsn}{args.source_lang}", lang=args.source_lang
             ),
             torch.utils.data.DataLoader(
                 silver_dataset, batch_size=args.shots, num_workers=args.num_workers, shuffle=True, drop_last = True,
