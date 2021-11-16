@@ -6,19 +6,22 @@ import statistics
 def get_mean_stdv(data: list):
     mean = statistics.mean(data)
     stdv = statistics.stdev(data)
-    print(f"mean {mean} stdv {stdv}")
+    print(f"mean {mean:.3f} stdv {stdv:.3f}")
 
 
 def read_files(dir_path: str):
     files = os.listdir(dir_path)
     bdict = {}
-    identifier = "zeroshot"
+    identifier = "fewshot"
     model_type = "bert"
     few_flag = False
+    shot_flag = False
+    shots = 200
     TYPE="full"
+    EPOCH = 20
 
     if "semeval" in dir_path:
-        langs = ["ar", "tr", "gr", "da"]
+        langs = ["ar", "da",  "gr", "tr"]
     elif "hasoc" in dir_path:
         langs = ["hi", "de"]
     else:
@@ -28,7 +31,6 @@ def read_files(dir_path: str):
         model_name = fname.split("_")[0]
         if model_type not in model_name:
             continue
-
         with open(os.path.join(dir_path, fname)) as f:
             data = json.load(f)
 
@@ -43,7 +45,7 @@ def read_files(dir_path: str):
             else:
                 epoch = int(fname.split("_")[-4])
 
-            if epoch == 6:
+            if epoch == EPOCH:
                 print(f"Filtering on epoch {epoch}, fname = {fname}")
                 type = "hmaml-zeroshot"
                 if few_flag:
@@ -59,7 +61,7 @@ def read_files(dir_path: str):
         elif identifier == "zero-refine" and identifier in str(fname):
             target_lang = fname.split("_")[-1][:2]
             epoch = int(fname.split("_")[-3])
-            if epoch == 5:
+            if epoch == EPOCH:
                 print(f"Filtering on epoch {epoch}, fname = {fname}")
 
                 f1 = data["hmaml-zero-refine"].get("f1")
@@ -71,8 +73,16 @@ def read_files(dir_path: str):
 
         elif identifier == "_maml" and identifier in str(fname):
             target_lang = fname.split("_")[-1][:2]
-            epoch = int(fname.split("_")[-3])
-            if epoch == 5:
+            
+            if shot_flag and str(shots) not in str(fname):
+                continue
+
+            if shot_flag:
+                epoch = int(fname.split("_")[-4])
+            else:
+                epoch = int(fname.split("_")[-3])            
+            
+            if epoch == EPOCH:
                 print(f"Filtering on epoch {epoch}, fname = {fname}")
 
                 f1 = data["maml"].get("f1")
@@ -84,8 +94,15 @@ def read_files(dir_path: str):
 
         elif identifier == "fewshot" and identifier in str(fname):
             target_lang = fname.split("_")[-1][:2]
-            epoch = int(fname.split("_")[-3])
-            if epoch == 20:
+            
+            if shot_flag and str(shots) not in str(fname):
+                continue
+
+            if shot_flag:
+                epoch = int(fname.split("_")[-4])
+            else:
+                epoch = int(fname.split("_")[-3])
+            if epoch == EPOCH:
                 print(f"Filtering on epoch {epoch}, fname = {fname}")
 
                 f1 = data["hmaml-fewshot"].get("f1")
@@ -126,7 +143,7 @@ def read_files(dir_path: str):
 
 
 def main():
-    dir_path = "runs/summary/semeval2020/hmaml_mixer_lit"
+    dir_path = "runs/summary/hasoc2020/hmaml_mixer_lit"
     read_files(dir_path)
 
 
