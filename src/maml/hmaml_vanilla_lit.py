@@ -399,13 +399,13 @@ def main(args,
         )
     elif args.exp_setting == "hmaml-fewshot":
         meta_tasks = get_dataloader(
-            split_name="val", config=args, train_few_dataset_name=f"{args.dataset_name}{args.target_lang}", lang=args.target_lang
+            split_name="train", config=args, train_few_dataset_name=f"{args.dataset_name}{args.target_lang}", lang=args.target_lang
         )
         meta_batch_size = len(meta_tasks)
         logger.info(f"Number of meta tasks {meta_batch_size}")
 
         meta_domain_tasks = get_dataloader(
-            split_name="val", config=args, train_few_dataset_name=f"{args.dataset_name}{args.target_lang}", lang=args.target_lang
+            split_name="train", config=args, train_few_dataset_name=f"{args.dataset_name}{args.target_lang}", lang=args.target_lang
         )
     elif args.exp_setting == "hmaml-zero-refine":
         silver_dataset = get_silver_dataset_for_meta_refine(

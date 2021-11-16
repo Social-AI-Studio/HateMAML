@@ -388,7 +388,7 @@ def main(args,
             split_name="val", config=args, train_few_dataset_name= f"{src_dsn}{args.source_lang}", lang=args.source_lang
         ),
         get_dataloader(
-            split_name="val", config=args, train_few_dataset_name= f"{args.dataset_name}{args.target_lang}", lang=args.target_lang
+            split_name="train", config=args, train_few_dataset_name= f"{args.dataset_name}{args.target_lang}", lang=args.target_lang
         )]
         meta_batch_size_list = []
         for l in meta_tasks_list:
@@ -397,7 +397,7 @@ def main(args,
         logger.info(f"Number of meta tasks {meta_batch_size}")
 
         meta_domain_tasks = get_dataloader(
-            split_name="val", config=args, train_few_dataset_name= f"{args.dataset_name}{args.target_lang}", lang=args.target_lang
+            split_name="train", config=args, train_few_dataset_name= f"{args.dataset_name}{args.target_lang}", lang=args.target_lang
         )
     elif args.exp_setting == "hmaml-zero-refine":
         silver_dataset = get_silver_dataset_for_meta_refine(args, model, target_lang_dataloaders['train'], device)
