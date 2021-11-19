@@ -525,7 +525,7 @@ def main(args,
             silver_dataset = get_silver_dataset_for_meta_refine(
                 args, model, target_lang_dataloaders['train'], device)
             meta_tasks = torch.utils.data.DataLoader(
-                silver_dataset, batch_size=args.batch_size, num_workers=args.num_workers, shuffle=True, drop_last=True,
+                silver_dataset, batch_size=args.shots, num_workers=args.num_workers, shuffle=True, drop_last=True,
             )
             meta_batch_size = len(meta_tasks)
 
@@ -610,7 +610,9 @@ def get_silver_dataset_for_meta_refine(args, model, dataloader, device):
                         (silver_dataset[key], value), axis=0)
 
     unique, counts = np.unique(silver_dataset["labels"], return_counts=True)
+    
     lower_bnd = min(min(counts), 150)
+  
 
     all_items = []
     for idx in range(len(silver_dataset["labels"])):

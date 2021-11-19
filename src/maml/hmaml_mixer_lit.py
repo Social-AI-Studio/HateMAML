@@ -450,7 +450,8 @@ def main(args,
                     task = next(iter(meta_tasks_list[choice_idx]))
                     tmp_cntr[choice_idx] -= 1
                     break
-
+            if task is None:
+                continue
             n_meta_lr = args.shots // 2
 
             train_query_inp = {'input_ids': task['input_ids'][:n_meta_lr],
