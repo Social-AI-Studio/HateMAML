@@ -91,7 +91,7 @@ def parse_helper():
                         help="Auxiliary languages to use for meta-training.")
     parser.add_argument("--target_lang", type=str, default=None, required=True,
                         help="After finishing meta-training, meta-tuned model evaluation on the target language.")
-    parser.add_argument("--max_seq_len", type=int, default=64,
+    parser.add_argument("--max_seq_len", type=int, default=128,
                         help="The maximum sequence length of the inputs.")
     parser.add_argument("--num_train_epochs", type=int, default=3,
                         help="The number of training epochs.")
@@ -705,11 +705,13 @@ def get_dataloader(split_name, config, train_few_dataset_name=None, lang=None, t
     
     if train == "meta":
         dataloader = torch.utils.data.DataLoader(
-            dataset, batch_size=config.shots, num_workers=config.num_workers, drop_last=True,
+            dataset, batch_size=config.shots, num_workers=config.num_workers, drop_last=True, 
+            shuffle=True if split_name == "train" else False,
         )
     else:
         dataloader = torch.utils.data.DataLoader(
             dataset, batch_size=config.batch_size, num_workers=config.num_workers,
+            shuffle=True if split_name == "train" else False,
         )
 
     return dataloader

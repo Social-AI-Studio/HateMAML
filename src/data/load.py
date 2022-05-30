@@ -13,7 +13,7 @@ def get_dataloader(dataset_name, split_name, config, train_few_dataset_name=None
 
     if train_few_dataset_name is not None and split_name == "train":
         few_pkl_path = os.path.join(
-            DEST_DATA_PKL_DIR, f"{train_few_dataset_name}_few_{split_name}.pkl"
+            DEST_DATA_PKL_DIR, f"{train_few_dataset_name}_200_{split_name}.pkl"
         )
         few_df = pd.read_pickle(few_pkl_path, compression=None)
         print(f"picking {few_df.shape[0]} rows from `{few_pkl_path}` as few samples")
@@ -38,7 +38,10 @@ def get_dataloader(dataset_name, split_name, config, train_few_dataset_name=None
     else:
         raise ValueError(f"Unknown dataset_type {dataset_type}")
     dataloader = torch.utils.data.DataLoader(
-        dataset, batch_size=config.hp.batch_size, num_workers=config.num_workers
+        dataset,
+        batch_size=config.hp.batch_size,
+        num_workers=config.num_workers,
+        shuffle=True if split_name == "train" else False,
     )
 
     return dataloader
@@ -49,10 +52,15 @@ def get_3_splits_dataloaders(dataset_name, config, train_few_dataset_name=None):
     give all 3 splits' dataloaders for the `dataset_name` dataset.
     """
 
-    split_names = ["train", "val", "test"]
+    if dataset_name == "evalita2020":
+        split_names = ["train", "val", "news_test", "tweet_test"]
+    else:
+        split_names = ["train", "val", "test"]
     dataloaders = dict()
 
     for split_name in split_names:
+        if "test" in split_name:
+            dataset_name = dataset_name.rstrip("_200")
         dataloaders[split_name] = get_dataloader(
             dataset_name, split_name, config, train_few_dataset_name
         )

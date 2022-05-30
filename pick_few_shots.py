@@ -45,6 +45,14 @@ def process_src_pkl(
         dest_data_df = src_data_df.groupby("label", group_keys=False).apply(
             lambda x: x.sample(label_shots, random_state=rng_seed)
         )
+    elif sampling == "maximize":
+        num_labels = src_data_df.label.value_counts().shape[0]
+        label_shots = shots // num_labels
+        mini = min(min(src_data_df.label.value_counts().to_list()), label_shots)
+        label_shots = 50
+        dest_data_df = src_data_df.groupby("label", group_keys=False).apply(
+            lambda x: x.sample(min(len(x), shots-mini), random_state=rng_seed)
+        )
 
     dest_labels = dest_data_df.label.value_counts()
     dest_labels_df = pd.concat(
@@ -69,7 +77,8 @@ def main(args):
         "random",
         "stratified",
         "equal",
-    ], '`sampling` can only be one of: ["random","stratified","equal"]'
+        "maximize",
+    ], '`sampling` can only be one of: ["random","stratified","equal","maximize"]'
     process_src_pkl(
         shots=args["shots"],
         sampling=args["sampling"],
