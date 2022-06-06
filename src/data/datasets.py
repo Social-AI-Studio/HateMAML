@@ -1,8 +1,9 @@
 import torch
 from math import ceil
+from torch.utils.data import Dataset
 
 
-class HFDataset(torch.utils.data.Dataset):
+class HFDataset(Dataset):
     def __init__(self, df, tokenizer, max_seq_len):
         self.labels = df.label.tolist()
         self.encodings = tokenizer(
@@ -15,14 +16,14 @@ class HFDataset(torch.utils.data.Dataset):
 
     def __getitem__(self, idx):
         item = {key: torch.tensor(val[idx]) for key, val in self.encodings.items()}
-        item["label"] = torch.tensor(self.labels[idx])
+        item["labels"] = torch.tensor(self.labels[idx])
         return item
 
     def __len__(self):
         return len(self.labels)
 
 
-class LSTMDataset(torch.utils.data.Dataset):
+class LSTMDataset(Dataset):
     def __init__(self, df, vocab, max_seq_length, pad_token, unk_token):
         self.labels = df.label.tolist()
         self.word2idx = {term: idx for idx, term in enumerate(vocab)}
@@ -33,9 +34,7 @@ class LSTMDataset(torch.utils.data.Dataset):
         self.sequence_lens = []
         self.labels = []
         for i in range(df.shape[0]):
-            input_ids, sequence_len = self.convert_text_to_input_ids(
-                df.iloc[i].text, pad_to_len=max_seq_length
-            )
+            input_ids, sequence_len = self.convert_text_to_input_ids(df.iloc[i].text, pad_to_len=max_seq_length)
 
             self.input_ids.append(input_ids.reshape(-1))
             self.sequence_lens.append(sequence_len)

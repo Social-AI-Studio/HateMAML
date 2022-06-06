@@ -310,7 +310,7 @@ def finetune(args, model, train_dataloader, eval_dataloader, test_dataloader, de
 
 def main(args,
          meta_batch_size=None,
-         adaptation_steps=1,
+         adaptation_steps=5,
          cuda=False,
          seed=42):
     """
@@ -381,7 +381,7 @@ def main(args,
         meta_tasks = aux_lang_dataloaders['val']
         meta_batch_size = len(meta_tasks)
 
-    elif args.exp_setting == "maml":
+    elif args.exp_setting == "x-metra":
         meta_tasks = get_dataloader(
             split_name="train", config=args, train_few_dataset_name=f"{args.dataset_name}{args.target_lang}"
         )
@@ -512,13 +512,13 @@ def main(args,
         mv_error = meta_valid_error / meta_batch_size
         mv_acc = meta_valid_accuracy / meta_batch_size
 
-        logger.debug('   Iteration {} >> Meta Train Error {:.3f}, Accuracy {:.3f} # Valid Error {:.3f}, Accuracy {:.3f}'.format(
+        logger.info('   Iteration {} >> Meta Train Error {:.3f}, Accuracy {:.3f} # Valid Error {:.3f}, Accuracy {:.3f}'.format(
             iteration, mt_error, mt_acc, mv_error, mv_acc))
 
         # Average the accumulated gradients and optimize
-        # for p in maml.parameters():
-        #     if p.grad is not None:
-        #         p.grad.data.mul_(1.0 / meta_batch_size)
+        for p in maml.parameters():
+            if p.grad is not None:
+                p.grad.data.mul_(1.0 / meta_batch_size)
         opt.step()
 
         if args.exp_setting == "hmaml-zero-refine":

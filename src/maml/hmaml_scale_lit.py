@@ -1,5 +1,5 @@
 """
-A prototype of two step meta learning algorithm for multilingual hate detection.
+A prototype of domain adaptive meta learning algorithm for multilingual hate detection.
 """
 from statistics import mode
 import sys
@@ -39,9 +39,7 @@ run_suffix = datetime.datetime.now().strftime("%Y_%m_%d_%H")
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
-formatter = logging.Formatter(
-    "%(asctime)s | %(levelname)s | %(message)s", "%m-%d-%Y %H:%M:%S"
-)
+formatter = logging.Formatter("%(asctime)s | %(levelname)s | %(message)s", "%m-%d-%Y %H:%M:%S")
 
 stdout_handler = logging.StreamHandler(sys.stdout)
 stdout_handler.setLevel(logging.DEBUG)
@@ -92,26 +90,18 @@ def parse_helper():
         type=str,
         help="The input data type. It could take bert, lstm, gpt2 as input.",
     )
-    parser.add_argument(
-        "--adam_epsilon", default=1e-8, type=float, help="Epsilon for Adam optimizer."
-    )
+    parser.add_argument("--adam_epsilon", default=1e-8, type=float, help="Epsilon for Adam optimizer.")
 
     parser.add_argument("--shots", default=8, type=int, help="Size of the mini batch")
-    parser.add_argument(
-        "--batch_size", default=32, type=int, help="Size of the mini batch"
-    )
+    parser.add_argument("--batch_size", default=32, type=int, help="Size of the mini batch")
     parser.add_argument(
         "--max_seq_len",
         type=int,
         default=128,
         help="The maximum sequence length of the inputs.",
     )
-    parser.add_argument(
-        "--num_train_epochs", type=int, default=3, help="The number of training epochs."
-    )
-    parser.add_argument(
-        "--num_workers", type=int, default=1, help="Number of workers for tokenization."
-    )
+    parser.add_argument("--num_train_epochs", type=int, default=3, help="The number of training epochs.")
+    parser.add_argument("--num_workers", type=int, default=1, help="Number of workers for tokenization.")
 
     parser.add_argument(
         "--gradient_accumulation_steps",
@@ -218,97 +208,67 @@ def checkpoint_ft_model(args, model):
     torch.save(model.state_dict(), output_dir)
 
 
-def evaluate(args, model, validation_dataloader, device, type="test"):
-    loss_fn = torch.nn.CrossEntropyLoss()
-
+def evaluate(args, model, eval_dataloader, device, type="test"):
     model.eval()
-
-    total_eval_loss = 0
-    nb_eval_steps = 0
-
-    pred_label = None
-    target_label = None
-    for batch in validation_dataloader:
-        batch["labels"] = batch.pop("label")
+    loss_fn = torch.nn.CrossEntropyLoss()
+    pred_label = []
+    target_label = []
+    for batch in eval_dataloader:
         with torch.no_grad():
             batch = move_to(batch, device)
             outputs = model(batch)
-            loss, _ = compute_loss_acc(outputs["logits"], batch["labels"], loss_fn)
-            if args.n_gpu > 1:
-                loss = loss.mean()
             logits = outputs["logits"]
+            pred_label.append(logits)
+            target_label.append(batch["labels"])
 
-            if pred_label is not None and target_label is not None:
-                pred_label = torch.cat((pred_label, logits), 0)
-                target_label = torch.cat((target_label, batch["labels"]))
-            else:
-                pred_label = logits
-                target_label = batch["labels"]
-
-            total_eval_loss += loss.item()
-
-        nb_eval_steps += 1
-
-    val_loss = total_eval_loss / len(validation_dataloader)
-    _, p, r, f1 = assess(pred_label, target_label)
-
-    log_str = (
-        type.capitalize() + "iction" if type == "pred" else type.capitalize() + "uation"
-    )
-
+    pred_label = torch.cat(pred_label)
+    target_label = torch.cat(target_label)
+    loss, f1 = compute_loss_acc(pred_label, target_label, loss_fn)
+    loss = loss.item()
+    log_str = "prediction" if type == "pred" else "evaluation"
     if type == "pred":
-        logger.info("*** Running Model {} **".format(log_str))
-        logger.info(f"  Num examples = {len(validation_dataloader)*args.batch_size}")
-        logger.info(f"  Loss = {val_loss:.3f}")
+        logger.info("*** Running {} **".format(log_str))
+        logger.info(f"  Num examples = {len(eval_dataloader)*args.batch_size}")
+        logger.info(f"  Loss = {loss:.3f}")
         logger.info(f"  F1 = {f1:.3f}")
 
-    return f1, val_loss
+    return f1, loss
 
 
-def finetune(
-    args,
-    model,
-    train_dataloader,
-    eval_dataloader,
-    test_dataloader_list,
-    meta_langs,
-    device,
-):
+def finetune(args, model, train_dataloader, eval_dataloader, test_dataloader_list, meta_langs, device):
     logger.debug("***** Running training *****")
     logger.debug(f"  Num examples = {len(train_dataloader)*args.batch_size}")
     logger.debug(f"  Num Epochs = {args.num_train_epochs}")
     logger.debug(f"  Gradient Accumulation steps = {args.gradient_accumulation_steps}")
-    logger.debug(
-        f"  Total optimization steps = {args.num_train_epochs * len(train_dataloader)}"
-    )
+    logger.debug(f"  Total optimization steps = {args.num_train_epochs * len(train_dataloader)}")
 
     no_decay = ["bias", "LayerNorm.weight"]
     optimizer_grouped_parameters = [
         {
-            "params": [
-                p
-                for n, p in model.named_parameters()
-                if not any(nd in n for nd in no_decay)
-            ],
+            "params": [p for n, p in model.named_parameters() if not any(nd in n for nd in no_decay)],
             "weight_decay": 0.01,
         },
         {
-            "params": [
-                p
-                for n, p in model.named_parameters()
-                if any(nd in n for nd in no_decay)
-            ],
+            "params": [p for n, p in model.named_parameters() if any(nd in n for nd in no_decay)],
             "weight_decay": 0.0,
         },
     ]
-    opt = optim.AdamW(
-        optimizer_grouped_parameters, lr=args.meta_lr, eps=args.adam_epsilon
+    # scheduler related
+    num_update_steps_per_epoch = math.ceil(len(train_dataloader) / args.gradient_accumulation_steps)
+    max_training_steps = args.num_train_epochs * num_update_steps_per_epoch
+    optimizer = optim.Adam(optimizer_grouped_parameters, lr=args.meta_lr, eps=args.adam_epsilon)
+    lr_scheduler = get_linear_schedule_with_warmup(
+        optimizer=optimizer, num_warmup_steps=args.num_warmup_steps, num_training_steps=max_training_steps
     )
-
     loss_fn = torch.nn.CrossEntropyLoss()
 
+    logger.debug("***** Running training *****")
+    logger.debug(f"  Num examples = {len(train_dataloader)*args.batch_size}")
+    logger.debug(f"  Num Epochs = {args.num_train_epochs}")
+    logger.debug(f"  Gradient Accumulation steps = {args.gradient_accumulation_steps}")
+    logger.debug(f"  Total optimization steps = {max_training_steps}")
+
     eval_steps = 50
-    patience = 5
 
     nb_train_steps = 0
     min_macro_f1 = 0
@@ -327,36 +287,24 @@ def finetune(
                 loss = loss.mean()
 
             loss.backward()
-            opt.step()
+            optimizer.step()
+            lr_scheduler.step()
             total_train_loss += loss.item()
             total_train_acc += acc
+            nb_train_steps += 1
             if (nb_train_steps + 1) % eval_steps == 0:
                 avg_train_loss = total_train_loss / nb_train_steps
-                logger.debug(
-                    f"  Epoch {epoch+1}, step {nb_train_steps+1}, training loss: {avg_train_loss:.3f} \n"
-                )
-                nb_train_steps += 1
+                logger.debug(f"  Epoch {epoch+1}, step {nb_train_steps+1}, training loss: {avg_train_loss:.3f} \n")
 
         f1, _ = evaluate(args, model, eval_dataloader, device, type="eval")
         if min_macro_f1 < f1:
             min_macro_f1 = f1
             checkpoint_ft_model(args, model)
-            patience = 5
-        else:
-            patience -= 1
-
-        if patience == 0:
-            break
 
     logger.info("============================================================")
     logger.info("============================================================")
 
-    path_to_model = os.path.join(
-        RUN_BASE_DIR,
-        "ft",
-        f"{args.exp_setting}",
-        args.model_name_or_path,
-    )
+    path_to_model = os.path.join(RUN_BASE_DIR, "fft", f"{args.exp_setting}", args.model_name_or_path)
     logger.info(f"Loading fine-tuned model from the checkpoint {path_to_model}")
 
     if "xlm-r" in args.model_name_or_path:
@@ -378,19 +326,13 @@ def finetune(
     }
 
     for lang_id in meta_langs:
-        logger.info(
-            f"Evaluating fine-tuned model performance on test set. Lang = {lang_id}"
-        )
+        logger.info(f"Evaluating fine-tuned model performance on test set. Lang = {lang_id}")
         if lang_id == "it":
             for lg_id in ["news", "tweets"]:
-                eval_result = evaluate(
-                    args, model, test_dataloader_list[lg_id], device, type="pred"
-                )
+                eval_result = evaluate(args, model, test_dataloader_list[lg_id], device, type="pred")
                 summary[lg_id] = {"f1": eval_result[0], "loss": eval_result[1]}
         else:
-            eval_result = evaluate(
-                args, model, test_dataloader_list[lang_id], device, type="pred"
-            )
+            eval_result = evaluate(args, model, test_dataloader_list[lang_id], device, type="pred")
             summary[lang_id] = {"f1": eval_result[0], "loss": eval_result[1]}
     return summary
 
@@ -407,19 +349,11 @@ def main(args, meta_batch_size=None, adaptation_steps=1, cuda=False, seed=42):
         num_iterations (int): The total number of iteration MAML will run (outer loop update).
     """
 
-    summary_output_dir = os.path.join(
-        "runs/summary", "analyze", os.path.basename(__file__)[:-3]
-    )
-    f_base_model = (
-        args.base_model_path[-11:-5]
-        if "bert" in args.base_model_path
-        else args.base_model_path[-10:-5]
-    )
+    summary_output_dir = os.path.join("runs/summary", "analyze", os.path.basename(__file__)[:-3])
+    f_base_model = args.base_model_path[-11:-5] if "bert" in args.base_model_path else args.base_model_path[-10:-5]
     meta_langs = args.meta_langs.split(",")
     # meta_langs = ["ar", "da", "gr", "tr", "hi", "de", "es"]
-    etxt = (
-        "_" + str(args.num_meta_iterations) if args.exp_setting == "hmaml-scale" else ""
-    )
+    etxt = "_" + str(args.num_meta_iterations) if args.exp_setting == "hmaml-scale" else ""
     summary_fname = os.path.join(
         summary_output_dir,
         f"{f_base_model}_{args.exp_setting}{etxt}_{len(meta_langs)}.json",
@@ -455,9 +389,7 @@ def main(args, meta_batch_size=None, adaptation_steps=1, cuda=False, seed=42):
         lit_model.set_trainable(True)
         lit_model.set_freeze_layers(args.freeze_layers)
         for name, param in lit_model.model.named_parameters():
-            logger.debug(
-                "%s - %s", name, ("Unfrozen" if param.requires_grad else "FROZEN")
-            )
+            logger.debug("%s - %s", name, ("Unfrozen" if param.requires_grad else "FROZEN"))
 
     model = lit_model.model
     model.to(device)
@@ -498,13 +430,9 @@ def main(args, meta_batch_size=None, adaptation_steps=1, cuda=False, seed=42):
 
     test_dataloader_list = {}
     for lang_id in meta_langs:
-        logger.debug(
-            f"**** Zero-shot evaluation on {dsn_map.get(lang_id)} before MAML >>> Language = {lang_id} ****"
-        )
+        logger.debug(f"**** Zero-shot evaluation on {dsn_map.get(lang_id)} before MAML >>> Language = {lang_id} ****")
         if lang_id == "it":
-            evalita_loaders = get_evalita_loaders(
-                split_name="test", config=args, dataset_name=dsn_map.get(lang_id)
-            )
+            evalita_loaders = get_evalita_loaders(split_name="test", config=args, dataset_name=dsn_map.get(lang_id))
             for kkey in evalita_loaders:
                 test_dataloader_list[kkey] = evalita_loaders[kkey]
                 # evaluate(args, mode, evalita_loaders[kkey], device, type="pred")
@@ -541,19 +469,11 @@ def main(args, meta_batch_size=None, adaptation_steps=1, cuda=False, seed=42):
     no_decay = ["bias", "LayerNorm.weight"]
     optimizer_grouped_parameters = [
         {
-            "params": [
-                p
-                for n, p in model.named_parameters()
-                if not any(nd in n for nd in no_decay)
-            ],
+            "params": [p for n, p in model.named_parameters() if not any(nd in n for nd in no_decay)],
             "weight_decay": 0.01,
         },
         {
-            "params": [
-                p
-                for n, p in model.named_parameters()
-                if any(nd in n for nd in no_decay)
-            ],
+            "params": [p for n, p in model.named_parameters() if any(nd in n for nd in no_decay)],
             "weight_decay": 0.0,
         },
     ]
@@ -608,9 +528,7 @@ def main(args, meta_batch_size=None, adaptation_steps=1, cuda=False, seed=42):
 
             for _ in range(adaptation_steps):
                 outputs = learner(train_support_inp)
-                loss, acc = compute_loss_acc(
-                    outputs["logits"], train_support_inp["labels"], loss_fn
-                )
+                loss, acc = compute_loss_acc(outputs["logits"], train_support_inp["labels"], loss_fn)
 
                 if args.n_gpu > 1:
                     loss = loss.mean()
@@ -618,9 +536,7 @@ def main(args, meta_batch_size=None, adaptation_steps=1, cuda=False, seed=42):
                 meta_train_error += loss.item()
                 meta_train_accuracy += acc
             outputs = learner(train_query_inp)
-            eval_loss, eval_acc = compute_loss_acc(
-                outputs["logits"], train_query_inp["labels"], loss_fn
-            )
+            eval_loss, eval_acc = compute_loss_acc(outputs["logits"], train_query_inp["labels"], loss_fn)
 
             if args.n_gpu > 1:
                 eval_loss = eval_loss.mean()
@@ -645,9 +561,7 @@ def main(args, meta_batch_size=None, adaptation_steps=1, cuda=False, seed=42):
                 }
                 domain_query_inp = move_to(domain_query_inp, device)
                 outputs = learner(domain_query_inp)
-                d_loss, d_f1 = compute_loss_acc(
-                    outputs["logits"], domain_query_inp["labels"], loss_fn
-                )
+                d_loss, d_f1 = compute_loss_acc(outputs["logits"], domain_query_inp["labels"], loss_fn)
                 if args.n_gpu > 1:
                     d_loss = d_loss.mean()
 
@@ -697,14 +611,10 @@ def main(args, meta_batch_size=None, adaptation_steps=1, cuda=False, seed=42):
         )
         if lang_id == "it":
             for lg_id in ["news", "tweets"]:
-                eval_result = evaluate(
-                    args, model, test_dataloader_list[lg_id], device, type="pred"
-                )
+                eval_result = evaluate(args, model, test_dataloader_list[lg_id], device, type="pred")
                 summary[lg_id] = {"f1": eval_result[0], "loss": eval_result[1]}
         else:
-            eval_result = evaluate(
-                args, model, test_dataloader_list[lang_id], device, type="pred"
-            )
+            eval_result = evaluate(args, model, test_dataloader_list[lang_id], device, type="pred")
             summary[lang_id] = {"f1": eval_result[0], "loss": eval_result[1]}
 
     # **** THE FEW-SHOT FINE-TUNING STEP ****
@@ -719,18 +629,14 @@ def get_split_dataloaders(config, dataset_name, lang):
     dataloaders = dict()
 
     for split_name in split_names:
-        pkl_path = os.path.join(
-            DEST_DATA_PKL_DIR, f"{dataset_name}{lang}_{split_name}.pkl"
-        )
+        pkl_path = os.path.join(DEST_DATA_PKL_DIR, f"{dataset_name}{lang}_{split_name}.pkl")
         logger.debug(pkl_path)
         data_df = pd.read_pickle(pkl_path, compression=None)
         if lang is not None:
             logger.debug(f"filtering only '{lang}' samples from {split_name} pickle")
             data_df = data_df.query(f"lang == '{lang}'")
         if config.dataset_type == "bert":
-            dataset = HFDataset(
-                data_df, config.tokenizer, max_seq_len=config.max_seq_len
-            )
+            dataset = HFDataset(data_df, config.tokenizer, max_seq_len=config.max_seq_len)
         else:
             raise ValueError(f"Unknown dataset_type {config.dataset_type}")
 
@@ -755,14 +661,10 @@ def get_evalita_loaders(split_name, config, dataset_name):
             f"{dataset_name}{lang_id}_{split_name}.pkl",
         )
         data_df = pd.read_pickle(few_pkl_path, compression=None)
-        logger.debug(
-            f"picking {data_df.shape[0]} rows from `{few_pkl_path}` as few samples"
-        )
+        logger.debug(f"picking {data_df.shape[0]} rows from `{few_pkl_path}` as few samples")
 
         if config.dataset_type == "bert":
-            dataset = HFDataset(
-                data_df, config.tokenizer, max_seq_len=config.max_seq_len
-            )
+            dataset = HFDataset(data_df, config.tokenizer, max_seq_len=config.max_seq_len)
         else:
             raise ValueError(f"Unknown dataset_type {config.dataset_type}")
 
@@ -775,9 +677,7 @@ def get_evalita_loaders(split_name, config, dataset_name):
     return evalita_loaders
 
 
-def get_dataloader(
-    split_name, config, train_few_dataset_name=None, lang=None, train="meta"
-):
+def get_dataloader(split_name, config, train_few_dataset_name=None, lang=None, train="meta"):
     config.tokenizer = AutoTokenizer.from_pretrained(config.model_name_or_path)
     if split_name == "test":
         few_pkl_path = os.path.join(
@@ -786,9 +686,7 @@ def get_dataloader(
         )
     else:
         if lang == "en":
-            few_pkl_path = os.path.join(
-                DEST_DATA_PKL_DIR, f"{train_few_dataset_name}_200_{split_name}.pkl"
-            )
+            few_pkl_path = os.path.join(DEST_DATA_PKL_DIR, f"{train_few_dataset_name}_200_{split_name}.pkl")
         else:
             few_pkl_path = os.path.join(
                 DEST_DATA_PKL_DIR,
@@ -796,9 +694,7 @@ def get_dataloader(
             )
 
     data_df = pd.read_pickle(few_pkl_path, compression=None)
-    logger.debug(
-        f"picking {data_df.shape[0]} rows from `{few_pkl_path}` as few samples"
-    )
+    logger.debug(f"picking {data_df.shape[0]} rows from `{few_pkl_path}` as few samples")
 
     if lang is not None:
         logger.debug(f"filtering only '{lang}' samples from {split_name} pickle")
@@ -837,17 +733,13 @@ def collate_langs_dataloader(config, meta_langs, dsn_map):
         frames = []
         for lang in meta_langs:
             dataset_name = dsn_map.get(lang)
-            pkl_path = os.path.join(
-                DEST_DATA_PKL_DIR, f"{dataset_name}{lang}_200_{split_name}.pkl"
-            )
+            pkl_path = os.path.join(DEST_DATA_PKL_DIR, f"{dataset_name}{lang}_200_{split_name}.pkl")
             cur_data_df = pd.read_pickle(pkl_path, compression=None)
             frames.append(cur_data_df)
         data_df = pd.concat(frames)
         logger.info(f"Total {len(data_df)} samples in {split_name}")
         if config.dataset_type == "bert":
-            dataset = HFDataset(
-                data_df, config.tokenizer, max_seq_len=config.max_seq_len
-            )
+            dataset = HFDataset(data_df, config.tokenizer, max_seq_len=config.max_seq_len)
         else:
             raise ValueError(f"Unknown dataset_type {config.dataset_type}")
 

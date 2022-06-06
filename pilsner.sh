@@ -8,13 +8,14 @@ echo "======================================================"
 export PYTHONPATH=":/data/data_store/rabiul/codes/multilingual-hate-speech"
 export CUDA_VISIBLE_DEVICES=1
 BATCH=32
-SHOTS=20
-LR=2e-5
-M_EPOCHS=5
+SHOTS=16
+LR=3e-5
+M_EPOCHS=30
 MODEL_TYPE=mbert
 MODEL_PATH=bert-base-multilingual-uncased
 DATASET=semeval2020
 LIMIT=0.85
+BASE=founta
 
 if [ $DATASET == hasoc2020 ] 
 then
@@ -23,17 +24,18 @@ elif [ $DATASET == hateval2019 ]
 then
     LANG_LIST=es
 else 
-    LANG_LIST=(ar da gr tr)
+    LANG_LIST=(tr ar da gr)
 fi
 
 # use this script for HateMAML zeroshot refinement
-# for T_LANG in ar tr da gr
+# for T_LANG in ${LANG_LIST[@]}
 # do
 #     for ID in 1 2 3 4 5
 #     do 
-#         python3 src/maml/hmaml_vanilla_lit.py --source_lang en --target_lang $T_LANG --num_train_epochs 6 \
-#         --num_meta_iterations $M_EPOCHS --meta_lr 4e-6 --fast_lr $LR --load_saved_base_model --base_model_path runs/tanmoy/Mbert${ID}.ckpt \
-#         --shots $SHOTS --batch_size $BATCH --exp_setting hmaml-zero-refine --device_id 0 --overwrite_cache --refine_threshold 0.85
+#         python3 src/maml/hmaml_mixer_lit.py --source_lang en --target_lang $T_LANG --num_train_epochs 7 --num_meta_samples 500 \
+#         --num_meta_iterations $M_EPOCHS --meta_lr $LR --fast_lr $LR --load_saved_base_model \
+#         --base_model_path runs/baselines/${BASE}/en/full/${MODEL_TYPE}1.ckpt --seed $ID --shots $SHOTS --batch_size $BATCH \
+#         --exp_setting xmetra --metatune_type fewshot --device_id 0 --overwrite_cache --refine_threshold 0.85
 #     done
 # done
 
@@ -52,26 +54,22 @@ fi
 # done
 
 # use this script for HateMAML zeroshot mixed refinement
-for T_LANG in ${LANG_LIST[@]}
-do
-    for ID in 1 2 3 4 5
-    do
-        for EPOCHS in 10
-        do 
-            python3 src/maml/finetune.py --source_lang en --target_lang $T_LANG --num_train_epochs 6 \
-             --meta_lr 5e-5  $LR --load_saved_base_model --base_model_path runs/${BASE}/en/full/${MODEL_TYPE}${ID}.ckpt \
-            --model_name_or_path $MODEL_PATH --device_id 0 --batch_size $BATCH  --dataset_name $DATASET
-        done
-    done
-done
+# for T_LANG in ${LANG_LIST[@]}
+# do
+#     for ID in 1 2 3 4 5
+#     do
+#         python3 src/maml/finetune.py --source_lang en --target_lang $T_LANG --num_train_epochs 7 --num_meta_samples 500 \
+#         --meta_lr $LR --load_saved_base_model --base_model_path runs/baselines/${BASE}/en/full/${MODEL_TYPE}1.ckpt --seed $ID \
+#         --model_name_or_path $MODEL_PATH --device_id 1 --batch_size $BATCH  --dataset_name $DATASET --finetune_fewshot few --overwrite_cache
+#     done
+# done
 
 # train step 1+2 Hate_MAML using this script
-BASE=founta
 for T_LANG in ${LANG_LIST[@]}
 do
     for A_LANG in ${LANG_LIST[@]}
     do
-        for TYPE in few full
+        for TYPE in zeroshot
         do
             for MODEL_PATH in bert-base-multilingual-uncased # xlm-roberta-base
             do
@@ -86,9 +84,9 @@ do
                 if [ $A_LANG != $T_LANG ]
                 then
                     python3 src/maml/hmaml_mixer_lit.py --source_lang en --aux_lang $A_LANG --target_lang $T_LANG --num_train_epochs 10 \
-                    --num_meta_iterations $M_EPOCHS --meta_lr 5e-5 --fast_lr $LR --load_saved_base_model --base_model_path runs/baselines/${BASE}/en/full/${MODEL_TYPE}${ID}.ckpt \
-                    --model_name_or_path $MODEL_PATH --shots $SHOTS --batch_size $BATCH --exp_setting hmaml-zeroshot --device_id 1 --dataset_name $DATASET \
-                    --num_meta_samples 200 --overwrite_cache --finetune_fewshot $TYPE
+                    --num_meta_iterations $M_EPOCHS --meta_lr $LR --fast_lr $LR --load_saved_base_model --base_model_path runs/baselines/${BASE}/en/full/${MODEL_TYPE}1.ckpt --seed $ID \
+                    --model_name_or_path $MODEL_PATH --shots $SHOTS --batch_size $BATCH --exp_setting hmaml --device_id 1 --dataset_name $DATASET \
+                    --num_meta_samples 500 --overwrite_cache --metatune_type $TYPE
                 fi
                 done
             done

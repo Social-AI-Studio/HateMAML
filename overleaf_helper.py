@@ -2,6 +2,7 @@ import os
 import json
 import statistics
 import numpy as np
+import argparse
 
 
 def get_mean_stdv(data: list):
@@ -11,17 +12,9 @@ def get_mean_stdv(data: list):
     return mean, stdv
 
 
-def read_files(dir_path: str):
+def meta_tuning_summary(args, dir_path: str):
     files = os.listdir(dir_path)
     bdict = {}
-    identifier = "zeroshot"
-    model_type = "bert"
-    few_flag = True
-    shot_flag = False
-    meta_samples = 200
-    shots = 10
-    TYPE = "few"
-    EPOCH = 5
 
     if "semeval" in dir_path:
         langs = ["ar", "da", "gr", "tr"]
@@ -32,44 +25,55 @@ def read_files(dir_path: str):
 
     for fname in files:
         model_name = fname.split("_")[0]
-        if model_type not in model_name:
+        if args.exp_setting not in fname or args.type not in fname:
+            continue
+        if args.model_type not in model_name:
             continue
         with open(os.path.join(dir_path, fname)) as f:
             data = json.load(f)
 
-        if identifier == "zeroshot" and identifier in str(fname):
+        if args.type == "zeroshot":
             aux_lang = fname.split("_")[-2]
             target_lang = fname.split("_")[-1].strip(".json")
-
-            if few_flag and f"{shots}_{TYPE}" not in fname:
+            epoch = fname.split("_")[2]
+            shots = fname.split("_")[3]
+            if args.samples is not None and args.type + "_" + args.samples not in fname:
                 continue
-
-            if few_flag:
-                epoch = int(fname.split("_")[-5])
-            else:
-                epoch = int(fname.split("_")[-4])
-
-            if epoch == EPOCH:
-                type = "hmaml-zeroshot"
-                if few_flag:
-                    type = TYPE
-
-                print(f"Filtering on type = {type} epoch {epoch}, fname = {fname}")
+            if args.samples is None and args.type + "_" + aux_lang not in fname:
+                continue
+            if epoch == args.epochs and shots == args.shots:
+                print(f"Filtering on type = {args.type} epoch {epoch}, fname = {fname}")
                 # print(json.dumps(data, indent=2))
 
-                f1 = data[type].get("f1")
-
+                f1 = data[args.exp_setting].get("f1")
                 key = aux_lang + "_" + target_lang
                 if bdict.get(model_name) is None:
                     bdict[model_name] = {}
-
                 bdict[model_name][key] = f1
-        elif identifier == "zero-refine" and identifier in str(fname):
-            target_lang = fname.split("_")[-1][:2]
-            if "_" + str(shots) + "_" + target_lang not in str(fname):
+        elif args.type == "fewshot":
+            target_lang = fname.split("_")[-1].strip(".json")
+            epoch = fname.split("_")[2]
+            shots = fname.split("_")[3]
+            if args.samples is not None and args.type + "_" + args.samples not in fname:
                 continue
-            epoch = int(fname.split("_")[-3])
-            if epoch == EPOCH:
+            if args.samples is None and args.type + "_" + target_lang not in fname:
+                continue
+            if epoch == args.epochs and shots == args.shots:
+                print(f"Filtering on type = {args.exp_setting} epoch {epoch}, fname = {fname}")
+                # print(json.dumps(data, indent=2))
+
+                f1 = data[args.exp_setting].get("f1")
+                key = target_lang
+                if bdict.get(model_name) is None:
+                    bdict[model_name] = {}
+                bdict[model_name][key] = f1
+
+        elif args.type == "zero-refine":
+            target_lang = fname.split("_")[-1][:2]
+            if "_" + str(args.shots) + "_" + target_lang not in str(fname):
+                continue
+            epoch = fname.split("_")[-3]
+            if epoch == args.epochs:
                 print(f"Filtering on epoch {epoch}, fname = {fname}")
 
                 f1 = data["hmaml-zero-refine"].get("f1")
@@ -79,52 +83,9 @@ def read_files(dir_path: str):
 
                 bdict[model_name][target_lang] = f1
 
-        elif identifier == "_maml" and identifier in str(fname):
-            target_lang = fname.split("_")[-1][:2]
-            if "_" + str(shots) + "_" + target_lang not in str(fname):
-                continue
-            if shot_flag and str(meta_samples) not in str(fname):
-                continue
-
-            if shot_flag:
-                epoch = int(fname.split("_")[-4])
-            else:
-                epoch = int(fname.split("_")[-3])
-
-            if epoch == EPOCH:
-                print(f"Filtering on epoch {epoch}, fname = {fname}")
-
-                f1 = data["maml"].get("f1")
-
-                if bdict.get(model_name) is None:
-                    bdict[model_name] = {}
-
-                bdict[model_name][target_lang] = f1
-
-        elif identifier == "fewshot" and identifier in str(fname):
-            target_lang = fname.split("_")[-1][:2]
-            if "_" + str(shots) + "_" + target_lang not in str(fname):
-                continue
-            if shot_flag and str(meta_samples) not in str(fname):
-                continue
-
-            if shot_flag:
-                epoch = int(fname.split("_")[-4])
-            else:
-                epoch = int(fname.split("_")[-3])
-            if epoch == EPOCH:
-                print(f"Filtering on epoch {epoch}, fname = {fname}")
-
-                f1 = data["hmaml-fewshot"].get("f1")
-
-                if bdict.get(model_name) is None:
-                    bdict[model_name] = {}
-
-                bdict[model_name][target_lang] = f1
-
     print(json.dumps(bdict, indent=2))
     print(dir_path)
-    if identifier == "zeroshot":
+    if args.type == "zeroshot":
         for tgt in langs:
             for aux in langs:
                 if tgt == aux:
@@ -233,13 +194,65 @@ def baseline_report():
                 print(f"\n{fpath_sub} mean f1 is {np.mean(f1_collection)}")
 
 
-def main():
-    dir_path = "runs/summary/semeval2020/hmaml_mixer_lit"
-    read_files(dir_path)
+def baseline_report_modified(args):
+    dir_path = "runs/finetune/semeval2020"
 
-    # dir_path = "runs/summary/analyze/hmaml_scale_lit"
-    # scaling_summary_gen(dir_path)
-    # baseline_report()
+    bdict = {}
+    subdirs = os.listdir(dir_path)
+    for target_lang in subdirs:
+        subdirpath = os.path.join(dir_path, target_lang)
+        subsubdirs = os.listdir(subdirpath)
+        for fn in subsubdirs:
+            model_name = fn.split("_")[0]
+            fname = os.path.join(subdirpath, fn)
+            if args.model_type not in model_name:
+                continue
+            if args.type not in fn:
+                continue
+            if args.samples and args.samples not in fn:
+                continue
+            print(f"Processing {fname}")
+            if bdict.get(target_lang) is None:
+                bdict[target_lang] = {}
+
+            with open(fname, "r") as f:
+                data = json.load(f)
+            cur_f1 = data[args.type].get("f1")
+            bdict[target_lang][model_name] = cur_f1
+
+    print(json.dumps(bdict, indent=2))
+    print(f"Reporting {dir_path}")
+    for key in bdict:
+        # print(f"{key} --> {bdict[key]}")
+        res_txt = ""
+        all_f1s = []
+        for item in bdict[key]:
+            all_f1s.append(bdict[key][item])
+        if len(all_f1s) > 1:
+            mean, stdv = get_mean_stdv(all_f1s)
+            res_txt += f"{key}: {mean:.3f}_{{{stdv:.3f}}}"
+        print(res_txt)
+
+
+def main():
+    parser = argparse.ArgumentParser()
+
+    # Required parameters
+    parser.add_argument("--exp_setting", required=True, type=str, help="The experimental scenario")
+    parser.add_argument("--type", required=True, type=str, help="Tuning type")
+    parser.add_argument("--model_type", required=True, default="bert", type=str, help="Model type")
+    parser.add_argument("--epochs", required=True, type=str, help="Number of training epochs")
+    parser.add_argument("--samples", default=None, type=str, help="Training set size")
+    parser.add_argument("--shots", default=None, type=str, help="Number of support query")
+
+    args = parser.parse_args()
+    if args.exp_setting in ["hmaml", "xmetra", "xmaml"]:
+        dir_path = "runs/summary/semeval2020/hmaml_mixer_lit"
+        meta_tuning_summary(args, dir_path)
+    elif args.exp_setting == "finetune":
+        # dir_path = "runs/summary/analyze/hmaml_scale_lit"
+        # scaling_summary_gen(dir_path)
+        baseline_report_modified(args)
 
 
 if __name__ == "__main__":

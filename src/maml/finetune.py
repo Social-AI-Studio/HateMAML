@@ -1,58 +1,37 @@
 """
-A prototype of two step meta learning algorithm for multilingual hate detection.
+A script for standard finetuning
 """
 import argparse
+import json
+import logging
+import math
 import os
 import random
-import datetime
-import json
-from statistics import mode
-from typing_extensions import runtime
+
 import numpy as np
 import pandas as pd
-from sklearn.utils.sparsefuncs import inplace_csr_column_scale
-from baselines.STCKA.utils.metrics import assess
-from src.data.consts import DEST_DATA_PKL_DIR, RUN_BASE_DIR, SRC_DATA_PKL_DIR
-from src.model.classifiers import MBERTClassifier, XLMRClassifier
-from src.model.lightning import LitClassifier
-import torch
-import torch.nn.functional as F
-import learn2learn as l2l
-
-from torch import nn, optim
-from torch.utils.data import DataLoader
 from sklearn.metrics import f1_score
+from sklearn.model_selection import train_test_split
+import torch
+from torch import nn, optim
+import torch.nn.functional as F
+from torch.utils.data import DataLoader
 from tqdm import tqdm
-import logging
-import sys
 from transformers import (
     AutoConfig,
     AutoModel,
-    get_linear_schedule_with_warmup,
     AutoModelForSequenceClassification,
     AutoTokenizer,
+    get_linear_schedule_with_warmup,
 )
+
+from mtl_datasets import DataLoaderWithTaskname, MultitaskDataloader
+from src.data.consts import DEST_DATA_PKL_DIR, RUN_BASE_DIR, SRC_DATA_PKL_DIR
 from src.data.datasets import HFDataset
-from transformers import logging as tflog
+from src.maml.mtl_datasets import DataLoaderWithTaskname
+from src.model.classifiers import MBERTClassifier, XLMRClassifier
+from src.model.lightning import LitClassifier
 
-tflog.set_verbosity_error()
-
-run_suffix = datetime.datetime.now().strftime("%Y_%m_%d_%H")
-
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
-formatter = logging.Formatter("%(asctime)s | %(levelname)s | %(message)s", "%m-%d-%Y %H:%M:%S")
-
-stdout_handler = logging.StreamHandler(sys.stdout)
-stdout_handler.setLevel(logging.DEBUG)
-stdout_handler.setFormatter(formatter)
-
-file_handler = logging.FileHandler(f"runs/logs/logs_{run_suffix}.log")
-file_handler.setLevel(logging.DEBUG)
-file_handler.setFormatter(formatter)
-
-logger.addHandler(file_handler)
-logger.addHandler(stdout_handler)
 
 logging.basicConfig(
     format="%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s", datefmt="%H:%M:%S", level=logging.INFO
@@ -76,11 +55,11 @@ def parse_helper():
         "--model_name_or_path",
         default="bert-base-multilingual-uncased",
         type=str,
-        help="Path to pre-trained model or shortcut name selected in the list: ",
+        help="Path to pre-trained model or shortcut name selected in the list",
     )
     parser.add_argument(
         "--base_model_path",
-        default="runs/semeval2020/Mbert2.ckpt",
+        default=None,
         type=str,
         help="Path to fine-tunes base-model, load from checkpoint!",
     )
@@ -96,6 +75,7 @@ def parse_helper():
     # other parameters
     parser.add_argument("--adam_epsilon", default=1e-8, type=float, help="Epsilon for Adam optimizer.")
     parser.add_argument("--batch_size", default=32, type=int, help="Size of the mini batch")
+    parser.add_argument("--seed", default=42, type=int, help="Seed for reproducibility")
     parser.add_argument(
         "--source_lang",
         type=str,
@@ -136,14 +116,18 @@ def parse_helper():
         "--overwrite_cache", default=False, action="store_true", help="Overwrite cached results for a run."
     )
     parser.add_argument(
-        "--finetune_fewshot",
+        "--finetune_type",
         type=str,
         default=None,
-        help="Meta-adaptation (step 2) flag. Used in target language MAML training on only n samples where `n` = 200.",
+        help="Finetuning choice. Used in target language MAML training on only n samples where `n` = 200.",
     )
     parser.add_argument(
-        "--num_meta_samples", type=int, default=200, help="Number of available samples for meta-training."
+        "--num_meta_samples", type=int, default=None, help="Number of available samples for meta-training."
     )
+    parser.add_argument(
+        "--num_warmup_steps", type=int, default=0, help="Number of steps for the warmup in the lr scheduler."
+    )
+
     args = parser.parse_args()
     logger.info(args)
     return args
@@ -182,53 +166,35 @@ def checkpoint_ft_model(args, model):
     run_dir = os.path.join(RUN_BASE_DIR, "ft", f"{args.dataset_name}{args.target_lang}")
     os.makedirs(run_dir, exist_ok=True)
     output_dir = os.path.join(run_dir, args.model_name_or_path)
-    logger.debug(f"Saving fine-tuned checkpoint to {output_dir}")
+    logger.info(f"Saving fine-tuned checkpoint to {output_dir}")
     torch.save(model.state_dict(), output_dir)
 
 
-def evaluate(args, model, validation_dataloader, device, type="test"):
-    loss_fn = torch.nn.CrossEntropyLoss()
-
+def evaluate(args, model, eval_dataloader, device, type="test"):
     model.eval()
-
-    total_eval_loss = 0
-    nb_eval_steps = 0
-
-    pred_label = None
-    target_label = None
-    for batch in validation_dataloader:
-        batch["labels"] = batch.pop("label")
+    loss_fn = torch.nn.CrossEntropyLoss()
+    pred_label = []
+    target_label = []
+    for batch in eval_dataloader:
         with torch.no_grad():
             batch = move_to(batch, device)
-            outputs = model(batch)
-            loss, _ = compute_loss_acc(outputs["logits"], batch["labels"], loss_fn)
-            if args.n_gpu > 1:
-                loss = loss.mean()
+            outputs = model(**batch)
             logits = outputs["logits"]
+            pred_label.append(logits)
+            target_label.append(batch["labels"])
 
-            if pred_label is not None and target_label is not None:
-                pred_label = torch.cat((pred_label, logits), 0)
-                target_label = torch.cat((target_label, batch["labels"]))
-            else:
-                pred_label = logits
-                target_label = batch["labels"]
-
-            total_eval_loss += loss.item()
-
-        nb_eval_steps += 1
-
-    val_loss = total_eval_loss / len(validation_dataloader)
-    _, p, r, f1 = assess(pred_label, target_label)
-
-    log_str = type.capitalize() + "iction" if type == "pred" else type.capitalize() + "uation"
-
+    pred_label = torch.cat(pred_label)
+    target_label = torch.cat(target_label)
+    loss, f1 = compute_loss_acc(pred_label, target_label, loss_fn)
+    loss = loss.item()
+    log_str = "prediction" if type == "pred" else "evaluation"
     if type == "pred":
-        logger.info("*** Running Model {} **".format(log_str))
-        logger.info(f"  Num examples = {len(validation_dataloader)*args.batch_size}")
-        logger.info(f"  Loss = {val_loss:.3f}")
+        logger.info("*** Running {} **".format(log_str))
+        logger.info(f"  Num examples = {len(eval_dataloader)*args.batch_size}")
+        logger.info(f"  Loss = {loss:.3f}")
         logger.info(f"  F1 = {f1:.3f}")
 
-    return f1, val_loss
+    return f1, loss
 
 
 def finetune(args, model, train_dataloader, eval_dataloader, test_dataloader, device):
@@ -247,47 +213,43 @@ def finetune(args, model, train_dataloader, eval_dataloader, test_dataloader, de
         {"params": [p for n, p in model.named_parameters() if any(nd in n for nd in no_decay)], "weight_decay": 0.0},
     ]
     opt = optim.AdamW(optimizer_grouped_parameters, lr=args.meta_lr, eps=args.adam_epsilon)
-
     loss_fn = torch.nn.CrossEntropyLoss()
 
-    eval_steps = 5 if args.finetune_fewshot == "few" else 50
-    patience = 5
-
+    num_update_steps_per_epoch = math.ceil(len(train_dataloader) / args.gradient_accumulation_steps)
+    max_training_steps = args.num_train_epochs * num_update_steps_per_epoch
+    lr_scheduler = get_linear_schedule_with_warmup(
+        optimizer=opt, num_warmup_steps=args.num_warmup_steps, num_training_steps=max_training_steps
+    )
+    eval_steps = 50
     nb_train_steps = 0
     min_macro_f1 = 0
 
-    for epoch in range(args.num_train_epochs):
+    for epoch in tqdm(range(args.num_train_epochs), desc="Iteration"):
         model.train()
         total_train_loss = 0
         total_train_acc = 0
-        for batch in tqdm(train_dataloader, total=len(train_dataloader)):
+        for batch in tqdm(train_dataloader, total=len(train_dataloader), desc="Batch"):
             model.zero_grad()
-            batch["labels"] = batch.pop("label")
             batch = move_to(batch, device)
-            outputs = model(batch)
+            outputs = model(**batch)
             loss, acc = compute_loss_acc(outputs["logits"], batch["labels"], loss_fn)
             if args.n_gpu > 1:
                 loss = loss.mean()
 
             loss.backward()
             opt.step()
+            lr_scheduler.step()
             total_train_loss += loss.item()
             total_train_acc += acc
+            nb_train_steps += 1
             if (nb_train_steps + 1) % eval_steps == 0:
                 avg_train_loss = total_train_loss / nb_train_steps
-                logger.debug(f"  Epoch {epoch+1}, step {nb_train_steps+1}, training loss: {avg_train_loss:.3f} \n")
-                nb_train_steps += 1
+                logger.info(f"  Epoch {epoch+1}, step {nb_train_steps+1}, training loss: {avg_train_loss:.3f} \n")
 
         f1, _ = evaluate(args, model, eval_dataloader, device, type="eval")
         if min_macro_f1 < f1:
             min_macro_f1 = f1
             checkpoint_ft_model(args, model)
-            patience = 5
-        else:
-            patience -= 1
-
-        if patience == 0:
-            break
 
     logger.info("============================================================")
     logger.info(f"Evaluating fine-tuned model performance on test set. Training lang = {args.target_lang}")
@@ -296,12 +258,15 @@ def finetune(args, model, train_dataloader, eval_dataloader, test_dataloader, de
     path_to_model = os.path.join(RUN_BASE_DIR, "ft", f"{args.dataset_name}{args.target_lang}", args.model_name_or_path)
     logger.info(f"Loading fine-tuned model from the checkpoint {path_to_model}")
 
-    if "xlm-r" in args.model_name_or_path:
-        model = XLMRClassifier()
-    elif "bert" in args.model_name_or_path:
-        model = MBERTClassifier()
+    if args.base_model_path:
+        if "xlm-r" in args.model_name_or_path:
+            model = XLMRClassifier()
+        elif "bert" in args.model_name_or_path:
+            model = MBERTClassifier()
+        else:
+            raise ValueError(f"Model type {args.model_name_or_path} is unknown.")
     else:
-        raise ValueError(f"Model type {args.model_name_or_path} is unknown.")
+        model = AutoModelForSequenceClassification.from_pretrained(args.model_name_or_path)
 
     ckpt = torch.load(os.path.normpath(path_to_model), map_location=device)
     model.load_state_dict(ckpt)
@@ -311,7 +276,7 @@ def finetune(args, model, train_dataloader, eval_dataloader, test_dataloader, de
     model.to(device)
     f1, loss = evaluate(args, model, test_dataloader, device, type="pred")
 
-    result = {"examples": len(train_dataloader) * args.batch_size, "f1": f1, "loss": loss}
+    result = {"examples": len(test_dataloader) * args.batch_size, "f1": f1, "loss": loss}
     return result
 
 
@@ -325,18 +290,20 @@ def main(args, cuda=True):
             backend="nccl", init_method=args.dist_url, world_size=args.world_size, rank=args.local_rank
         )
 
-    summary_output_dir = os.path.join("runs/summary", args.dataset_name, "finetune")
-    few_ft = "_" + args.finetune_fewshot if args.finetune_fewshot else ""
-    f_base_model = args.base_model_path[-11:-5] if "bert" in args.base_model_path else args.base_model_path[-10:-5]
-    f_samples = "_" + str(args.num_meta_samples) if args.num_meta_samples != 200 else ""
+    summary_output_dir = os.path.join("runs/finetune", args.dataset_name, args.target_lang)
+    few_ft = "_" + args.finetune_type if args.finetune_type else ""
+    f_base_model = "mbert" if "bert" in args.model_name_or_path else "xlmr"
+    f_samples = "_" + str(args.num_meta_samples) if args.num_meta_samples else ""
     summary_fname = os.path.join(
         summary_output_dir,
-        f"{f_base_model}_{few_ft}{f_samples}_{args.target_lang}.json",
+        f"{f_base_model}{args.seed}{few_ft}{f_samples}.json",
     )
     logger.info(f"Output fname = {summary_fname}")
     if os.path.exists(summary_fname) and not args.overwrite_cache:
         return
 
+    seed = args.seed
+    logger.info(f"Setting up seed value {seed}")
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
@@ -348,17 +315,21 @@ def main(args, cuda=True):
     logger.info(f"device : {device}")
     logger.info(f"gpu : {args.n_gpu}")
 
-    if "xlm-r" in args.model_name_or_path:
-        model = XLMRClassifier()
-    elif "bert" in args.model_name_or_path:
-        model = MBERTClassifier()
-    else:
-        raise ValueError(f"Model type {args.model_name_or_path} is unknown.")
+    args.tokenizer = AutoTokenizer.from_pretrained(args.model_name_or_path)
+    if args.base_model_path:
+        if "xlm-r" in args.model_name_or_path:
+            model = XLMRClassifier()
+        elif "bert" in args.model_name_or_path:
+            model = MBERTClassifier()
+        else:
+            raise ValueError(f"Model type {args.model_name_or_path} is unknown.")
 
-    lit_model = LitClassifier(model)
-    ckpt = torch.load(os.path.normpath(args.base_model_path), map_location=device)
-    lit_model.load_state_dict(ckpt["state_dict"])
-    model = lit_model.model
+        lit_model = LitClassifier(model)
+        ckpt = torch.load(os.path.normpath(args.base_model_path), map_location=device)
+        lit_model.load_state_dict(ckpt["state_dict"])
+        model = lit_model.model
+    else:
+        model = AutoModelForSequenceClassification.from_pretrained(args.model_name_or_path)
 
     if torch.cuda.device_count() > 1:
         if args.ddp:
@@ -368,111 +339,134 @@ def main(args, cuda=True):
 
     model.to(device)
 
-    target_lang_dataloaders = get_split_dataloaders(args, dataset_name=args.dataset_name, lang=args.target_lang)
-
     # **** THE FEW-SHOT FINE-TUNING STEP ****
 
     summary = {}
-    if args.finetune_fewshot == "few":
-        train_dataloader = get_dataloader(
-            split_name="train",
+    if args.finetune_type == "ft":
+        train_dataloader, eval_dataloader = get_dataloaders_from_split(
             config=args,
-            train_few_dataset_name=f"{args.dataset_name}{args.target_lang}",
-            lang=args.target_lang,
-            train="standard",
-        )
-        eval_dataloader = get_dataloader(
             split_name="val",
-            config=args,
-            train_few_dataset_name=f"{args.dataset_name}{args.target_lang}",
+            dataset_name=f"{args.dataset_name}{args.target_lang}",
             lang=args.target_lang,
-            train="standard",
+            batch_size=args.batch_size,
         )
-        test_dataloader = target_lang_dataloaders["test"]
-        ft_result = finetune(args, model, train_dataloader, eval_dataloader, test_dataloader, device)
-        summary[str(args.finetune_fewshot)] = ft_result
+        test_dataloader = get_single_dataloader_from_split(
+            config=args,
+            split_name="test",
+            dataset_name=f"{args.dataset_name}{args.target_lang}",
+            lang=args.target_lang,
+            batch_size=args.batch_size,
+        )
 
-    elif args.finetune_fewshot == "full":
-        ft_result = finetune(
-            args,
-            model,
-            target_lang_dataloaders["train"],
-            target_lang_dataloaders["val"],
-            target_lang_dataloaders["test"],
-            device,
+        ft_result = finetune(args, model, train_dataloader, eval_dataloader, test_dataloader, device)
+        summary[str(args.finetune_type)] = ft_result
+
+    elif args.finetune_type == "ft_en":
+
+        dataloaders = {}
+        dataloaders[args.source_lang] = DataLoaderWithTaskname(
+            task_name=args.source_lang,
+            data_loader=get_single_dataloader_from_split(
+                config=args,
+                split_name="train",
+                dataset_name=f"{args.src_dataset_name}{args.source_lang}",
+                lang=args.source_lang,
+                to_shuffle=True,
+                batch_size=args.batch_size,
+            ),
         )
-        summary[str(args.finetune_fewshot)] = ft_result
+        dataloaders[args.target_lang] = get_single_dataloader_from_split(
+            config=args,
+            split_name="train",
+            dataset_name=f"{args.dataset_name}{args.target_lang}",
+            lang=args.target_lang,
+            to_shuffle=True,
+            batch_size=args.batch_size,
+        )
+        train_dataloader = MultitaskDataloader(dataloaders)
+        eval_dataloader = get_single_dataloader_from_split(
+            config=args,
+            split_name="val",
+            dataset_name=f"{args.dataset_name}{args.target_lang}",
+            lang=args.target_lang,
+            batch_size=args.batch_size,
+        )
+        test_dataloader = get_single_dataloader_from_split(
+            config=args,
+            split_name="val",
+            dataset_name=f"{args.dataset_name}{args.target_lang}",
+            lang=args.target_lang,
+            batch_size=args.batch_size,
+        )
+
+        ft_result = finetune(args, model, train_dataloader, eval_dataloader, test_dataloader, device)
+        summary[str(args.finetune_type)] = ft_result
+    elif args.finetune_type == "zero":
+        test_dataloader = get_single_dataloader_from_split(
+            config=args,
+            split_name="val",
+            dataset_name=f"{args.dataset_name}{args.target_lang}",
+            lang=args.target_lang,
+            batch_size=args.batch_size,
+        )
+
+        logger.info(f"**** Zero-shot evaluation on {args.dataset_name}  >>> Language = {args.target_lang} ****")
+        f1, loss = evaluate(args, model, test_dataloader, device, type="pred")
+        zero_result = {"examples": len(test_dataloader) * args.batch_size, "f1": f1, "loss": loss}
+        summary[str(args.finetune_type)] = zero_result
 
     os.makedirs(summary_output_dir, exist_ok=True)
     json.dump(summary, open(summary_fname, "w"))
 
 
-def get_split_dataloaders(config, dataset_name, lang):
-    config.tokenizer = AutoTokenizer.from_pretrained(config.model_name_or_path)
-    split_names = ["train", "val", "test"]
-    dataloaders = dict()
-
-    for split_name in split_names:
-        pkl_path = os.path.join(DEST_DATA_PKL_DIR, f"{dataset_name}{lang}_{split_name}.pkl")
-        logger.debug(pkl_path)
-        data_df = pd.read_pickle(pkl_path, compression=None)
-        if lang is not None:
-            logger.debug(f"filtering only '{lang}' samples from {split_name} pickle")
-            data_df = data_df.query(f"lang == '{lang}'")
-        if config.dataset_type == "bert":
-            dataset = HFDataset(data_df, config.tokenizer, max_seq_len=config.max_seq_len)
-        else:
-            raise ValueError(f"Unknown dataset_type {config.dataset_type}")
-
-        if args.ddp:
-            sampler = torch.utils.data.distributed.DistributedSampler(dataset)
-        split_dataloader = torch.utils.data.DataLoader(
-            dataset,
-            batch_size=config.batch_size,
-            num_workers=config.num_workers,
-            drop_last=True,
-            sampler=sampler if args.ddp else None,
-            pin_memory=True,
-        )
-
-        dataloaders[split_name] = split_dataloader
-    return dataloaders
-
-
-def get_dataloader(split_name, config, train_few_dataset_name=None, lang=None, train="meta"):
-    if lang == "en":
-        few_pkl_path = os.path.join(DEST_DATA_PKL_DIR, f"{train_few_dataset_name}_200_{split_name}.pkl")
+def get_dataloaders_from_split(config, split_name, dataset_name=None, lang=None, batch_size=None):
+    if split_name != "test" and config.num_meta_samples:
+        data_pkl_path = os.path.join(DEST_DATA_PKL_DIR, f"{dataset_name}_{config.num_meta_samples}_{split_name}.pkl")
     else:
-        few_pkl_path = os.path.join(
-            DEST_DATA_PKL_DIR, f"{train_few_dataset_name}_{config.num_meta_samples}_{split_name}.pkl"
-        )
-    data_df = pd.read_pickle(few_pkl_path, compression=None)
-    logger.debug(f"picking {data_df.shape[0]} rows from `{few_pkl_path}` as few samples")
+        data_pkl_path = os.path.join(DEST_DATA_PKL_DIR, f"{dataset_name}_{split_name}.pkl")
 
-    if lang is not None:
-        logger.debug(f"filtering only '{lang}' samples from {split_name} pickle")
-        data_df = data_df.query(f"lang == '{lang}'")
+    data_df = pd.read_pickle(data_pkl_path, compression=None)
+    data_df = data_df.sample(frac=1)
+    train_df, val_df = train_test_split(data_df, train_size=0.8, stratify=data_df["label"])
+    logger.info(f"picking {train_df.shape[0]} rows for training set from `{data_pkl_path}`")
+    logger.info(f"picking {val_df.shape[0]} rows for validation set from `{data_pkl_path}`")
+
+    if config.dataset_type == "bert":
+        train_dataset = HFDataset(train_df, config.tokenizer, max_seq_len=config.max_seq_len)
+        val_dataset = HFDataset(val_df, config.tokenizer, max_seq_len=config.max_seq_len)
+    else:
+        raise ValueError(f"Unknown dataset_type {config.dataset_type}")
+
+    train_dataloader = DataLoader(train_dataset, batch_size=batch_size, num_workers=config.num_workers, shuffle=True)
+    val_dataloader = DataLoader(val_dataset, batch_size=batch_size, num_workers=config.num_workers)
+
+    return train_dataloader, val_dataloader
+
+
+def get_single_dataloader_from_split(
+    config, split_name, dataset_name=None, lang=None, to_shuffle=False, batch_size=None
+):
+    if split_name != "test" and config.num_meta_samples:
+        data_pkl_path = os.path.join(DEST_DATA_PKL_DIR, f"{dataset_name}_{config.num_meta_samples}_{split_name}.pkl")
+    else:
+        data_pkl_path = os.path.join(DEST_DATA_PKL_DIR, f"{dataset_name}_{split_name}.pkl")
+
+    data_df = pd.read_pickle(data_pkl_path, compression=None)
+    data_df = data_df.sample(frac=1)
+    logger.info(f"picking {data_df.shape[0]} rows from `{data_pkl_path}`")
 
     if config.dataset_type == "bert":
         dataset = HFDataset(data_df, config.tokenizer, max_seq_len=config.max_seq_len)
     else:
         raise ValueError(f"Unknown dataset_type {config.dataset_type}")
 
-    if train == "meta":
-        dataloader = torch.utils.data.DataLoader(
-            dataset,
-            batch_size=config.shots,
-            num_workers=config.num_workers,
-            drop_last=True,
-            shuffle=True if split_name == "train" else False,
-        )
-    else:
-        dataloader = torch.utils.data.DataLoader(
-            dataset,
-            batch_size=config.batch_size,
-            num_workers=config.num_workers,
-            shuffle=True if split_name == "train" else False,
-        )
+    dataloader = DataLoader(
+        dataset,
+        batch_size=batch_size,
+        num_workers=config.num_workers,
+        shuffle=to_shuffle,  # default set to False for meta-training as fixed batch represent an uniqe task
+        drop_last=False if split_name == "test" else True,
+    )
 
     return dataloader
 
