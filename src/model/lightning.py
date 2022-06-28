@@ -21,7 +21,7 @@ class LitClassifier(pl.LightningModule):
         for param in self.parameters():
             param.requires_grad = trainable
 
-    def set_freeze_layers(self,freezing_mode):
+    def set_freeze_layers(self, freezing_mode):
         return self.model.set_freeze_layers(freezing_mode)
 
     def shared_step(self, batch, batch_idx, return_pred_labels=False, return_actual_labels=False):
@@ -36,7 +36,7 @@ class LitClassifier(pl.LightningModule):
         #        )
 
         pred_labels = torch.argmax(out_dict["logits"], dim=1)
-        actual_labels = batch["label"]
+        actual_labels = batch["labels"]
 
         loss = self.criterion(out_dict["logits"], actual_labels)
 
@@ -50,9 +50,7 @@ class LitClassifier(pl.LightningModule):
         metrics["loss"] = loss
         metrics["acc"] = (pred_labels == actual_labels).sum() / pred_labels.shape[0]
         metrics["macro_f1"] = f1_score(actual_labels, pred_labels, average="macro")
-        metrics["weighted_f1"] = f1_score(
-            actual_labels, pred_labels, average="weighted"
-        )
+        metrics["weighted_f1"] = f1_score(actual_labels, pred_labels, average="weighted")
         return_dict = {"loss": loss, "metrics": metrics}
         if return_pred_labels:
             return_dict["pred_labels"] = pred_labels

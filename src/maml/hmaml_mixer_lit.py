@@ -10,12 +10,11 @@ import random
 
 import learn2learn as l2l
 import numpy as np
-import pandas as pd
 from sklearn.metrics import f1_score
 import torch
 from torch import optim
 import torch.nn.functional as F
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import DataLoader
 from tqdm import tqdm
 from transformers import (
     AutoConfig,
@@ -26,10 +25,10 @@ from transformers import (
 )
 
 from mtl_datasets import DataLoaderWithTaskname, MultitaskDataloader
-from src.data.consts import DEST_DATA_PKL_DIR, RUN_BASE_DIR, SRC_DATA_PKL_DIR
-from src.data.datasets import HFDataset
+from src.data.consts import RUN_BASE_DIR
 from src.model.classifiers import MBERTClassifier, XLMRClassifier
 from src.model.lightning import LitClassifier
+from src.utils import get_single_dataset_from_split, SilverDataset
 
 logging.basicConfig(
     format="%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s",
@@ -37,7 +36,6 @@ logging.basicConfig(
     level=logging.INFO,
 )
 logger = logging.getLogger(__name__)
-
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 
@@ -56,10 +54,7 @@ def parse_helper():
         help="Path to pre-trained model or shortcut name selected in the list: `mbert`, `xlm-r`",
     )
     parser.add_argument(
-        "--base_model_path",
-        default="runs/baselines/founta/en/full/Mbert1.ckpt",
-        type=str,
-        help="Path to fine-tunes base-model, load from checkpoint!",
+        "--base_model_path", default=None, type=str, help="Path to fine-tuned base-model, load from checkpoint!"
     )
     parser.add_argument(
         "--dataset_type", default="bert", type=str, help="The input data type. It could take bert, lstm, gpt2 as input."
@@ -89,12 +84,7 @@ def parse_helper():
         required=True,
         help="After finishing meta-training, meta-tuned model evaluation on the target language.",
     )
-    parser.add_argument(
-        "--max_seq_len",
-        type=int,
-        default=128,
-        help="The maximum sequence length of the inputs.",
-    )
+    parser.add_argument("--max_seq_len", type=int, default=128, help="The maximum sequence length of the inputs.")
     parser.add_argument("--num_train_epochs", type=int, default=3, help="The number of training epochs.")
     parser.add_argument("--num_workers", type=int, default=1, help="Number of workers for tokenization.")
     parser.add_argument(
@@ -108,12 +98,6 @@ def parse_helper():
     parser.add_argument("--num_meta_iterations", type=int, default=10, help="Number of outer loop iteratins.")
     parser.add_argument("--meta_lr", type=float, default=2e-5, help="The outer loop meta update learning rate.")
     parser.add_argument("--fast_lr", type=float, default=4e-5, help="The inner loop fast adaptation learning rate.")
-    parser.add_argument(
-        "--load_saved_base_model",
-        default=False,
-        action="store_true",
-        help="Fine-tune base-model loading from a given checkpoint.",
-    )
     parser.add_argument(
         "--overwrite_cache", default=False, action="store_true", help="Overwrite cached results for a run."
     )
@@ -208,7 +192,7 @@ def evaluate(args, model, eval_dataloader, device, type="test"):
     for batch in eval_dataloader:
         with torch.no_grad():
             batch = move_to(batch, device)
-            outputs = model(batch)
+            outputs = model(**batch)
             logits = outputs["logits"]
             pred_label.append(logits)
             target_label.append(batch["labels"])
@@ -218,11 +202,10 @@ def evaluate(args, model, eval_dataloader, device, type="test"):
     loss, f1 = compute_loss_acc(pred_label, target_label, loss_fn)
     loss = loss.item()
     log_str = "prediction" if type == "pred" else "evaluation"
-    if type == "pred":
-        logger.info("*** Running {} **".format(log_str))
-        logger.info(f"  Num examples = {len(eval_dataloader)*args.batch_size}")
-        logger.info(f"  Loss = {loss:.3f}")
-        logger.info(f"  F1 = {f1:.3f}")
+    logger.info("*** Running {} **".format(log_str))
+    logger.info(f"  Num examples = {len(eval_dataloader)*args.batch_size}")
+    logger.info(f"  Loss = {loss:.3f}")
+    logger.info(f"  F1 = {f1:.3f}")
 
     return f1, loss
 
@@ -257,13 +240,13 @@ def finetune(args, model, train_dataloader, eval_dataloader, test_dataloader, de
 
     nb_train_steps = 0
     min_macro_f1 = 0
-    for epoch in range(args.num_train_epochs):
+    for epoch in tqdm(range(args.num_train_epochs)):
         model.train()
         total_train_loss = 0
         total_train_acc = 0
         for batch in tqdm(train_dataloader, total=len(train_dataloader)):
             batch = move_to(batch, device)
-            outputs = model(batch)
+            outputs = model(**batch)
             loss, acc = compute_loss_acc(outputs["logits"], batch["labels"], loss_fn)
             if args.n_gpu > 1:
                 loss = loss.mean()
@@ -310,7 +293,7 @@ def finetune(args, model, train_dataloader, eval_dataloader, test_dataloader, de
 
 def main(args, meta_batch_size=None, adaptation_steps=1):
     """
-    An implementation of two-step *Model-Agnostic Meta-Learning* algorithm for hate detection
+    An implementation of cross-lingual *Model-Agnostic Meta-Learning* algorithm for hate detection
     on low-resouce languages.
 
     Args:
@@ -323,7 +306,7 @@ def main(args, meta_batch_size=None, adaptation_steps=1):
     summary_output_dir = os.path.join("runs/summary", args.dataset_name, os.path.basename(__file__)[:-3])
     aux_la = "_" + args.aux_lang if args.aux_lang else ""
     few_ft = "_" + args.metatune_type
-    f_base_model = args.base_model_path[-11:-6] if "bert" in args.base_model_path else args.base_model_path[-10:-6]
+    f_base_model = "mbert" if "bert" in args.model_name_or_path else "xlmr"
     f_samples = "_" + str(args.num_meta_samples) if args.num_meta_samples else ""
     summary_fname = os.path.join(
         summary_output_dir,
@@ -337,34 +320,35 @@ def main(args, meta_batch_size=None, adaptation_steps=1):
     manual_seed_all(args.seed)
     args.n_gpu = torch.cuda.device_count()
     args.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
     logger.info(f"device: {args.device} gpu: {args.n_gpu}")
 
     args.tokenizer = AutoTokenizer.from_pretrained(args.model_name_or_path)
-    if "xlm-r" in args.model_name_or_path:
-        model = XLMRClassifier()
-    elif "bert" in args.model_name_or_path:
-        model = MBERTClassifier()
+    if args.base_model_path:
+        if "xlm-r" in args.model_name_or_path:
+            model = XLMRClassifier()
+        elif "bert" in args.model_name_or_path:
+            model = MBERTClassifier()
+        else:
+            raise ValueError(f"Model type {args.model_name_or_path} is unknown.")
+        # load the pretrained base model, typicall finetuned on English
+        lit_model = LitClassifier(model)
+        ckpt = torch.load(os.path.normpath(args.base_model_path), map_location=args.device)
+        lit_model.load_state_dict(ckpt["state_dict"])
+        model = lit_model.model
+        if args.freeze_layers:
+            lit_model.set_trainable(True)
+            lit_model.set_freeze_layers(args.freeze_layers)
+            for name, param in lit_model.model.named_parameters():
+                logger.debug("%s - %s", name, ("Unfrozen" if param.requires_grad else "FROZEN"))
     else:
-        raise ValueError(f"Model type {args.model_name_or_path} is unknown.")
+        model = AutoModelForSequenceClassification.from_pretrained(args.model_name_or_path)
 
-    # load the pretrained base model, typicall finetuned on English
-    lit_model = LitClassifier(model)
-    ckpt = torch.load(os.path.normpath(args.base_model_path), map_location=args.device)
-    lit_model.load_state_dict(ckpt["state_dict"])
-
-    if args.freeze_layers:
-        lit_model.set_trainable(True)
-        lit_model.set_freeze_layers(args.freeze_layers)
-        for name, param in lit_model.model.named_parameters():
-            logger.debug("%s - %s", name, ("Unfrozen" if param.requires_grad else "FROZEN"))
-
-    model = lit_model.model
     model.to(args.device)
 
-    args.src_dataset_name = "founta" if args.dataset_name == "semeval2020" else args.dataset_name
+    args.src_dataset_name = "hasoc2020" if args.dataset_name == "semeval2020" else args.dataset_name
 
     # test set of target language, for ultimate evaluation
+    logger.info("Generating test set")
     testlg_dataloader = get_single_dataset_from_split(
         config=args,
         split_name="test",
@@ -387,11 +371,11 @@ def main(args, meta_batch_size=None, adaptation_steps=1):
         domains = list(meta_domain_tasks.keys())
 
     maml = l2l.algorithms.MAML(model, lr=args.fast_lr, first_order=True)
-    opt = optim.Adam(maml.parameters(), lr=args.meta_lr, eps=args.adam_epsilon)
-    # max_training_steps = args.num_meta_iterations * args.gradient_accumulation_steps
-    # lr_scheduler = get_linear_schedule_with_warmup(
-    #     optimizer=opt, num_warmup_steps=0, num_training_steps=max_training_steps
-    # )
+    opt = optim.AdamW(maml.parameters(), lr=args.meta_lr, eps=args.adam_epsilon)
+    max_training_steps = args.num_meta_iterations * args.gradient_accumulation_steps
+    lr_scheduler = get_linear_schedule_with_warmup(
+        optimizer=opt, num_warmup_steps=args.num_warmup_steps, num_training_steps=max_training_steps
+    )
 
     logger.info("*************************************")
     logger.info("*** HATE X META TRAINING STARTS NOW ***")
@@ -434,7 +418,7 @@ def main(args, meta_batch_size=None, adaptation_steps=1):
             # report_memory(name = f"maml{idx}")
 
             for _ in range(adaptation_steps):
-                outputs = learner(train_support_inp)
+                outputs = learner(**train_support_inp)
                 loss, acc = compute_loss_acc(outputs["logits"], train_support_inp["labels"], loss_fn)
 
                 if args.n_gpu > 1:
@@ -442,7 +426,7 @@ def main(args, meta_batch_size=None, adaptation_steps=1):
                 learner.adapt(loss, allow_nograd=True, allow_unused=True)
                 meta_train_error += loss.item()
                 meta_train_accuracy += acc
-            outputs = learner(train_query_inp)
+            outputs = learner(**train_query_inp)
             eval_loss, eval_acc = compute_loss_acc(outputs["logits"], train_query_inp["labels"], loss_fn)
 
             if args.n_gpu > 1:
@@ -463,7 +447,7 @@ def main(args, meta_batch_size=None, adaptation_steps=1):
                     "labels": d_task["labels"][:n_meta_lr],
                 }
                 domain_query_inp = move_to(domain_query_inp, args.device)
-                outputs = learner(domain_query_inp)
+                outputs = learner(**domain_query_inp)
                 d_loss, d_f1 = compute_loss_acc(outputs["logits"], domain_query_inp["labels"], loss_fn)
                 if args.n_gpu > 1:
                     d_loss = d_loss.mean()
@@ -497,9 +481,9 @@ def main(args, meta_batch_size=None, adaptation_steps=1):
                 p.grad.data.mul_(1.0 / meta_batch_size)
         # mv_error.backward()
         opt.step()
-        # lr_scheduler.step()
+        lr_scheduler.step()
 
-        if mv_error < 0.01:
+        if mv_error < 0.001:
             break
 
         # TODO: requires fixing
@@ -581,6 +565,7 @@ def prepare_meta_tuning_tasks(args, model=None):
     tune_dataset_langs[other_lang] = f"{args.dataset_name}{other_lang}"
 
     if args.exp_setting == "hmaml":
+        logger.info("Generating meta-training tasks")
         if args.metatune_type != "refine":
             dataloaders = {}
             for lang, dataset_name in tune_dataset_langs.items():
@@ -590,7 +575,7 @@ def prepare_meta_tuning_tasks(args, model=None):
                         config=args,
                         split_name="val",
                         dataset_name=dataset_name,
-                        lang=args.source_lang,
+                        lang=lang,
                         batch_size=args.shots,
                     ),
                 )
@@ -636,14 +621,14 @@ def prepare_meta_tuning_tasks(args, model=None):
             config=args,
             split_name="val",
             dataset_name=tune_dataset_langs[other_lang],
-            lang=args.source_lang,
+            lang=other_lang,
             batch_size=args.shots // 2,
         )
 
         spt_tasks = [spt for spt in support_dataloader]
         qry_tasks = [qry for qry in query_dataloader]
 
-        for i in range(len(qry_tasks)):
+        for i in range(min(len(qry_tasks), len(spt_tasks))):
             meta_train_tasks.append({"support": spt_tasks[i], "query": qry_tasks[i]})
 
     elif args.exp_setting == "xmaml":
@@ -665,11 +650,12 @@ def prepare_meta_tuning_tasks(args, model=None):
     # domain task only required for hmaml
     meta_domain_tasks = None
     if args.exp_setting == "hmaml":
+        logger.info("Generating meta-domain tasks")
         src_tasks = get_single_dataset_from_split(
             config=args,
             split_name="val",
             dataset_name=tune_dataset_langs[args.source_lang],
-            lang=other_lang,
+            lang=args.source_lang,
             batch_size=args.shots,
         )
         oth_tasks = get_single_dataset_from_split(
@@ -711,7 +697,7 @@ def get_silver_dataset_for_meta_refine(args, model, dataloader, device):
         batch["labels"] = batch.pop("label")
         with torch.no_grad():
             batch = move_to(batch, device)
-            outputs = model(batch)
+            outputs = model(**batch)
 
             pred_label = outputs["logits"]
 
@@ -755,45 +741,6 @@ def get_silver_dataset_for_meta_refine(args, model, dataloader, device):
     silver_tdataset = SilverDataset(filtered_items)
     logger.info(f"Loading refined silver dataset with {len(filtered_items)} training samples.")
     return silver_tdataset
-
-
-class SilverDataset(Dataset):
-    def __init__(self, data_dict):
-        self.data_dict = data_dict
-
-    def __getitem__(self, idx):
-        item = {k: torch.tensor(v) for k, v in self.data_dict[idx].items()}
-        item["label"] = item.pop("labels")
-        return item
-
-    def __len__(self):
-        return len(self.data_dict)
-
-
-def get_single_dataset_from_split(config, split_name, dataset_name=None, lang=None, to_shuffle=False, batch_size=None):
-    if split_name != "test" and config.num_meta_samples:
-        data_pkl_path = os.path.join(DEST_DATA_PKL_DIR, f"{dataset_name}_{config.num_meta_samples}_{split_name}.pkl")
-    else:
-        data_pkl_path = os.path.join(DEST_DATA_PKL_DIR, f"{dataset_name}_{split_name}.pkl")
-
-    data_df = pd.read_pickle(data_pkl_path, compression=None)
-    data_df = data_df.sample(frac=1)
-    logger.info(f"picking {data_df.shape[0]} rows from `{data_pkl_path}`")
-
-    if config.dataset_type == "bert":
-        dataset = HFDataset(data_df, config.tokenizer, max_seq_len=config.max_seq_len)
-    else:
-        raise ValueError(f"Unknown dataset_type {config.dataset_type}")
-
-    dataloader = DataLoader(
-        dataset,
-        batch_size=batch_size,
-        num_workers=config.num_workers,
-        shuffle=to_shuffle,  # default set to False for meta-training as fixed batch represent an uniqe task
-        drop_last=False if split_name == "test" else True,
-    )
-
-    return dataloader
 
 
 if __name__ == "__main__":

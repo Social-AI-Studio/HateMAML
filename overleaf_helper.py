@@ -123,47 +123,53 @@ def scaling_summary_gen(dir_path):
     model_type = "bert"
     EPOCH = 60
     meta_langs = ["es", "ar", "da", "gr", "tr", "hi", "de", "news", "tweets"]
-    files = os.listdir(dir_path)
-    for fname in files:
-        pass
-        model_name = fname.split("_")[0]
-        if model_type not in model_name:
-            continue
-        with open(os.path.join(dir_path, fname)) as f:
-            data = json.load(f)
-        lang_sz = fname.split("_")[-1][0]
-        if lang_sz != "8":
-            continue
+    for mname in os.listdir(dir_path):
+        model_dir = os.path.join(dir_path, mname)
+        for seedname in os.listdir(model_dir):
+            seed_dir = os.path.join(model_dir, seedname)
+            for expname in os.listdir(seed_dir):
+                exp_dir = os.path.join(seed_dir, expname)
+                for szname in os.listdir(exp_dir):
+                    sz_dir = os.path.join(exp_dir, szname)
+                    for fname in os.listdir(sz_dir):
+                        with open(os.path.join(sz_dir, fname)) as f:
+                            data = json.load(f)
 
-        identifier = fname.split("_")[1]
-        if bdict.get(identifier) is None:
-            bdict[identifier] = {}
+                        if bdict.get(expname) is None:
+                            bdict[expname] = {}
+                        if bdict[expname].get(mname) is None:
+                            bdict[expname][mname] = {}
+                        if bdict[expname][mname].get(szname) is None:
+                            bdict[expname][mname][szname] = {}
 
-        if identifier == "hmaml-scale":
-            epoch = int(fname.split("_")[-2])
-            if epoch != EPOCH:
-                continue
-            print(f"Filtering on epoch {epoch}, fname = {fname}")
-        else:
-            print(f"Filtering on fname = {fname}")
+                        if expname == "hmaml_scale":
+                            print(f"Filtering on data size {szname}, fname = {os.path.join(sz_dir,fname)}")
+                        else:
+                            print(f"Filtering on data size {szname}, fname = {os.path.join(sz_dir, fname)}")
 
-        for lang_id in meta_langs:
-            if bdict[identifier].get(lang_id) is None:
-                bdict[identifier][lang_id] = []
-            cur_f1 = data[lang_id]["f1"]
-            bdict[identifier][lang_id].append(cur_f1)
-    for key in bdict:
-        # print(f"{key} --> {bdict[key]}")
-        print(f"Reporting {key}")
-        res_txt = ""
-        all_f1s = []
-        for item in bdict[key]:
-            all_f1s.extend(bdict[key][item])
-            mean, stdv = get_mean_stdv(bdict[key][item])
-            res_txt += f"{item}: {mean:.3f}_{{{stdv:.3f}}}\t"
-        mean, stdv = get_mean_stdv(all_f1s)
-        res_txt += f"avg: {mean:.3f}_{{{stdv:.3f}}}"
-        print(res_txt)
+                        for lang_id in meta_langs:
+                            if bdict[expname][mname][szname].get(lang_id) is None:
+                                bdict[expname][mname][szname][lang_id] = []
+                            cur_f1 = data[lang_id]["f1"]
+                            bdict[expname][mname][szname][lang_id].append(cur_f1)
+
+    for expname in bdict:
+        # print(f"{expname} --> {bdict[expname]}")
+        print(f"experiment name = {expname}")
+        for mname in bdict[expname]:
+            print(f"model name = {mname}")
+            for szname in bdict[expname][mname]:
+                print(f"sample size = {szname}")
+                print("-----------------------")
+                res_txt = ""
+                all_f1s = []
+                for key in bdict[expname][mname][szname]:
+                    all_f1s.extend(bdict[expname][mname][szname][key])
+                    mean, stdv = get_mean_stdv(bdict[expname][mname][szname][key])
+                    res_txt += f"{key}: {mean:.3f}_{{{stdv:.3f}}}\t"
+                mean, stdv = get_mean_stdv(all_f1s)
+                res_txt += f"avg: {mean:.3f}_{{{stdv:.3f}}}"
+                print(res_txt)
 
 
 def baseline_report():
@@ -207,9 +213,11 @@ def baseline_report_modified(args):
             fname = os.path.join(subdirpath, fn)
             if args.model_type not in model_name:
                 continue
-            if args.type not in fn:
+            if "_" + args.type not in fn:
                 continue
             if args.samples and args.samples not in fn:
+                continue
+            if not args.samples and args.type + ".json" not in fn:
                 continue
             print(f"Processing {fname}")
             if bdict.get(target_lang) is None:
@@ -250,9 +258,10 @@ def main():
         dir_path = "runs/summary/semeval2020/hmaml_mixer_lit"
         meta_tuning_summary(args, dir_path)
     elif args.exp_setting == "finetune":
-        # dir_path = "runs/summary/analyze/hmaml_scale_lit"
-        # scaling_summary_gen(dir_path)
         baseline_report_modified(args)
+    elif args.exp_setting == "scale":
+        dir_path = "runs/summary/scale"
+        scaling_summary_gen(dir_path)
 
 
 if __name__ == "__main__":
