@@ -120,8 +120,6 @@ def meta_tuning_summary(args, dir_path: str):
 
 def scaling_summary_gen(dir_path):
     bdict = {}
-    model_type = "bert"
-    EPOCH = 60
     meta_langs = ["es", "ar", "da", "gr", "tr", "hi", "de", "news", "tweets"]
     for mname in os.listdir(dir_path):
         model_dir = os.path.join(dir_path, mname)
@@ -150,11 +148,14 @@ def scaling_summary_gen(dir_path):
                         for lang_id in meta_langs:
                             if bdict[expname][mname][szname].get(lang_id) is None:
                                 bdict[expname][mname][szname][lang_id] = []
-                            cur_f1 = data[lang_id]["f1"]
-                            bdict[expname][mname][szname][lang_id].append(cur_f1)
+                            if data.get(lang_id) is not None:
+                                cur_f1 = data[lang_id]["f1"]
+                                bdict[expname][mname][szname][lang_id].append(cur_f1)
 
+    # print(bdict)
     for expname in bdict:
         # print(f"{expname} --> {bdict[expname]}")
+        print("\n################################")
         print(f"experiment name = {expname}")
         for mname in bdict[expname]:
             print(f"model name = {mname}")
@@ -163,10 +164,13 @@ def scaling_summary_gen(dir_path):
                 print("-----------------------")
                 res_txt = ""
                 all_f1s = []
+
                 for key in bdict[expname][mname][szname]:
-                    all_f1s.extend(bdict[expname][mname][szname][key])
-                    mean, stdv = get_mean_stdv(bdict[expname][mname][szname][key])
-                    res_txt += f"{key}: {mean:.3f}_{{{stdv:.3f}}}\t"
+                    cur_f1s = bdict[expname][mname][szname][key]
+                    all_f1s.extend(cur_f1s)
+                    if cur_f1s:
+                        mean, stdv = get_mean_stdv(cur_f1s)
+                        res_txt += f"{key}: {mean:.3f}_{{{stdv:.3f}}}\t"
                 mean, stdv = get_mean_stdv(all_f1s)
                 res_txt += f"avg: {mean:.3f}_{{{stdv:.3f}}}"
                 print(res_txt)

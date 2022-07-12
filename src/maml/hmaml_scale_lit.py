@@ -12,6 +12,7 @@ import learn2learn as l2l
 import numpy as np
 import pandas as pd
 from sklearn.metrics import f1_score
+from copy import deepcopy
 import torch
 from torch import nn, optim
 import torch.nn.functional as F
@@ -25,6 +26,7 @@ from transformers import (
     get_linear_schedule_with_warmup,
 )
 
+from mtl_datasets import DataLoaderWithTaskname, MultitaskDataloader
 from src.data.consts import DEST_DATA_PKL_DIR, RUN_BASE_DIR, SRC_DATA_PKL_DIR
 from src.data.datasets import HFDataset
 from src.model.classifiers import MBERTClassifier, XLMRClassifier
@@ -123,9 +125,23 @@ def parse_helper():
         "--num_warmup_steps", type=int, default=0, help="Number of steps for the warmup in the lr scheduler."
     )
 
+    parser.add_argument(
+        "-wb",
+        "--wandb_proj",
+        type=str,
+        default=None,
+        help="Project name for Weights & Biases. By default, W&B is disabled.",
+    )
+
     args = parser.parse_args()
     logger.info(args)
     return args
+
+
+def cycle(iterable):
+    while True:
+        for x in iterable:
+            yield x
 
 
 def compute_loss_acc(logits, labels, criterion):
@@ -137,6 +153,8 @@ def compute_loss_acc(logits, labels, criterion):
         labels = labels.cpu().numpy()
 
     f1 = f1_score(preds, labels, average="macro")
+    del preds
+    del labels
     return loss, f1
 
 
@@ -147,7 +165,7 @@ def evaluate(args, model, eval_dataloader, device, type="test"):
     target_label = []
     for batch in eval_dataloader:
         with torch.no_grad():
-            batch = move_to(batch, device)
+            batch = {k: v.to(device) for k, v in batch.items()}
             outputs = model(**batch)
             logits = outputs["logits"]
             pred_label.append(logits)
@@ -194,11 +212,11 @@ def finetune(args, model, train_dataloader, eval_dataloader, test_dataloader_lis
     )
     loss_fn = torch.nn.CrossEntropyLoss()
 
-    logger.debug("***** Running training *****")
-    logger.debug(f"  Num examples = {len(train_dataloader)*args.batch_size}")
-    logger.debug(f"  Num Epochs = {args.num_train_epochs}")
-    logger.debug(f"  Gradient Accumulation steps = {args.gradient_accumulation_steps}")
-    logger.debug(f"  Total optimization steps = {max_training_steps}")
+    logger.info("***** Running training *****")
+    logger.info(f"  Num examples = {len(train_dataloader)*args.batch_size}")
+    logger.info(f"  Num Epochs = {args.num_train_epochs}")
+    logger.info(f"  Gradient Accumulation steps = {args.gradient_accumulation_steps}")
+    logger.info(f"  Total optimization steps = {max_training_steps}")
 
     eval_steps = 50
     nb_train_steps = 0
@@ -210,7 +228,7 @@ def finetune(args, model, train_dataloader, eval_dataloader, test_dataloader_lis
         total_train_acc = 0
         for batch in tqdm(train_dataloader, total=len(train_dataloader), desc="Batch"):
             model.zero_grad()
-            batch = move_to(batch, device)
+            batch = {k: v.to(device) for k, v in batch.items()}
             outputs = model(**batch)
             loss, acc = compute_loss_acc(outputs["logits"], batch["labels"], loss_fn)
             if args.n_gpu > 1:
@@ -227,9 +245,9 @@ def finetune(args, model, train_dataloader, eval_dataloader, test_dataloader_lis
                 logger.info(f"  Epoch {epoch+1}, step {nb_train_steps+1}, training loss: {avg_train_loss:.3f} \n")
 
         f1, loss = evaluate(args, model, eval_dataloader, device, type="eval")
-        if nb_train_steps > 200 and min_loss > loss:
+        if nb_train_steps >= 300 and min_loss > loss:
             min_loss = loss
-            logger.info(f"Saving best model checkpoint from epoch {epoch} at {output_dir}")
+            logger.info(f"Saving best model checkpoint from epoch {epoch+1} at {output_dir}")
             model.save_pretrained(output_dir)
 
     logger.info("============================================================")
@@ -259,7 +277,7 @@ def finetune(args, model, train_dataloader, eval_dataloader, test_dataloader_lis
     return summary
 
 
-def main(args, meta_batch_size=None, adaptation_steps=1):
+def main(args, adaptation_steps=5):
     """
     An implementation of cross-lingual *Model-Agnostic Meta-Learning* algorithm for hate detection
     on low-resouce languages.
@@ -289,26 +307,7 @@ def main(args, meta_batch_size=None, adaptation_steps=1):
     logger.info(f"device: {args.device} gpu: {args.n_gpu}")
 
     args.tokenizer = AutoTokenizer.from_pretrained(args.model_name_or_path)
-    if args.base_model_path:
-        if "xlm-r" in args.model_name_or_path:
-            model = XLMRClassifier()
-        elif "bert" in args.model_name_or_path:
-            model = MBERTClassifier()
-        else:
-            raise ValueError(f"Model type {args.model_name_or_path} is unknown.")
-        # load the pretrained base model, typicall finetuned on English
-        lit_model = LitClassifier(model)
-        ckpt = torch.load(os.path.normpath(args.base_model_path), map_location=args.device)
-        lit_model.load_state_dict(ckpt["state_dict"])
-        model = lit_model.model
-        if args.freeze_layers:
-            lit_model.set_trainable(True)
-            lit_model.set_freeze_layers(args.freeze_layers)
-            for name, param in lit_model.model.named_parameters():
-                logger.debug("%s - %s", name, ("Unfrozen" if param.requires_grad else "FROZEN"))
-    else:
-        model = AutoModelForSequenceClassification.from_pretrained(args.model_name_or_path)
-
+    model = AutoModelForSequenceClassification.from_pretrained(args.model_name_or_path)
     model.to(args.device)
 
     dsn_map = {
@@ -323,24 +322,21 @@ def main(args, meta_batch_size=None, adaptation_steps=1):
         "de": "hasoc2020",
     }
     if args.exp_setting == "hmaml_scale":
-        meta_tasks_list = []
-        for lang_id in meta_langs:
-            logger.info(f"Loading meta tasks for language = {lang_id}")
-            cur_dataloader = get_single_dataset_from_split(
+        meta_train_tasks, meta_domain_tasks = [], []
+        for lang in meta_langs:
+            logger.info(f"Loading meta tasks for language = {lang}")
+            data_loader = get_single_dataset_from_split(
                 config=args,
                 split_name="train",
-                dataset_name=f"{dsn_map.get(lang_id)}{lang_id}",
-                lang=lang_id,
+                dataset_name=f"{dsn_map.get(lang)}{lang}",
+                lang=lang,
+                to_shuffle=True,
                 batch_size=args.shots,
             )
-            meta_tasks_list.append(cur_dataloader)
-        meta_batch_size_list = []
-        for l in meta_tasks_list:
-            meta_batch_size_list.append(len(l))
-        meta_batch_size = sum(meta_batch_size_list)
+            meta_train_tasks.append(iter(cycle(data_loader)))
+            # meta_domain_tasks.append(iter(cycle(data_loader)))
+        meta_batch_size = len(meta_train_tasks)
         logger.info(f"Number of meta tasks {meta_batch_size}")
-
-        # meta_domain_tasks = meta_tasks_list[:]
     elif args.exp_setting == "finetune_collate":
         train_dataloader, val_dataloader = get_collate_langs_dataloader(args, meta_langs, dsn_map)
     else:
@@ -382,6 +378,17 @@ def main(args, meta_batch_size=None, adaptation_steps=1):
         json.dump(summary, open(summary_fname, "w"))
         return
 
+    if args.wandb_proj:
+        import wandb
+
+        run_config = vars(args)
+        wandb.init(
+            project=args.wandb_proj,
+            config=run_config,
+            # name=f'S{len(train_set)} {args.template_name} R{args.seed}',  # uncomment to customize each run's name
+            # reinit=True,  # uncomment if running multiple runs in one script
+        )
+
     # MAML training starts here. This step assumes we have a pretrained base model, fine-tuned on English.
     # We will now meta-train the base model with MAML algorithm.
     no_decay = ["bias", "LayerNorm.weight"]
@@ -404,141 +411,82 @@ def main(args, meta_batch_size=None, adaptation_steps=1):
     logger.info("*** HATE X MAML training starts now ***")
     logger.info("*********************************")
 
-    loss_fn = torch.nn.CrossEntropyLoss()
-
     maml = l2l.algorithms.MAML(model, lr=args.fast_lr, first_order=True, allow_unused=True).cuda()
-    for iteration in tqdm(range(args.num_meta_iterations), desc="Iteration"):  # outer loop
-        meta_train_error = 0.0
-        meta_train_accuracy = 0.0
+    pbar = tqdm(range(args.num_meta_iterations), desc="Iteration")
+    for iteration in pbar:  # outer loop
+        # meta_train_error = 0.0
         meta_valid_error = 0.0
-        meta_valid_accuracy = 0.0
-        meta_domain_accuracy = 0.0
-        tmp_cntr = meta_batch_size_list[:]
-        for idx in tqdm(range(meta_batch_size), desc="Meta task"):
-            task = None
-            choice_idx = None
-            for k in range(10):
-                choice_idx = random.randint(0, len(meta_tasks_list) - 1)
-                if tmp_cntr[choice_idx] > 0:
-                    task = next(iter(meta_tasks_list[choice_idx]))
-                    tmp_cntr[choice_idx] -= 1
-                    break
-            if task is None:
-                continue
-            n_meta_lr = args.shots // 2
-            task = {k: v.to(args.device) for k, v in task.items()}
+        for task_generator in tqdm(meta_train_tasks, desc="Inner loop", leave=False):
+            # n_meta_lr = args.shots // 2
+            train_query_inp = next(task_generator)
+            train_query_inp = {k: v.to(args.device) for k, v in train_query_inp.items()}
+            train_support_inp = next(task_generator)
+            train_support_inp = {k: v.to(args.device) for k, v in train_support_inp.items()}
 
-            train_query_inp = {
-                "input_ids": task["input_ids"][:n_meta_lr],
-                "attention_mask": task["attention_mask"][:n_meta_lr],
-                "labels": task["labels"][:n_meta_lr],
-            }
-            train_support_inp = {
-                "input_ids": task["input_ids"][n_meta_lr:],
-                "attention_mask": task["attention_mask"][n_meta_lr:],
-                "labels": task["labels"][n_meta_lr:],
-            }
-            del task
+            # train_query_inp = {
+            #     "input_ids": task["input_ids"][:n_meta_lr],
+            #     "attention_mask": task["attention_mask"][:n_meta_lr],
+            #     "labels": task["labels"][:n_meta_lr],
+            # }
+            # train_support_inp = {
+            #     "input_ids": task["input_ids"][n_meta_lr:],
+            #     "attention_mask": task["attention_mask"][n_meta_lr:],
+            #     "labels": task["labels"][n_meta_lr:],
+            # }
             learner = maml.clone()
             for _ in range(adaptation_steps):
-                outputs = learner(**train_support_inp)
-                loss, acc = compute_loss_acc(outputs["logits"], train_support_inp["labels"], loss_fn)
-
+                loss = learner(**train_support_inp)["loss"]
                 if args.n_gpu > 1:
                     loss = loss.mean()
-                # print("train = ", loss)
                 learner.adapt(loss, first_order=True)
+                del loss
                 torch.cuda.empty_cache()
-                del outputs
 
-            meta_train_error += loss.item()
-            meta_train_accuracy += acc
-            del acc
-            del loss
             del train_support_inp
 
-            outputs = learner(**train_query_inp)
-            eval_loss, eval_acc = compute_loss_acc(outputs["logits"], train_query_inp["labels"], loss_fn)
+            eval_loss = learner(**train_query_inp)["loss"]
 
-            # print("eval = ", eval_loss)
             if args.n_gpu > 1:
                 eval_loss = eval_loss.mean()
-            meta_valid_error += eval_loss
-            meta_valid_accuracy += eval_acc
             # eval_loss.backward()
-            del outputs
-            del eval_acc
+            meta_valid_error += eval_loss
             del eval_loss
-            del learner
             del train_query_inp
             torch.cuda.empty_cache()
-            report_memory(name=f" {idx}")
+            # report_memory(name=f" {idx}")
 
-            if idx > 7:
-                break
+            # if args.exp_setting == "hmaml_scale":
+            #     rid = random.randint(0, len(meta_domain_tasks) - 1)
+            #     dtask_generator = meta_domain_tasks[rid]
+            #     domain_query_inp = next(dtask_generator)
+            #     domain_query_inp = {k: v.to(args.device) for k, v in domain_query_inp.items()}
+            #     d_loss = learner(**domain_query_inp)["loss"]
 
-            # if args.exp_setting in ["hmaml_scale"]:
-            #     for k in range(10):
-            #         d_idx = random.randint(0, len(meta_domain_tasks) - 1)
-            #         if d_idx != choice_idx:
-            #             break
-            #     b_idx = random.randint(0, len(meta_domain_tasks[d_idx]))
-
-            #     for indx, d_batch in enumerate(meta_domain_tasks[d_idx]):
-            #         if indx == b_idx:
-            #             d_task = d_batch
-            #             break
-            #     domain_query_inp = {
-            #         "input_ids": d_task["input_ids"][:n_meta_lr],
-            #         "attention_mask": d_task["attention_mask"][:n_meta_lr],
-            #         "labels": d_task["labels"][:n_meta_lr],
-            #     }
-            #     domain_query_inp = move_to(domain_query_inp, args.device)
-            #     outputs = learner(**domain_query_inp)
-            #     d_loss, d_f1 = compute_loss_acc(outputs["logits"], domain_query_inp["labels"], loss_fn)
             #     if args.n_gpu > 1:
             #         d_loss = d_loss.mean()
 
-            #     # total_loss = eval_loss + d_loss
             #     meta_valid_error += d_loss
-            #     meta_domain_accuracy += d_f1
+            #     del domain_query_inp
+            #     del dtask_generator
+            del learner
 
-            # else:
-            #     total_loss = eval_loss
-            # total_loss.backward()
-
-        # Print some metrics
-        print("\n")
-        mt_error = meta_train_error / meta_batch_size
-        mt_acc = meta_train_accuracy / meta_batch_size
-        mv_error = meta_valid_error / meta_batch_size
-        mv_acc = meta_valid_accuracy / meta_batch_size
-        md_acc = meta_domain_accuracy / meta_batch_size
-
-        logger.info(
-            "  Iteration {} >> Meta Train Error {:.3f}, F1 {:.3f} # Valid Error {:.3f}, F1 {:.3f}, Domain F1 {:.3f}".format(
-                iteration, mt_error, mt_acc, mv_error, mv_acc, md_acc
-            )
-        )
+        # meta_train_error = meta_train_error / meta_batch_size
+        meta_valid_error = meta_valid_error / meta_batch_size
 
         # Average the accumulated gradients and optimize
         # for p in maml.parameters():
         #     if p.grad is not None:
         #         p.grad.data.mul_(1.0 / meta_batch_size)
         opt.zero_grad()
-        mv_error.backward()
+        meta_valid_error.backward()
         opt.step()
         lr_scheduler.step()
-        del meta_train_error
-        del meta_train_accuracy
+        loss = meta_valid_error.detach().cpu().numpy()
+        if args.wandb_proj:
+            wandb.log({"loss": loss}, step=iteration)
+
+        pbar.set_postfix({"validation error": loss})
         del meta_valid_error
-        del meta_valid_accuracy
-        del meta_domain_accuracy
-        del mt_error
-        del mv_error
-        del mt_acc
-        del mv_acc
-        del md_acc
         torch.cuda.empty_cache()
 
     # Zero-shot, Few-shot or Full-tuned evaluation? You can now take the zero-shot meta-trained model and fine-tune it on
@@ -566,6 +514,8 @@ def main(args, meta_batch_size=None, adaptation_steps=1):
 
     os.makedirs(summary_output_dir, exist_ok=True)
     json.dump(summary, open(summary_fname, "w"))
+    if args.wandb_proj:
+        wandb.finish()
 
 
 def get_split_dataloaders(config, dataset_name, lang):

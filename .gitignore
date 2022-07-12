@@ -1,6 +1,8 @@
 # Boilerplate .gitignore for python
 # from https://github.com/github/gitignore/blob/master/Python.gitignore
 
+# data
+data/processed
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -51,3 +53,6 @@ coverage.xml
 
 # Sphinx documentation
 docs/_build/
+
+# data
+# data/processed/

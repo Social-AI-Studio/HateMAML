@@ -119,7 +119,7 @@ def get_dataloaders_from_split(config, split_name, dataset_name=None, lang=None,
 
     data_df = pd.read_pickle(data_pkl_path, compression=None)
     data_df = data_df.sample(frac=1)
-    train_df, val_df = train_test_split(data_df, train_size=0.8, stratify=data_df["label"])
+    train_df, val_df = train_test_split(data_df, train_size=0.9, stratify=data_df["label"])
     logger.info(f"picking {train_df.shape[0]} rows for training set from `{data_pkl_path}`")
     logger.info(f"picking {val_df.shape[0]} rows for validation set from `{data_pkl_path}`")
 

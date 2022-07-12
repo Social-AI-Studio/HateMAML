@@ -6,12 +6,11 @@ echo "======================================================"
 
 
 export PYTHONPATH=":/data/data_store/rabiul/codes/multilingual-hate-speech"
-export CUDA_VISIBLE_DEVICES=0
+export CUDA_VISIBLE_DEVICES=1
 BATCH=32
-SHOTS=32
-LR=2e-5
-FAST_LR=1e-4
-M_EPOCHS=50
+SHOTS=20
+LR=5e-5
+FAST_LR=3e-5
 MODEL_TYPE=mbert
 MODEL_PATH=bert-base-multilingual-uncased
 DATASET=semeval2020
@@ -166,21 +165,21 @@ meat_train_progressive(){
 }
 
 
+# LANG_LIST=(ar da gr tr hi de es it)
 meta_train_all(){
-    CUR_LANGS=ar,da,gr,tr,hi,de,es,it
-    LANG_LIST=(ar da gr tr hi de es it)
-    for LG in ${LANG_LIST[@]}
+    # CUR_LANGS=ar,da,gr,tr,hi,de,es,it
+    CUR_LANGS=ar,da,hi,de,es,it
+    for ID in 1 2 3 4 5
     do
-        for ID in 1 2 3 4 5
-        do
-            python3 src/maml/hmaml_scale_lit.py --num_train_epochs 8 --num_meta_iterations $M_EPOCHS --meta_lr $LR --fast_lr $FAST_LR \
-            --model_name_or_path $MODEL_PATH --shots $SHOTS --batch_size $BATCH --exp_setting $EXP --meta_langs $CUR_LANGS \
-            --seed $ID --num_meta_samples $SAMPLE_SZ --device_id 1 --overwrite_cache
-        done
+        python3 src/maml/hmaml_scale_lit.py --num_train_epochs 8 --num_meta_iterations $M_EPOCHS --meta_lr $LR --fast_lr $FAST_LR \
+        --model_name_or_path $MODEL_PATH --shots $SHOTS --batch_size $BATCH --exp_setting $EXP --meta_langs $CUR_LANGS \
+        --seed $ID --num_meta_samples $SAMPLE_SZ --device_id 1 --overwrite_cache --wandb_proj hatemaml \
+        # --base_model_path runs/finetune/${BASE}/en/en_ft/seed1 
     done
 }
 
 EXP=$1
 SAMPLE_SZ=$2
+M_EPOCHS=$3
 
 meta_train_all
