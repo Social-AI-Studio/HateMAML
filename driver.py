@@ -20,9 +20,9 @@ VARIATIONS = {
     "epoch": [7],
     "lr": [2e-5],
     # "train_batch_size": [32],
-    "rng_seed": [1, 2, 3, 4, 5],
+    "rng_seed": [1],
     "model_type": [
-        "xlmr",
+        "mbert",
     ],
     # "model_type,train_ckpt,rng_seed,freeze_layers":[
     # ("xlmr", "fountaen/best/2021_11_06_15_26_15/epoch=4-val_macro_f1=0.933.ckpt", 1),
@@ -41,16 +41,16 @@ VARIATIONS = {
 all_variations = [i for i in variations_combo_gen(VARIATIONS)]
 
 datasets_name_collection = [
-    "founta",
-    "semeval2020",
+    # "founta",
+    # "semeval2020",
     # "hateval2019",
-    # "hasoc2020",
+    "hasoc2020",
     # "evalita2020",
 ]
 lang_list_map = {
     "semeval2020": ["ar", "da", "tr", "gr"],
     "hateval2019": ["es"],
-    "hasoc2020": ["en", "hi", "de"],
+    "hasoc2020": ["en"],
     "founta": ["en"],
     "evalita2020": ["en"],
 }
