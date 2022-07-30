@@ -324,22 +324,23 @@ def main(args, meta_batch_size=None, adaptation_steps=1):
 
     args.tokenizer = AutoTokenizer.from_pretrained(args.model_name_or_path)
     if args.base_model_path:
-        if "xlm-r" in args.model_name_or_path:
-            model = XLMRClassifier()
-        elif "bert" in args.model_name_or_path:
-            model = MBERTClassifier()
-        else:
-            raise ValueError(f"Model type {args.model_name_or_path} is unknown.")
-        # load the pretrained base model, typicall finetuned on English
-        lit_model = LitClassifier(model)
-        ckpt = torch.load(os.path.normpath(args.base_model_path), map_location=args.device)
-        lit_model.load_state_dict(ckpt["state_dict"])
-        model = lit_model.model
-        if args.freeze_layers:
-            lit_model.set_trainable(True)
-            lit_model.set_freeze_layers(args.freeze_layers)
-            for name, param in lit_model.model.named_parameters():
-                logger.debug("%s - %s", name, ("Unfrozen" if param.requires_grad else "FROZEN"))
+        # if "xlm-r" in args.model_name_or_path:
+        #     model = XLMRClassifier()
+        # elif "bert" in args.model_name_or_path:
+        #     model = MBERTClassifier()
+        # else:
+        #     raise ValueError(f"Model type {args.model_name_or_path} is unknown.")
+        # # load the pretrained base model, typicall finetuned on English
+        # lit_model = LitClassifier(model)
+        # ckpt = torch.load(os.path.normpath(args.base_model_path), map_location=args.device)
+        # lit_model.load_state_dict(ckpt["state_dict"])
+        # model = lit_model.model
+        # if args.freeze_layers:
+        #     lit_model.set_trainable(True)
+        #     lit_model.set_freeze_layers(args.freeze_layers)
+        #     for name, param in lit_model.model.named_parameters():
+        #         logger.debug("%s - %s", name, ("Unfrozen" if param.requires_grad else "FROZEN"))
+        model = AutoModelForSequenceClassification.from_pretrained(args.base_model_path)
     else:
         model = AutoModelForSequenceClassification.from_pretrained(args.model_name_or_path)
 
@@ -576,6 +577,7 @@ def prepare_meta_tuning_tasks(args, model=None):
                         split_name="val",
                         dataset_name=dataset_name,
                         lang=lang,
+                        to_shuffle=True,
                         batch_size=args.shots,
                     ),
                 )
@@ -614,6 +616,7 @@ def prepare_meta_tuning_tasks(args, model=None):
             split_name="val",
             dataset_name=tune_dataset_langs[args.source_lang],
             lang=args.source_lang,
+            to_shuffle=True,
             batch_size=args.shots // 2,
         )
 
@@ -622,6 +625,7 @@ def prepare_meta_tuning_tasks(args, model=None):
             split_name="val",
             dataset_name=tune_dataset_langs[other_lang],
             lang=other_lang,
+            to_shuffle=True,
             batch_size=args.shots // 2,
         )
 
@@ -640,6 +644,7 @@ def prepare_meta_tuning_tasks(args, model=None):
                 split_name="val",
                 dataset_name=tune_dataset_langs[other_lang],
                 lang=other_lang,
+                to_shuffle=True,
                 batch_size=args.shots,
             ),
         )
@@ -656,6 +661,7 @@ def prepare_meta_tuning_tasks(args, model=None):
             split_name="val",
             dataset_name=tune_dataset_langs[args.source_lang],
             lang=args.source_lang,
+            to_shuffle=True,
             batch_size=args.shots,
         )
         oth_tasks = get_single_dataset_from_split(
@@ -663,6 +669,7 @@ def prepare_meta_tuning_tasks(args, model=None):
             split_name="val",
             dataset_name=tune_dataset_langs[other_lang],
             lang=other_lang,
+            to_shuffle=True,
             batch_size=args.shots,
         )
         src_tasks = [task for task in src_tasks]

@@ -8,7 +8,7 @@ echo "======================================================"
 export PYTHONPATH=":/data/data_store/rabiul/codes/multilingual-hate-speech"
 export CUDA_VISIBLE_DEVICES=1
 BATCH=32
-SHOTS=20
+SHOTS=32
 LR=5e-5
 FAST_LR=3e-5
 MODEL_TYPE=mbert
@@ -87,10 +87,9 @@ meta_train_mixed(){
                     if [ $A_LANG != $T_LANG ]
                     then
                         python3 src/maml/hmaml_mixer_lit.py --source_lang en --aux_lang $A_LANG --target_lang $T_LANG --num_train_epochs 10 \
-                        --num_meta_iterations $M_EPOCHS --meta_lr $LR --fast_lr $LR --load_saved_base_model \
-                        --base_model_path runs/baselines/${BASE}/en/full/${MODEL_TYPE}1.ckpt --seed $ID --model_name_or_path $MODEL_PATH \
-                        --shots $SHOTS --batch_size $BATCH --exp_setting hmaml --device_id 1 --dataset_name $DATASET \
-                        --num_meta_samples 500 --metatune_type $TYPE --overwrite_cache 
+                        --num_meta_iterations $M_EPOCHS --meta_lr $LR --fast_lr $FAST_LR  --base_model_path runs/finetune/${BASE}/en/en_ft/seed1  \
+                        --seed $ID --model_name_or_path $MODEL_PATH --shots $SHOTS --batch_size $BATCH --exp_setting $EXP \
+                        --device_id 1 --dataset_name $DATASET --num_meta_samples 500 --metatune_type $TYPE --overwrite_cache 
                     fi
                     done
                 done
@@ -116,7 +115,7 @@ meta_auxiliary_refine(){
             for ID in 1 2 3 4 5
             do 
                 python3 src/maml/hmaml_mixer_lit.py --source_lang en --target_lang $T_LANG --num_train_epochs 6 \
-                --num_meta_iterations $M_EPOCHS --meta_lr 4e-6 --fast_lr $LR --load_saved_base_model --base_model_path runs/${DATASET}/${MODEL_TYPE}${ID}.ckpt \
+                --num_meta_iterations $M_EPOCHS --meta_lr 4e-5 --fast_lr $LR --base_model_path runs/${DATASET}/${MODEL_TYPE}${ID}.ckpt \
                 --model_name_or_path $MODEL_PATH --shots $SHOTS --batch_size $BATCH --exp_setting hmaml-fewshot --device_id 1 --dataset_name $DATASET --refine_threshold $LIMIT --num_meta_samples 200 --overwrite_cache
             done 
         done
@@ -174,7 +173,7 @@ meta_train_all(){
         python3 src/maml/hmaml_scale_lit.py --num_train_epochs 8 --num_meta_iterations $M_EPOCHS --meta_lr $LR --fast_lr $FAST_LR \
         --model_name_or_path $MODEL_PATH --shots $SHOTS --batch_size $BATCH --exp_setting $EXP --meta_langs $CUR_LANGS \
         --seed $ID --num_meta_samples $SAMPLE_SZ --device_id 1 --overwrite_cache --wandb_proj hatemaml \
-        # --base_model_path runs/finetune/${BASE}/en/en_ft/seed1 
+        --base_model_path runs/finetune/${BASE}/en/en_ft/seed1 
     done
 }
 
@@ -183,3 +182,4 @@ SAMPLE_SZ=$2
 M_EPOCHS=$3
 
 meta_train_all
+# meta_train_mixed
