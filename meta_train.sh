@@ -5,15 +5,15 @@ echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 echo "======================================================"
 
 
-export PYTHONPATH=":/data/data_store/rabiul/codes/multilingual-hate-speech"
-export CUDA_VISIBLE_DEVICES=1
+# export PYTHONPATH=":/data/data_store/rabiul/codes/multilingual-hate-speech"
+# export CUDA_VISIBLE_DEVICES=1
 BATCH=32
 SHOTS=32
 LR=5e-5
 FAST_LR=3e-5
 MODEL_TYPE=mbert
 MODEL_PATH=bert-base-multilingual-uncased
-DATASET=semeval2020
+DATASET=hasoc2020
 LIMIT=0.85
 BASE=hasoc2020
 
@@ -86,10 +86,12 @@ meta_train_mixed(){
                     do 
                     if [ $A_LANG != $T_LANG ]
                     then
-                        python3 src/maml/hmaml_mixer_lit.py --source_lang en --aux_lang $A_LANG --target_lang $T_LANG --num_train_epochs 10 \
-                        --num_meta_iterations $M_EPOCHS --meta_lr $LR --fast_lr $FAST_LR  --base_model_path runs/finetune/${BASE}/en/en_ft/seed1  \
-                        --seed $ID --model_name_or_path $MODEL_PATH --shots $SHOTS --batch_size $BATCH --exp_setting $EXP \
-                        --device_id 1 --dataset_name $DATASET --num_meta_samples 500 --metatune_type $TYPE --overwrite_cache 
+                        python3 src/maml/hmaml_mixer.py --source_lang en --aux_lang $A_LANG --target_lang $T_LANG --num_train_epochs 5 \
+                        --num_meta_iterations $M_EPOCHS --meta_lr $LR --fast_lr $FAST_LR --seed $ID --model_name_or_path $MODEL_PATH \
+                        --base_model_path runs/finetune/${BASE}/en/en_ft/seed1 --shots $SHOTS --batch_size $BATCH --exp_setting $EXP \
+                        --device_id 1 --dataset_name $DATASET --num_meta_samples $SAMPLE_SZ --metatune_type $TYPE --fft \
+                        # --overwrite_cache
+
                     fi
                     done
                 done
@@ -165,12 +167,12 @@ meat_train_progressive(){
 
 
 # LANG_LIST=(ar da gr tr hi de es it)
+# CUR_LANGS=ar,da,hi,de,es,it
+CUR_LANGS=ar,da,gr,tr,hi,de,es,it
 meta_train_all(){
-    # CUR_LANGS=ar,da,gr,tr,hi,de,es,it
-    CUR_LANGS=ar,da,hi,de,es,it
     for ID in 1 2 3 4 5
     do
-        python3 src/maml/hmaml_scale_lit.py --num_train_epochs 8 --num_meta_iterations $M_EPOCHS --meta_lr $LR --fast_lr $FAST_LR \
+        python3 src/maml/hmaml_scale.py --num_train_epochs 8 --num_meta_iterations $M_EPOCHS --meta_lr $LR --fast_lr $FAST_LR \
         --model_name_or_path $MODEL_PATH --shots $SHOTS --batch_size $BATCH --exp_setting $EXP --meta_langs $CUR_LANGS \
         --seed $ID --num_meta_samples $SAMPLE_SZ --device_id 1 --overwrite_cache --wandb_proj hatemaml \
         --base_model_path runs/finetune/${BASE}/en/en_ft/seed1 
@@ -181,5 +183,9 @@ EXP=$1
 SAMPLE_SZ=$2
 M_EPOCHS=$3
 
-meta_train_all
-# meta_train_mixed
+if [ $EXP == "hmaml_scale" ]
+then
+    meta_train_all
+else
+    meta_train_mixed
+fi

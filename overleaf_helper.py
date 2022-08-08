@@ -45,7 +45,7 @@ def meta_tuning_summary(args, dir_path: str):
                 print(f"Filtering on type = {args.type} epoch {epoch}, fname = {fname}")
                 # print(json.dumps(data, indent=2))
 
-                f1 = data[args.exp_setting].get("f1")
+                f1 = data["few"].get("f1")
                 key = aux_lang + "_" + target_lang
                 if bdict.get(model_name) is None:
                     bdict[model_name] = {}
@@ -205,7 +205,7 @@ def baseline_report():
 
 
 def baseline_report_modified(args):
-    dir_path = "runs/finetune/semeval2020"
+    dir_path = "runs/finetune/hasoc2020"
 
     bdict = {}
     subdirs = os.listdir(dir_path)
@@ -258,8 +258,8 @@ def main():
     parser.add_argument("--shots", default=None, type=str, help="Number of support query")
 
     args = parser.parse_args()
-    if args.exp_setting in ["hmaml", "xmetra", "xmaml"]:
-        dir_path = "runs/summary/semeval2020/hmaml_mixer_lit"
+    if args.exp_setting in ["hmaml", "xmetra", "xmaml", "fft"]:
+        dir_path = "runs/summary/hasoc2020/hmaml_mixer"
         meta_tuning_summary(args, dir_path)
     elif args.exp_setting == "finetune":
         baseline_report_modified(args)

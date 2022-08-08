@@ -27,7 +27,7 @@ from src.data.consts import DEST_DATA_PKL_DIR, RUN_BASE_DIR, SRC_DATA_PKL_DIR
 from src.maml.mtl_datasets import DataLoaderWithTaskname
 from src.model.classifiers import MBERTClassifier, XLMRClassifier
 from src.model.lightning import LitClassifier
-from src.utils import get_dataloaders_from_split, get_single_dataset_from_split
+from src.utils import get_dataloaders_from_split, get_single_dataloader_from_split
 
 
 logging.basicConfig(
@@ -318,22 +318,19 @@ def main(args, cuda=True):
 
     summary = {}
     if args.finetune_type in ["ft", "fft"]:
-        train_dataloader, eval_dataloader = get_dataloaders_from_split(
-            config=args,
-            split_name="val",
-            dataset_name=f"{args.dataset_name}{args.target_lang}",
-            lang=args.target_lang,
-            batch_size=args.batch_size,
-        )
-        test_dataloader = get_single_dataloader_from_split(
-            config=args,
-            split_name="test",
-            dataset_name=f"{args.dataset_name}{args.target_lang}",
-            lang=args.target_lang,
-            batch_size=args.batch_size,
-        )
-
-        ft_result = finetune(args, model, train_dataloader, eval_dataloader, test_dataloader, device)
+        dataloaders = {}
+        for split in ["train", "val", "test"]:
+            add_to_path = f"_{args.num_meta_samples}" if args.num_meta_samples and split == "train" else ""
+            dataloader = get_single_dataloader_from_split(
+                config=args,
+                split_name=split,
+                dataset_name=f"{args.dataset_name}{args.target_lang}" + add_to_path,
+                lang=args.target_lang,
+                to_shuffle=True  if split == "train" else False, 
+                batch_size=args.batch_size,
+            )
+            dataloaders[split] = dataloader
+        ft_result = finetune(args, model, dataloaders["train"], dataloaders["val"], dataloaders["test"], device)
         summary[str(args.finetune_type)] = ft_result
 
     # fine-tuning only using English data

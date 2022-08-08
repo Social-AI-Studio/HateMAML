@@ -83,12 +83,7 @@ def load_glove_format_embs(fn, pad_token, unk_token, allowed_vocab_set, top_term
     return ret_vocab, ret_embeddings
 
 
-def get_single_dataset_from_split(config, split_name, dataset_name=None, lang=None, to_shuffle=False, batch_size=None):
-    # if split_name != "test" and config.num_meta_samples:
-    #     data_pkl_path = os.path.join(DEST_DATA_PKL_DIR, f"{dataset_name}_{config.num_meta_samples}_{split_name}.pkl")
-    # elif lang == "en":
-    #     data_pkl_path = os.path.join(DEST_DATA_PKL_DIR, f"{dataset_name}_500_{split_name}.pkl")
-    # else:
+def get_single_dataloader_from_split(config, split_name, dataset_name=None, lang=None, to_shuffle=False, batch_size=None):
     data_pkl_path = os.path.join(DEST_DATA_PKL_DIR, f"{dataset_name}_{split_name}.pkl")
 
     data_df = pd.read_pickle(data_pkl_path, compression=None)
@@ -112,7 +107,7 @@ def get_single_dataset_from_split(config, split_name, dataset_name=None, lang=No
 
 
 def get_dataloaders_from_split(config, split_name, dataset_name=None, lang=None, batch_size=None):
-    if split_name != "test" and config.num_meta_samples:
+    if split_name == "train" and config.num_meta_samples:
         data_pkl_path = os.path.join(DEST_DATA_PKL_DIR, f"{dataset_name}_{config.num_meta_samples}_{split_name}.pkl")
     else:
         data_pkl_path = os.path.join(DEST_DATA_PKL_DIR, f"{dataset_name}_{split_name}.pkl")
