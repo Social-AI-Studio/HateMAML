@@ -122,6 +122,12 @@ def parse_helper():
         help="List of languages to support during meta training or model fine-tuning.",
     )
     parser.add_argument(
+        "--exclude_langs",
+        type=str,
+        default="",
+        help="List of languages to support during meta training or model fine-tuning.",
+    )
+    parser.add_argument(
         "--num_warmup_steps", type=int, default=0, help="Number of steps for the warmup in the lr scheduler."
     )
 
@@ -185,7 +191,8 @@ def evaluate(args, model, eval_dataloader, device, type="test"):
 
 
 def finetune(args, model, train_dataloader, eval_dataloader, test_dataloader_list, meta_langs, device):
-    output_dir = os.path.join(RUN_BASE_DIR, "scale", f"{args.exp_setting}", f"seed{args.seed}")
+    f_base_model = "mbert" if "bert-base" in args.model_name_or_path else "xlmr"
+    output_dir = os.path.join(RUN_BASE_DIR, "scale", f"{args.exp_setting}", f_base_model, f"seed{args.seed}")
     logger.debug("***** Running training *****")
     logger.debug(f"  Num examples = {len(train_dataloader)*args.batch_size}")
     logger.debug(f"  Num Epochs = {args.num_train_epochs}")
@@ -245,7 +252,7 @@ def finetune(args, model, train_dataloader, eval_dataloader, test_dataloader_lis
                 logger.info(f"  Epoch {epoch+1}, step {nb_train_steps+1}, training loss: {avg_train_loss:.3f} \n")
 
         f1, loss = evaluate(args, model, eval_dataloader, device, type="eval")
-        if nb_train_steps >= 300 and min_loss > loss:
+        if nb_train_steps >= 200 and min_loss > loss:
             min_loss = loss
             logger.info(f"Saving best model checkpoint from epoch {epoch+1} at {output_dir}")
             model.save_pretrained(output_dir)
@@ -288,9 +295,10 @@ def main(args, adaptation_steps=5):
         adaptation_steps (int); The number of inner loop steps.
         num_iterations (int): The total number of iteration MAML will run (outer loop update).
     """
-    f_base_model = "mbert" if "bert" in args.model_name_or_path else "xlmr"
+    f_base_model = "mbert" if "bert-base" in args.model_name_or_path else "xlmr"
+    subdir = "domain" if args.exclude_langs else "scale"
     summary_output_dir = os.path.join(
-        "runs/summary", "scale", f_base_model, f"seed{args.seed}", args.exp_setting, str(args.num_meta_samples)
+        "runs/summary", subdir, f_base_model, f"seed{args.seed}", args.exp_setting, str(args.num_meta_samples)
     )
     # etxt = "_" + str(args.num_meta_iterations) if args.exp_setting == "hmaml_scale" else ""
     summary_fname = os.path.join(summary_output_dir, "results.json")
@@ -301,7 +309,8 @@ def main(args, adaptation_steps=5):
     if os.path.exists(summary_fname) and not args.overwrite_cache:
         return
 
-    manual_seed_all(args.seed)
+    rd = random.randint(3, 10000)
+    manual_seed_all(rd)
     args.n_gpu = torch.cuda.device_count()
     args.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     logger.info(f"device: {args.device} gpu: {args.n_gpu}")
@@ -321,14 +330,15 @@ def main(args, adaptation_steps=5):
         "hi": "hasoc2020",
         "de": "hasoc2020",
     }
-    if args.exp_setting == "hmaml_scale":
+    exclude_langs = args.exclude_langs.split(",")
+    if args.exp_setting in ["hmaml_scale", "hmaml_domain"]:
         meta_train_tasks, meta_domain_tasks = [], []
-        for lang in meta_langs:
+        for lang in list(set(meta_langs)-set(exclude_langs)):
             logger.info(f"Loading meta tasks for language = {lang}")
             data_loader = get_single_dataloader_from_split(
                 config=args,
                 split_name="train",
-                dataset_name=f"{dsn_map.get(lang)}{lang}",
+                dataset_name=f"{dsn_map.get(lang)}{lang}_{args.num_meta_samples}",
                 lang=lang,
                 to_shuffle=True,
                 batch_size=args.shots,
@@ -337,8 +347,8 @@ def main(args, adaptation_steps=5):
             meta_domain_tasks.append(iter(cycle(data_loader)))
         meta_batch_size = len(meta_train_tasks)
         logger.info(f"Number of meta tasks {meta_batch_size}")
-    elif args.exp_setting == "finetune_collate":
-        train_dataloader, val_dataloader = get_collate_langs_dataloader(args, meta_langs, dsn_map)
+    elif args.exp_setting in ["finetune_collate", "finetune_domain"]:
+        train_dataloader, val_dataloader = get_collate_langs_dataloader(args, list(set(meta_langs)-set(exclude_langs)), dsn_map)
     else:
         raise ValueError(f"{args.exp_setting} is unknown!")
 
@@ -363,7 +373,7 @@ def main(args, adaptation_steps=5):
             test_dataloader_lgs[lang_id] = cur_test_dataloader
             # evaluate(args, model, cur_test_dataloader, device, type="pred")
 
-    if args.exp_setting == "finetune_collate":
+    if args.exp_setting  in ["finetune_collate", "finetune_domain"]:
         summary = finetune(
             args,
             model,
@@ -388,6 +398,18 @@ def main(args, adaptation_steps=5):
             # name=f'S{len(train_set)} {args.template_name} R{args.seed}',  # uncomment to customize each run's name
             # reinit=True,  # uncomment if running multiple runs in one script
         )
+    # Zero-shot, Few-shot or Full-tuned evaluation? You can now take the zero-shot meta-trained model and fine-tune it on
+    # available low-resource few-shot training samples. If we don't fine-tune further, it can be considered as zero-shot model.
+    #
+    summary = {
+        "meta_langs": meta_langs,
+        "num_meta_iterations": args.num_meta_iterations,
+        "base_model_path": args.base_model_path,
+        "script_name": os.path.basename(__file__),
+        "exp_setting": args.exp_setting,
+        "result": [],
+    }
+
 
     # MAML training starts here. This step assumes we have a pretrained base model, fine-tuned on English.
     # We will now meta-train the base model with MAML algorithm.
@@ -415,7 +437,6 @@ def main(args, adaptation_steps=5):
     maml = l2l.algorithms.MAML(model, lr=args.fast_lr, first_order=True, allow_unused=True).cuda()
     pbar = tqdm(range(args.num_meta_iterations), desc="Iteration")
     for iteration in pbar:  # outer loop
-        # meta_train_error = 0.0
         meta_valid_error = 0.0
         for _ in tqdm(range(meta_batch_size), desc="Inner loop", leave=False):
             tid = random.randint(0, len(meta_train_tasks) - 1)
@@ -461,7 +482,6 @@ def main(args, adaptation_steps=5):
                 del dtask_generator
             del learner
 
-        # meta_train_error = meta_train_error / meta_batch_size
         meta_valid_error = meta_valid_error / meta_batch_size
 
         # Average the accumulated gradients and optimize
@@ -480,28 +500,25 @@ def main(args, adaptation_steps=5):
         del meta_valid_error
         torch.cuda.empty_cache()
 
-    # Zero-shot, Few-shot or Full-tuned evaluation? You can now take the zero-shot meta-trained model and fine-tune it on
-    # available low-resource few-shot training samples. If we don't fine-tune further, it can be considered as zero-shot model.
-    #
-    summary = {
-        "meta_langs": meta_langs,
-        "num_meta_iterations": args.num_meta_iterations,
-        "base_model_path": args.base_model_path,
-        "script_name": os.path.basename(__file__),
-        "exp_setting": args.exp_setting,
-    }
-
-    for lang_id in meta_langs:
-        logger.info(
-            f"**** Evaluation on {dsn_map.get(lang_id)} meta {args.exp_setting} tuned model >>> Language = {lang_id} ****"
-        )
-        if lang_id == "it":
-            for lg_id in ["news", "tweets"]:
-                eval_result = evaluate(args, model, test_dataloader_lgs[lg_id], args.device, type="pred")
-                summary[lg_id] = {"f1": eval_result[0], "loss": eval_result[1]}
-        else:
-            eval_result = evaluate(args, model, test_dataloader_lgs[lang_id], args.device, type="pred")
-            summary[lang_id] = {"f1": eval_result[0], "loss": eval_result[1]}
+        if iteration > 100 and iteration % 10 == 0:
+            info = {}
+            f1_sum = 0
+            for lang_id in meta_langs:
+                logger.info(
+                    f"**** Evaluation on {dsn_map.get(lang_id)} meta {args.exp_setting} tuned model >>> Language = {lang_id} ****"
+                )
+                if lang_id == "it":
+                    for lg_id in ["news", "tweets"]:
+                        eval_result = evaluate(args, model, test_dataloader_lgs[lg_id], args.device, type="pred")
+                        info[lg_id] = {"f1": eval_result[0], "loss": eval_result[1]}
+                        f1_sum += eval_result[0]
+                else:
+                    eval_result = evaluate(args, model, test_dataloader_lgs[lang_id], args.device, type="pred")
+                    info[lang_id] = {"f1": eval_result[0], "loss": eval_result[1]}
+                    f1_sum += eval_result[0]
+            info["iteration"] = iteration
+            info["avg"] = f1_sum / (len(meta_langs) + 1)
+            summary["result"].append(info)
 
     os.makedirs(summary_output_dir, exist_ok=True)
     json.dump(summary, open(summary_fname, "w"))

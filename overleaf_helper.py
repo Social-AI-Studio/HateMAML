@@ -1,3 +1,4 @@
+
 import os
 import json
 import statistics
@@ -25,67 +26,64 @@ def meta_tuning_summary(args, dir_path: str):
 
     for fname in files:
         model_name = fname.split("_")[0]
-        if args.exp_setting not in fname or args.type not in fname:
+        if args.exp_setting not in fname:
             continue
         if args.model_type not in model_name:
             continue
         with open(os.path.join(dir_path, fname)) as f:
             data = json.load(f)
 
-        if args.type == "zeroshot":
+        if args.type == "metatune":
             aux_lang = fname.split("_")[-2]
             target_lang = fname.split("_")[-1].strip(".json")
-            epoch = fname.split("_")[2]
-            shots = fname.split("_")[3]
-            if args.samples is not None and args.type + "_" + args.samples not in fname:
+            shots = fname.split("_")[2]
+            if "zeroshot_" + aux_lang not in fname:
                 continue
-            if args.samples is None and args.type + "_" + aux_lang not in fname:
-                continue
-            if epoch == args.epochs and shots == args.shots:
-                print(f"Filtering on type = {args.type} epoch {epoch}, fname = {fname}")
+            if shots == args.shots:
+                print(f"Filtering on type = {args.type}, fname = {fname}")
                 # print(json.dumps(data, indent=2))
+                result = data["result"]
+                f1 = -1
+                for info in result:
+                    cur_f1 = info["meta"]["f1"]
+                    if f1 < cur_f1:
+                        f1 = cur_f1
 
-                f1 = data["few"].get("f1")
                 key = aux_lang + "_" + target_lang
                 if bdict.get(model_name) is None:
                     bdict[model_name] = {}
                 bdict[model_name][key] = f1
-        elif args.type == "fewshot":
-            target_lang = fname.split("_")[-1].strip(".json")
-            epoch = fname.split("_")[2]
-            shots = fname.split("_")[3]
-            if args.samples is not None and args.type + "_" + args.samples not in fname:
-                continue
-            if args.samples is None and args.type + "_" + target_lang not in fname:
-                continue
-            if epoch == args.epochs and shots == args.shots:
-                print(f"Filtering on type = {args.exp_setting} epoch {epoch}, fname = {fname}")
-                # print(json.dumps(data, indent=2))
-
-                f1 = data[args.exp_setting].get("f1")
-                key = target_lang
-                if bdict.get(model_name) is None:
-                    bdict[model_name] = {}
-                bdict[model_name][key] = f1
-
-        elif args.type == "zero-refine":
+        elif args.type == "refine":
             target_lang = fname.split("_")[-1][:2]
-            if "_" + str(args.shots) + "_" + target_lang not in str(fname):
+            if "_" + str(args.shots) + "_" + args.type not in str(fname):
                 continue
-            epoch = fname.split("_")[-3]
-            if epoch == args.epochs:
-                print(f"Filtering on epoch {epoch}, fname = {fname}")
+            print(f"Filtering on fname = {fname}")
+            # print(json.dumps(data, indent=2))
+            result = data["result"]
+            f1 = -1
+            for info in result:
+                cur_f1 = info["meta"]["f1"]
+                if f1 < cur_f1:
+                    f1 = cur_f1
+            if bdict.get(model_name) is None:
+                bdict[model_name] = {}
 
-                f1 = data["hmaml-zero-refine"].get("f1")
+            bdict[model_name][target_lang] = f1
+        elif args.type == "zeroshot":
+            target_lang = fname.split("_")[-1][:2]
+            if "_" + str(args.shots)  not in str(fname) and target_lang not in str(fname):
+                continue
+            print(f"Filtering on fname = {fname}")
+            # print(json.dumps(data, indent=2))
+            f1 = data["zero"]["f1"]
+            if bdict.get(model_name) is None:
+                bdict[model_name] = {}
 
-                if bdict.get(model_name) is None:
-                    bdict[model_name] = {}
-
-                bdict[model_name][target_lang] = f1
+            bdict[model_name][target_lang] = f1
 
     print(json.dumps(bdict, indent=2))
     print(dir_path)
-    if args.type == "zeroshot":
+    if args.type == "metatune":
         for tgt in langs:
             for aux in langs:
                 if tgt == aux:
@@ -140,17 +138,30 @@ def scaling_summary_gen(dir_path):
                         if bdict[expname][mname].get(szname) is None:
                             bdict[expname][mname][szname] = {}
 
+
+                        curr = bdict[expname][mname][szname]
+                        best_avg = 0
+                        best_info = None
+                        iterr = None
+                        if "result" in data and expname in ["hmaml_scale", "hmaml_domain"]:
+                            for info in data['result']:
+                                if info['avg'] >= best_avg:
+                                    best_avg = info['avg']
+                                    best_info = info
+                                    iterr = info['iteration']
+                            data = best_info
+
                         if expname == "hmaml_scale":
-                            print(f"Filtering on data size {szname}, fname = {os.path.join(sz_dir,fname)}")
+                            print(f"Filtering on data size {szname}, {iterr} fname = {os.path.join(sz_dir,fname)}")
                         else:
                             print(f"Filtering on data size {szname}, fname = {os.path.join(sz_dir, fname)}")
 
                         for lang_id in meta_langs:
-                            if bdict[expname][mname][szname].get(lang_id) is None:
-                                bdict[expname][mname][szname][lang_id] = []
+                            if curr.get(lang_id) is None:
+                                curr[lang_id] = []
                             if data.get(lang_id) is not None:
                                 cur_f1 = data[lang_id]["f1"]
-                                bdict[expname][mname][szname][lang_id].append(cur_f1)
+                                curr[lang_id].append(cur_f1)
 
     # print(bdict)
     for expname in bdict:
@@ -259,13 +270,17 @@ def main():
 
     args = parser.parse_args()
     if args.exp_setting in ["hmaml", "xmetra", "xmaml", "fft"]:
-        dir_path = "runs/summary/hasoc2020/hmaml_mixer"
+        dir_path = "runs/summary/semeval2020/xmaml"
         meta_tuning_summary(args, dir_path)
     elif args.exp_setting == "finetune":
         baseline_report_modified(args)
     elif args.exp_setting == "scale":
         dir_path = "runs/summary/scale"
         scaling_summary_gen(dir_path)
+    elif args.exp_setting == "domain":
+        dir_path = "runs/summary/domain"
+        scaling_summary_gen(dir_path)
+
 
 
 if __name__ == "__main__":

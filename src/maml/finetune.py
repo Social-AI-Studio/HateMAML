@@ -186,8 +186,9 @@ def evaluate(args, model, eval_dataloader, device, type="test"):
 
 
 def finetune(args, model, train_dataloader, eval_dataloader, test_dataloader, device):
+    f_base_model = "mbert" if "bert-base" in args.model_name_or_path else "xlmr"
     output_dir = os.path.join(
-        RUN_BASE_DIR, "finetune", args.dataset_name, args.target_lang, args.finetune_type, f"seed{args.seed}"
+        RUN_BASE_DIR, "finetune", args.dataset_name, args.target_lang, args.finetune_type, f_base_model, f"seed{args.seed}"
     )
     os.makedirs(output_dir, exist_ok=True)
     logger.debug("***** Running training *****")
@@ -272,7 +273,7 @@ def main(args, cuda=True):
 
     summary_output_dir = os.path.join("runs/finetune", args.dataset_name, args.target_lang)
     few_ft = "_" + args.finetune_type if args.finetune_type else ""
-    f_base_model = "mbert" if "bert" in args.model_name_or_path else "xlmr"
+    f_base_model = "mbert" if "bert-base" in args.model_name_or_path else "xlmr"
     f_samples = "_" + str(args.num_meta_samples) if args.num_meta_samples else ""
     summary_fname = os.path.join(
         summary_output_dir,

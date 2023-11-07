@@ -138,7 +138,7 @@ def get_collate_langs_dataloader(config, meta_langs, dsn_map):
         dataset_name = dsn_map.get(lang)
         pkl_path = os.path.join(DEST_DATA_PKL_DIR, f"{dataset_name}{lang}_{config.num_meta_samples}_{split_name}.pkl")
         cur_data_df = pd.read_pickle(pkl_path, compression=None)
-        train_df, val_df = train_test_split(cur_data_df, train_size=0.8, stratify=cur_data_df["label"])
+        train_df, val_df = train_test_split(cur_data_df, train_size=0.85, stratify=cur_data_df["label"])
         train_fnames.append(train_df)
         val_fnames.append(val_df)
     train_df = pd.concat(train_fnames)
@@ -166,7 +166,6 @@ class SilverDataset(Dataset):
 
     def __getitem__(self, idx):
         item = {k: torch.tensor(v) for k, v in self.data_dict[idx].items()}
-        item["label"] = item.pop("labels")
         return item
 
     def __len__(self):

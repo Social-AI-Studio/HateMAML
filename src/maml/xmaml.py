@@ -10,7 +10,7 @@ import os
 import random
 import copy
 
-import learn2learn as l2l
+import higher
 import numpy as np
 from sklearn.metrics import f1_score
 import torch
@@ -29,7 +29,6 @@ from transformers import (
 from mtl_datasets import DataLoaderWithTaskname, MultitaskDataloader
 from src.data.consts import RUN_BASE_DIR
 from src.model.classifiers import MBERTClassifier, XLMRClassifier
-from src.model.lightning import LitClassifier
 from src.utils import get_single_dataloader_from_split, SilverDataset, get_dataloaders_from_split
 
 logging.basicConfig(
@@ -39,11 +38,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
-
-def cycle(iterable):
-    while True:
-        for x in iterable:
-            yield x
 
 def parse_helper():
     parser = argparse.ArgumentParser()
@@ -301,7 +295,6 @@ def main(args, meta_batch_size=None, adaptation_steps=5):
     aux_la = "_" + args.aux_lang if args.aux_lang else ""
     few_ft = "_" + args.metatune_type if args.metatune_type else ""
     f_base_model = "mbert" if "bert-base" in args.model_name_or_path else "xlmr"
-    f_samples = "_" + str(args.num_meta_samples) if args.num_meta_samples else ""
     summary_fname = os.path.join(
         summary_output_dir,
         f"{f_base_model}{args.seed}_{args.exp_setting}_{args.shots//2}{few_ft}{aux_la}_{args.target_lang}.json",
@@ -353,8 +346,16 @@ def main(args, meta_batch_size=None, adaptation_steps=5):
     # MAML training starts here. This step assumes we have a pretrained base model, fine-tuned on English.
     # We will now meta-train the base model with MAML algorithm.
 
-    meta_train_tasks, meta_domain_tasks = prepare_meta_tuning_tasks(args, model)
-    meta_batch_size = 4  # hard coded
+    
+    train_dataloader = get_single_dataloader_from_split(
+        config=args,
+        split_name="train",
+        dataset_name=f"{args.dataset_name}{args.aux_lang}_{args.num_meta_samples}",
+        lang=args.aux_lang,
+        to_shuffle=True,
+        batch_size=args.shots,
+    )
+    meta_batch_size = len(train_dataloader)
     logger.info(f"Number of meta-training tasks {meta_batch_size}")
 
     no_decay = ["bias", "LayerNorm.weight"]
@@ -368,8 +369,7 @@ def main(args, meta_batch_size=None, adaptation_steps=5):
             "weight_decay": 0.0,
         },
     ]
-    opt = optim.AdamW(optimizer_grouped_parameters, args.meta_lr, eps=args.adam_epsilon)
-    maml = l2l.algorithms.MAML(model, lr=args.fast_lr, first_order=True)
+    opt = optim.Adam(optimizer_grouped_parameters, lr=args.meta_lr, eps=args.adam_epsilon)
     max_training_steps = args.num_meta_iterations * args.gradient_accumulation_steps
     lr_scheduler = get_linear_schedule_with_warmup(
         optimizer=opt, num_warmup_steps=args.num_warmup_steps, num_training_steps=max_training_steps
@@ -379,47 +379,40 @@ def main(args, meta_batch_size=None, adaptation_steps=5):
     logger.info("*** HATE X META TRAINING STARTS NOW ***")
     logger.info("*************************************")
 
-    for iteration in tqdm(range(args.num_meta_iterations), desc="Iteration"):  # outer loop
+    for iteration in tqdm(range(args.num_meta_iterations), desc='Iteration'):  # outer loop
+        inner_opt = torch.optim.SGD(model.parameters(), lr=args.fast_lr)
         meta_train_error = 0.0
         meta_valid_error = 0.0
 
-        for task in tqdm(range(meta_batch_size), desc="Meta task"):
-            if args.exp_setting == "hmaml":
-                tidx = np.random.choice([0, 1], p=[0.25, 0.75])
-            else:
-                tidx = 0
-            task_generator = meta_train_tasks[tidx]
+        for task in tqdm(train_dataloader, desc="Meta task"):
+            n_meta_lr = args.shots // 2
+            train_query_inp = {
+                "input_ids": task["input_ids"][:n_meta_lr],
+                "attention_mask": task["attention_mask"][:n_meta_lr],
+                "labels": task["labels"][:n_meta_lr],
+            }
+            train_support_inp = {
+                "input_ids": task["input_ids"][n_meta_lr:],
+                "attention_mask": task["attention_mask"][n_meta_lr:],
+                "labels": task["labels"][n_meta_lr:],
+            }
 
-            train_query_inp = next(task_generator)
             train_query_inp = {k: v.to(args.device) for k, v in train_query_inp.items()}
-            train_support_inp = next(task_generator)
             train_support_inp = {k: v.to(args.device) for k, v in train_support_inp.items()}
 
-            learner = maml.clone()
-            # report_memory(name = f"maml{idx}")
-
-            for _ in range(adaptation_steps):
-                loss = learner(**train_support_inp)["loss"]
-
+            with higher.innerloop_ctx(model, inner_opt, copy_initial_weights=False) as (fast_model, diffopt):
+                fast_model.train()
+                loss = fast_model(**train_support_inp)["loss"]
                 if args.n_gpu > 1:
                     loss = loss.mean()
-                learner.adapt(loss, allow_nograd=True, allow_unused=True)
-            meta_train_error += loss.item()
-            eval_loss = learner(**train_query_inp)["loss"]
+                diffopt.step(loss)
+                meta_train_error += loss.item()
+
+            eval_loss = fast_model(**train_query_inp)["loss"]
 
             if args.n_gpu > 1:
                 eval_loss = eval_loss.mean()
-
-            if args.exp_setting == "hmaml" and args.metatune_type != "refine":
-                choice_idx = 1 - tidx
-                d_task_generator = meta_domain_tasks[choice_idx]
-                domain_query_inp = next(d_task_generator)
-                domain_query_inp = {k: v.to(args.device) for k, v in domain_query_inp.items()}
-                d_loss = learner(**domain_query_inp)["loss"]
-                if args.n_gpu > 1:
-                    d_loss = d_loss.mean()
-                eval_loss += d_loss
-                eval_loss = eval_loss / 2
+            eval_loss.backward()
             meta_valid_error += eval_loss
 
         # Print some metrics
@@ -433,71 +426,16 @@ def main(args, meta_batch_size=None, adaptation_steps=5):
             )
         )
 
-        # Average the accumulated gradients and optimize
-        # for p in maml.parameters():
-        #     if p.grad is not None:
-        #         p.grad.data.mul_(1.0 / meta_batch_size)
-        opt.zero_grad()
-        mv_error.backward()
         opt.step()
+        model.zero_grad()
         lr_scheduler.step()
-
 
         if iteration > 25 and (iteration+1) % 5 == 0:
             info = {"iteration": str(iteration)}
             metatune_result = evaluate(args, model, testlg_dataloader, args.device, type="pred")
             info["meta"] = {"f1": metatune_result[0], "loss": metatune_result[1]}
+            summary['result'].append(info)
 
-            # **** THE FURTHER FINE-TUNING STEP ****
-
-            if args.fft:
-                few_dataloaders, full_dataloaders = get_finetune_dataloaders(args)
-                # fft_result = finetune(
-                #     args,
-                #     model,
-                #     few_dataloaders["train"],
-                #     few_dataloaders["val"],
-                #     testlg_dataloader,
-                #     args.device,
-                # )
-                # info["few"] = fft_result
-                # fft_result = finetune(
-                #     args,
-                #     model,
-                #     full_dataloaders["train"],
-                #     full_dataloaders["val"],
-                #     testlg_dataloader,
-                #     args.device,
-                # )
-                # summary["full"] = fft_result
-            summary["result"].append(info)
-
-        # TODO: requires fixing
-        if args.metatune_type == "refine":
-            src_dataloader = get_single_dataloader_from_split(
-                config=args,
-                split_name="val",
-                dataset_name=f"{args.src_dataset_name}{args.source_lang}",
-                lang=args.source_lang,
-                to_shuffle=True,
-                batch_size=args.shots,
-            )
-            tgt_lang_dataloader = get_single_dataloader_from_split(
-                config=args,
-                split_name="val",
-                dataset_name=f"{args.dataset_name}{args.target_lang}",
-                lang=args.target_lang,
-                to_shuffle=True,
-                batch_size=args.shots,
-            )
-            silver_dataset = get_silver_dataset_for_meta_refine(args, model, tgt_lang_dataloader, args.device)
-
-            silver_dataloader = DataLoader(
-                silver_dataset, batch_size=args.shots, num_workers=args.num_workers, shuffle=True
-            )
-            meta_train_tasks.append(iter(cycle(src_dataloader)))
-            meta_train_tasks.append(iter(cycle(silver_dataloader)))
-            logger.info(f"Number of meta tasks {len(meta_train_tasks)}")
 
     # Zero-shot, Few-shot or Full-tuned evaluation? You can now take the zero-shot meta-trained model and fine-tune it on
     # available low-resource few-shot training samples. If we don't fine-tune further, it can be considered as zero-shot model.
@@ -507,207 +445,6 @@ def main(args, meta_batch_size=None, adaptation_steps=5):
 
     os.makedirs(summary_output_dir, exist_ok=True)
     json.dump(summary, open(summary_fname, "w"))
-
-
-def prepare_meta_tuning_tasks(args, model=None):
-    # source langage dev set required for hmaml or xmetra
-    # select auxiliary language dev set if zeroshot, else target language dev set
-    # choose meta domain task if only hmaml
-    tune_dataset_langs = {args.source_lang: ("val", f"{args.src_dataset_name}{args.source_lang}")}
-    if args.metatune_type in ["zeroshot"]:
-        other_lang = args.aux_lang
-    elif args.metatune_type == "refine":
-        other_lang = args.target_lang
-    else:
-        raise ValueError(f"Invalid value for `args.metatune_type`, found = {args.metatune_type}")
-
-    tune_dataset_langs[other_lang] = ("train", f"{args.dataset_name}{other_lang}_{args.num_meta_samples}")
-
-    if args.exp_setting == "hmaml":
-        logger.info("Generating meta-training tasks")
-        if args.metatune_type != "refine":
-            meta_train_tasks = []
-            for lang in tune_dataset_langs:
-                split, dataset_name = tune_dataset_langs[lang]
-                dataloader=get_single_dataloader_from_split(
-                    config=args,
-                    split_name=split,
-                    dataset_name=dataset_name,
-                    lang=lang,
-                    to_shuffle=True,
-                    batch_size=args.shots,
-                )
-                meta_train_tasks.append(iter(cycle(dataloader)))
-        else:
-            meta_train_tasks = []
-            src_dataloader = get_single_dataloader_from_split(
-                config=args,
-                split_name="val",
-                dataset_name=tune_dataset_langs[args.source_lang][1],
-                lang=args.source_lang,
-                to_shuffle=True,
-                batch_size=args.shots,
-            )
-            tgt_lang_dataloader = get_single_dataloader_from_split(
-                config=args,
-                split_name="val",
-                dataset_name=f"{args.dataset_name}{args.target_lang}",
-                lang=args.target_lang,
-                to_shuffle=True,
-                batch_size=args.shots,
-            )
-            silver_dataset = get_silver_dataset_for_meta_refine(args, model, tgt_lang_dataloader, args.device)
-
-            silver_dataloader = DataLoader(
-                silver_dataset, batch_size=args.shots, num_workers=args.num_workers, shuffle=True
-            )
-            meta_train_tasks.append(iter(cycle(src_dataloader)))
-            meta_train_tasks.append(iter(cycle(silver_dataloader)))
-
-    elif args.exp_setting == "xmetra":
-        meta_train_tasks = []
-        support_dataloader = get_single_dataset_from_split(
-            config=args,
-            split_name="val",
-            dataset_name=tune_dataset_langs[args.source_lang],
-            lang=args.source_lang,
-            to_shuffle=True,
-            batch_size=args.shots // 2,
-        )
-
-        query_dataloader = get_single_dataset_from_split(
-            config=args,
-            split_name="val",
-            dataset_name=tune_dataset_langs[other_lang],
-            lang=other_lang,
-            to_shuffle=True,
-            batch_size=args.shots // 2,
-        )
-
-        spt_tasks = [spt for spt in support_dataloader]
-        qry_tasks = [qry for qry in query_dataloader]
-
-        for i in range(min(len(qry_tasks), len(spt_tasks))):
-            meta_train_tasks.append({"support": spt_tasks[i], "query": qry_tasks[i]})
-
-    elif args.exp_setting == "xmaml":
-        data_loader=get_single_dataloader_from_split(
-            config=args,
-            split_name=tune_dataset_langs[other_lang][0],
-            dataset_name=tune_dataset_langs[other_lang][1],
-            lang=other_lang,
-            to_shuffle=True,
-            batch_size=args.shots,
-        )
-        meta_train_tasks =[iter(cycle(data_loader))]
-    else:
-        raise ValueError(f"{args.exp_setting} is unknown!")
-
-    # domain task only required for hmaml
-    meta_domain_tasks = None
-    if args.exp_setting == "hmaml" and args.metatune_type != "refine":
-        logger.info("Generating meta-domain tasks")
-
-        meta_domain_tasks = []
-        for lang in tune_dataset_langs:
-            split, dataset_name = tune_dataset_langs[lang]
-            dataloader=get_single_dataloader_from_split(
-                config=args,
-                split_name=split,
-                dataset_name=dataset_name,
-                lang=lang,
-                to_shuffle=True,
-                batch_size=args.shots//2,
-            )
-            meta_domain_tasks.append(iter(cycle(dataloader)))
-
-    return meta_train_tasks, meta_domain_tasks
-
-def get_finetune_dataloaders(args):
-    # futher finetune on zeroshot metatuned checkpoint
-    few_finetune_dataloaders = {}
-    full_finetune_dataloaders = {}
-    if args.fft and args.metatune_type == "zeroshot":
-        logger.info("Generating fine-tuning samples")
-        for split in ["train", "val"]:
-            dataloader = get_single_dataloader_from_split(
-                config=args,
-                split_name=split,
-                dataset_name=f"{args.dataset_name}{args.target_lang}",
-                lang=args.target_lang,
-                to_shuffle=True if split == "train" else False,
-                batch_size=args.batch_size,
-            )
-            full_finetune_dataloaders[split] = dataloader
-            add_to_path = f"_{args.num_meta_samples}" if split == "train" else ""
-            dataloader = get_single_dataloader_from_split(
-                config=args,
-                split_name=split,
-                dataset_name=f"{args.dataset_name}{args.target_lang}{add_to_path}",
-                lang=args.target_lang,
-                to_shuffle=True if split == "Train" else False,
-                batch_size=args.batch_size,
-            )
-            few_finetune_dataloaders[split] = dataloader
-    return few_finetune_dataloaders, full_finetune_dataloaders
-
-def get_silver_dataset_for_meta_refine(args, model, dataloader, device):
-    logger.info(f"Generating silver labels for target language {args.target_lang}")
-
-    model.eval()
-
-    silver_dataset = None
-    threshold = args.refine_threshold
-    for idx, batch in enumerate(dataloader):
-        bindices = []
-        batch["labels"] = batch.pop("labels")
-        with torch.no_grad():
-            batch = move_to(batch, device)
-            outputs = model(**batch)
-
-            pred_label = outputs["logits"]
-
-            probabilities = F.softmax(pred_label, dim=-1)
-
-            for values in probabilities:
-                if values[0] > threshold or values[1] > threshold:
-                    bindices.append(True)
-                else:
-                    bindices.append(False)
-
-            cols = ["input_ids", "attention_mask", "labels"]
-            silver_batch = dict()
-            for col in cols:
-                silver_batch[col] = batch[col][bindices].cpu().numpy()
-
-            if silver_dataset is None:
-                silver_dataset = silver_batch
-            else:
-                for key, value in silver_batch.items():
-                    silver_dataset[key] = np.concatenate((silver_dataset[key], value), axis=0)
-
-    unique, counts = np.unique(silver_dataset["labels"], return_counts=True)
-    lower_bnd = min(min(counts), 250)
-
-    all_items = []
-    for idx in range(len(silver_dataset["labels"])):
-        item = {}
-        for key in silver_dataset.keys():
-            item[key] = silver_dataset[key][idx]
-        all_items.append(item)
-    random.shuffle(all_items)
-
-    filtered_items = []
-    key_cnt = {k: k for k in unique}
-    for item in all_items:
-        key_cnt[item["labels"]] += 1
-        if key_cnt[item["labels"]] <= lower_bnd:
-            filtered_items.append(item)
-
-    silver_tdataset = SilverDataset(filtered_items)
-    logger.info(f"Loading refined silver dataset with {len(filtered_items)} training samples.")
-    return silver_tdataset
-
 
 if __name__ == "__main__":
     args = parse_helper()
