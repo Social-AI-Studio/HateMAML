@@ -10,11 +10,10 @@ We propose [HateMAML](https://ieeexplore.ieee.org/abstract/document/10100717), a
 ## Datasets Overview
 <img src="docs/dataset_summary.jpg" alt="Dataset summary" width="850"/>
 
-To process the datasets:
-1. Place the raw pickled Pandas [DataFrame](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html) at directory `data/raw/`. This DataFrame is expected to be in the format as described in `data/raw/README.md`.
-2. Execute `scripts/prepare_data.sh` to convert raw dataset to processed dataset.
-3. Load this processed data to run the scripts in `src` dir.
-
+Follow these steps to prepare your dataset for HateMAML:
+1. Save your data as a pickled Pandas DataFrame in the `data/raw/` directory, formatted as described in the accompanying `README.md`.
+2. Process your data by running `scripts/prepare_data.sh`, which converts raw data into a processed format suitable for HateMAML.
+3. Load your data using the provided scripts in the `src` directory to begin training or evaluation.
 
 ## Variants of HateMAML
 
